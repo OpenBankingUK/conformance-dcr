@@ -1,0 +1,12 @@
+# Note: The last rule takes precedence that is why we start by ignoring
+# everything first and explicitly include the files that we need.
+
+# ignore everything
+*
+**/*
+
+# except go server and its dependencies
+!**/*.go
+!**/go.mod
+!**/go.sum
+!**/Makefile
