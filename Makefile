@@ -31,6 +31,8 @@ build: ## build the server binary directly.
 init: ## initialise.
 	@echo -e "\033[92m  ---> Initialising ... \033[0m"
 	go mod download
+	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+	go get -u golang.org/x/tools/cmd/goimports
 
 ##@ Cleanup:
 
@@ -42,4 +44,23 @@ clean: ## run the clean up
 ##@ Testing:
 
 .PHONY: test
-test: ## run the go tests.
+test: ## Run the test suite
+	go test -bench -cover -benchmem -coverprofile=coverage.out ./...
+
+.PHONY: test-quick ## Run the quick test suite
+test-quick:
+	go test -short -failfast
+
+.PHONY: fmt
+fmt: ## Run gofmt on all go files
+	gofmt -w -s .
+	goimports -w .
+	go clean -i -r -cache -testcache -modcache
+
+.PHONY: lint
+lint: ## Basic linting and vetting of code
+	golangci-lint run -E golint
+
+.PHONY: full-lint
+full-lint: ## Run a more extensive lint suite
+	golangci-lint run -E gosec -E unconvert -E dupl -E goconst -E gocyclo -E maligned -E misspell -E unparam -E prealloc -E gochecknoglobals -E nakedret -E gocritic
