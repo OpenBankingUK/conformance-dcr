@@ -1,0 +1,62 @@
+{
+    "scripts": [
+        {
+            "description": "Register new OpenID client successfully.",
+            "id": "DCR-301-000000",
+            "refURI": "",
+            "detail": "Validates that dynamic registration of a new client happens successfully.",
+            "parameters": {},
+            "uri": "/register",
+            "uriImplementation": "conditional",
+            "resource": "Global",
+            "asserts": [],
+            "method": "post",
+            "schemaCheck": false
+        },
+        {
+            "description": "Retrieve client details successfully.",
+            "id": "DCR-301-000000",
+            "refURI": "",
+            "detail": "Validates that retrieval of registered client's details happens successfully.",
+            "parameters": {
+                "clientId": "1"
+            },
+            "uri": "/register/{ClientId}",
+            "uriImplementation": "optional",
+            "resource": "Global",
+            "asserts": [],
+            "method": "post",
+            "schemaCheck": false
+        },
+        {
+            "description": "Update client details successfully.",
+            "id": "DCR-301-000000",
+            "refURI": "",
+            "detail": "Validates that updates of client's details happens successfully.",
+            "parameters": {
+                "ClientId": "1"
+            },
+            "uri": "/register/{ClientId}",
+            "uriImplementation": "conditional",
+            "resource": "Global",
+            "asserts": [],
+            "method": "put",
+            "schemaCheck": false
+        },
+        {
+            "description": "Delete existing client successfully.",
+            "id": "DCR-301-000000",
+            "refURI": "",
+            "detail": "Validates that deletion of existing client happens successfully.",
+            "parameters": {
+                "ClientId": "1"
+            },
+            "uri": "/register/{ClientId}",
+            "uriImplementation": "conditional",
+            "resource": "Global",
+            "asserts": [],
+            "method": "delete",
+            "schemaCheck": false
+        }
+    ]
+}
