@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"bitbucket.org/openbankingteam/conformance-suite/pkg/tracer"
 	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -82,26 +81,6 @@ func initConfig() {
 		os.Exit(1)
 	}
 	logger.SetLevel(level)
-
-	tracer.Silent = !viper.GetBool("log_tracer")
-	if viper.GetBool("log_to_file") {
-		f, err := os.OpenFile("suite.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-		if err != nil {
-			// continue as normal
-		} else {
-			mw := f // io.MultiWriter(os.Stdout, f)
-			logrus.SetOutput(mw)
-			logger.SetFormatter(&prefixed.TextFormatter{
-				DisableColors:    true,
-				ForceColors:      false,
-				TimestampFormat:  time.RFC3339,
-				FullTimestamp:    true,
-				DisableTimestamp: false,
-				ForceFormatting:  true,
-			})
-
-		}
-	}
 	if viper.GetBool("log_http_file") {
 		httpLogFile, err := os.OpenFile("http-trace.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 		if err != nil {
@@ -124,6 +103,5 @@ func printConfigurationFlags() {
 		"log_http_file":  viper.GetBool("log_http_file"),
 		"log_to_file":    viper.GetBool("log_to_file"),
 		"port":           viper.GetInt("port"),
-		"tracer.Silent":  tracer.Silent,
 	}).Info("configuration flags")
 }
