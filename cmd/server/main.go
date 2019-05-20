@@ -48,7 +48,6 @@ func init() {
 	rootCmd.PersistentFlags().Bool("log_http_trace", false, "Enable HTTP logging")
 	rootCmd.PersistentFlags().Int("port", 8443, "Server port")
 	rootCmd.PersistentFlags().String("host", "127.0.0.1", "Server host")
-	rootCmd.PersistentFlags().Bool("disable_jws", false, "Disable JWS Signature")
 
 	if err := viper.BindPFlags(rootCmd.PersistentFlags()); err != nil {
 		fmt.Fprint(os.Stderr, err)
