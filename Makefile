@@ -27,12 +27,16 @@ build: ## build the server binary directly.
 
 ##@ Dependencies:
 
-.PHONY: init
-init: ## initialise.
-	@echo -e "\033[92m  ---> Initialising ... \033[0m"
-	go mod download
+.PHONY: tools
+tools: ## install go tools (goimports, golangci-lint)
+	@echo -e "\033[92m  ---> Installing Go Tools ... \033[0m"
 	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 	go get -u golang.org/x/tools/cmd/goimports
+
+.PHONY: deps
+deps: ## download dependencies
+	@echo -e "\033[92m  ---> Downloading dependencies ... \033[0m"
+	go mod download
 
 ##@ Cleanup:
 
