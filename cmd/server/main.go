@@ -1,13 +1,14 @@
 package main
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/server"
 	"fmt"
-	"github.com/labstack/echo"
-	"github.com/spf13/cobra"
 	"os"
 	"strings"
 	"time"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/server"
+	"github.com/labstack/echo"
+	"github.com/spf13/cobra"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
