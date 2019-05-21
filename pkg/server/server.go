@@ -24,6 +24,7 @@ func NewServer(echoSrv *echo.Echo, logger *logrus.Entry, version string) Server 
 		Output: logger.Writer(),
 	}))
 	srv.Use(middleware.Recover())
+	srv.HideBanner = true
 	srv.registerRoutes()
 	return srv
 }
