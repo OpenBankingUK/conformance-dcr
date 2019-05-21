@@ -12,11 +12,14 @@ import (
 	"github.com/spf13/viper"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 	"gopkg.in/resty.v1"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/server"
 )
 
 const (
 	certFile = "./configs/dcr.crt"
 	keyFile  = "./configs/dcr.key"
+	version  = "v1.0.0"
 )
 
 var (
@@ -26,7 +29,7 @@ var (
 		Short: "Dynamic Client Registration Conformance Suite",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			logger := logger.WithField("app", "server")
-			server := echo.New()
+			server := server.NewServer(echo.New(), logger, version)
 			address := fmt.Sprintf("%s:%d", viper.GetString("host"), viper.GetInt("port"))
 			logger.Infof("listening on https://%s", address)
 			return server.StartTLS(address, certFile, keyFile)
