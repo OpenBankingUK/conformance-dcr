@@ -24,8 +24,19 @@ const (
 )
 
 var (
-	logger  = logrus.StandardLogger()
-	rootCmd = &cobra.Command{
+	logger = logrus.StandardLogger()
+)
+
+func main() {
+	rootCmd := initRootCmd()
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+func initRootCmd() *cobra.Command {
+	rootCmd := &cobra.Command{
 		Use:   "dcr_server",
 		Short: "Dynamic Client Registration Conformance Suite",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -36,16 +47,6 @@ var (
 			return server.StartTLS(address, certFile, keyFile)
 		},
 	}
-)
-
-func main() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-}
-
-func init() {
 	rootCmd.PersistentFlags().String("log_level", "INFO", "Log level")
 	rootCmd.PersistentFlags().Bool("log_tracer", false, "Enable tracer logging")
 	rootCmd.PersistentFlags().Bool("log_http_trace", false, "Enable HTTP logging")
@@ -61,6 +62,8 @@ func init() {
 	viper.AutomaticEnv()
 
 	cobra.OnInitialize(initConfig)
+
+	return rootCmd
 }
 
 func initConfig() {
