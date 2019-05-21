@@ -1,6 +1,6 @@
 # Go Tools
 
-In this document we describe some of the Go tools that are being used in this project. Specifically what's being used in development mode
+In this document we describe some of the Go tools that are being used in this project.
 
 #### Install Go Tools
 
@@ -32,3 +32,13 @@ You can configure linting to run on VSCode directly
   ],
 ...
 ```
+
+### Extra
+
+#### Project Layout
+
+This project is structured using the following project layout [https://github.com/golang-standards/project-layout](https://github.com/golang-standards/project-layout)
+
+#### HTTP Server X.509 Certificates
+
+This project exposes a restful API which is served using https. In development mode X.509 certificates are being provided and have been generated using [https://smallstep.com](https://smallstep.com)

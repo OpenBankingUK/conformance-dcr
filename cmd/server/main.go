@@ -20,6 +20,7 @@ const (
 	certFile = "./configs/dcr.crt"
 	keyFile  = "./configs/dcr.key"
 	version  = "v1.0.0"
+	host     = "127.0.0.1"
 )
 
 var (
@@ -30,7 +31,7 @@ var (
 		RunE: func(cmd *cobra.Command, args []string) error {
 			logger := logger.WithField("app", "server")
 			server := server.NewServer(echo.New(), logger, version)
-			address := fmt.Sprintf("%s:%d", viper.GetString("host"), viper.GetInt("port"))
+			address := fmt.Sprintf("%s:%d", host, viper.GetInt("port"))
 			logger.Infof("listening on https://%s", address)
 			return server.StartTLS(address, certFile, keyFile)
 		},
@@ -39,8 +40,7 @@ var (
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprint(os.Stderr, err)
-		fmt.Fprint(os.Stderr, "\n")
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
@@ -50,11 +50,9 @@ func init() {
 	rootCmd.PersistentFlags().Bool("log_tracer", false, "Enable tracer logging")
 	rootCmd.PersistentFlags().Bool("log_http_trace", false, "Enable HTTP logging")
 	rootCmd.PersistentFlags().Int("port", 8443, "Server port")
-	rootCmd.PersistentFlags().String("host", "127.0.0.1", "Server host")
 
 	if err := viper.BindPFlags(rootCmd.PersistentFlags()); err != nil {
-		fmt.Fprint(os.Stderr, err)
-		fmt.Fprint(os.Stderr, "\n")
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
@@ -78,8 +76,7 @@ func initConfig() {
 	level, err := logrus.ParseLevel(viper.GetString("log_level"))
 	if err != nil {
 		printConfigurationFlags()
-		fmt.Fprint(os.Stderr, err)
-		fmt.Fprint(os.Stderr, "\n")
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 	logger.SetLevel(level)
