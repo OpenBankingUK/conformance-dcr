@@ -23,15 +23,21 @@ const (
 	host     = "127.0.0.1"
 )
 
-type ConfigBuilder struct {
+// LogBuilder holds a logger instance
+// it is responsbile for initialising the logger config
+type LogBuilder struct {
 	logger *logrus.Logger
 }
 
-func NewConfigBuilder(logger *logrus.Logger) ConfigBuilder {
-	return ConfigBuilder{logger}
+// NewLogBuilder returns a new instance of LogBuilder
+// it is invoked after the cobra command is fully initialised
+func NewLogBuilder(logger *logrus.Logger) LogBuilder {
+	return LogBuilder{logger}
 }
 
-func (cfgBuilder ConfigBuilder) InitConfig() {
+// InitConfig configures the various settings of the logger
+// and prints the logger configuration to stdout
+func (cfgBuilder LogBuilder) InitConfig() {
 	cfgBuilder.logger.SetNoLock()
 	cfgBuilder.logger.SetFormatter(&prefixed.TextFormatter{
 		DisableColors:    false,
@@ -62,7 +68,8 @@ func (cfgBuilder ConfigBuilder) InitConfig() {
 	cfgBuilder.PrintConfigFlags()
 }
 
-func (cfgBuilder ConfigBuilder) PrintConfigFlags() {
+// PrintConfigFlags prints the flags values to stdout
+func (cfgBuilder LogBuilder) PrintConfigFlags() {
 	cfgBuilder.logger.WithFields(logrus.Fields{
 		"log_level":      viper.GetString("log_level"),
 		"log_tracer":     viper.GetBool("log_tracer"),
@@ -74,12 +81,12 @@ func (cfgBuilder ConfigBuilder) PrintConfigFlags() {
 }
 
 func initRootCmd() *cobra.Command {
-	configBuilder := NewConfigBuilder(logrus.StandardLogger())
+	LogBuilder := NewLogBuilder(logrus.StandardLogger())
 	rootCmd := &cobra.Command{
 		Use:   "dcr_server",
 		Short: "Dynamic Client Registration Conformance Suite",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			logger := configBuilder.logger.WithField("app", "server")
+			logger := LogBuilder.logger.WithField("app", "server")
 			server := server.NewServer(echo.New(), logger, version)
 			address := fmt.Sprintf("%s:%d", host, viper.GetInt("port"))
 			logger.Infof("listening on https://%s", address)
@@ -100,7 +107,7 @@ func initRootCmd() *cobra.Command {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
 
-	cobra.OnInitialize(configBuilder.InitConfig)
+	cobra.OnInitialize(LogBuilder.InitConfig)
 
 	return rootCmd
 }
