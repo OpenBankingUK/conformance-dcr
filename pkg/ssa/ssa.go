@@ -26,9 +26,9 @@ type SSAHeader struct {
 
 // SSAPayload represents the SSA Payload fields as defined in RFC7591
 type SSAPayload struct {
-	Iss        string `json:"iss"`         // SSA issuer
-	Iat        int64  `json:"iat"`         // Time SSA issued
-	Jti        string `json:"jti"`         // JWT ID
+	Issuer     string `json:"iss"`         // SSA issuer
+	IssuedAt   int64  `json:"iat"`         // Time SSA issued
+	JwtID      string `json:"jti"`         // JWT ID
 	SoftwareID string `json:"software_id"` // Unique ID for TPP client software
 }
 
@@ -61,10 +61,4 @@ type SSAOrganisationMeta struct {
 	OrganisationJWKSEndpoint             string
 	OrganisationJWKSRevokedEndpoint      string
 	OBRegistryTermsOfService             string
-}
-
-// ParseSSA parses a SSA jwt and returns a SSA struct
-// returns error in case of failure
-func ParseSSA(ssa string) (SSA, error) {
-	return SSA{}, nil
 }
