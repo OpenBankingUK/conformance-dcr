@@ -53,12 +53,12 @@ type SSASoftwareMeta struct {
 
 // SSAOrganisationMeta represents the SSA Payload Organisation Metadata
 type SSAOrganisationMeta struct {
-	OrganisationCompetentAuthorityClaims string
-	OrganisationStatus                   string
-	OrganisationID                       string
-	OrganisationName                     string
-	OrganisationContacts                 []string
-	OrganisationJWKSEndpoint             string
-	OrganisationJWKSRevokedEndpoint      string
-	OBRegistryTermsOfService             string
+	OrganisationCompetentAuthorityClaims string   `json:"organisation_competent_authority_claims"` // Authorisations granted to the organsiation by an NCA
+	OrganisationStatus                   string   `json:"org_status"`                              // Included to cater for voluntary withdrawal from OB scenarios
+	OrganisationID                       string   `json:"org_id"`                                  // The Unique TPP or ASPSP ID held by OpenBanking.
+	OrganisationName                     string   `json:"org_name"`                                // Legal Entity Identifier or other known organisation name
+	OrganisationContacts                 []string `json:"org_contacts"`                            // JSON array of objects containing a triplet of name, email, and phone number
+	OrganisationJWKSEndpoint             string   `json:"org_jwks_endpoint"`                       // Contains all active signing and network certs for the organisation
+	OrganisationJWKSRevokedEndpoint      string   `json:"org_jwks_revoked_endpoint"`               // Contains all revoked signing and network certs for the organisation
+	OBRegistryTermsOfService             string   `json:"ob_registry_tos"`                         // A link to the OB registries terms of service page
 }
