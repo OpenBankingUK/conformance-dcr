@@ -92,3 +92,48 @@ func TestValidateSSA(t *testing.T) {
 		t.Errorf("Issuer should be Open Banking Ltd. Got %#v", ssaValue.Issuer)
 	}
 }
+
+func TestSSAJwtIsInvalid(t *testing.T) {
+	token := jwt.NewWithClaims(jwt.SigningMethodPS256, jwt.MapClaims{
+		"iss":                         "OpenBanking Ltd",
+		"iat":                         1492756331,
+		"exp":                         10,
+		"jti":                         "id12345685439487678",
+		"software_environment":        "production",
+		"software_mode":               "live",
+		"software_id":                 "65d1f27c-4aea-4549-9c21-60e495a7a86f",
+		"software_client_id":          "OpenBanking TPP Client Unique ID",
+		"software_client_name":        "Amazon Prime Movies",
+		"software_client_description": "Amazon Prime Movies is a moving streaming service",
+		"software_version":            "2.2",
+		"software_client_uri":         "https://prime.amazon.com",
+		"software_redirect_uris": []string{
+			"https://prime.amazon.com/cb",
+			"https://prime.amazon.co.uk/cb",
+		},
+		"software_roles": []string{
+			"PISP",
+			"AISP",
+		},
+		"software_logo_uri":              "https://prime.amazon.com/logo.png",
+		"software_jwks_endpoint":         "https://jwks.openbanking.org.uk/org_id/software_id.jkws",
+		"software_jwks_revoked_endpoint": "https://jwks.openbanking.org.uk/org_id/revoked/software_id.jkws",
+		"software_policy_uri":            "https://tpp.com/policy.html",
+		"software_tos_uri":               "https://tpp.com/tos.html",
+		"software_on_behalf_of_org":      "https://api.openbanking.org.uk/scim2/OBTrustedPaymentParty/1234567789",
+	})
+	token.Header["kid"] = "veryUniqueJwtKey"
+	privKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(PrivKeyTest))
+	if err != nil {
+		t.Errorf("unable to parse private key: %v", err)
+	}
+	ssaJwt, err := token.SignedString(privKey)
+	if err != nil {
+		t.Errorf("unable to sign jwt: %v", err)
+	}
+	ssaValidator := ssa.NewSSAValidator(ssa.PublicKeyLookupFromByteSlice([]byte(PubKeyTest)))
+	_, err = ssaValidator.Validate(ssaJwt)
+	if err == nil {
+		t.Errorf("jwt validation should not succeed on expired token")
+	}
+}
