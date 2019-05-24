@@ -1,14 +1,27 @@
-# Dynamic Client Registration Pipeline.
-image: golang:1.12
+clone:
+  depth: 1
+
+options:
+  docker: true
+
+definitions:
+  services:
+    docker:
+      memory: 2048
 
 pipelines:
   default:
-    - step:
-        script:
-          - PACKAGE_PATH="${GOPATH}/src/bitbucket.org/${BITBUCKET_REPO_FULL_NAME}"
-          - mkdir -pv "${PACKAGE_PATH}"
-          - tar -cO --exclude-vcs --exclude=bitbucket-pipelines.yml . | tar -xv -C "${PACKAGE_PATH}"
-          - cd "${PACKAGE_PATH}"
-          - go get -v
-          - go build -v
-          - go test -v
+    - parallel:
+        # build go app
+        - step:
+            name: go-test
+            image: golang:1.12-alpine
+            script:
+              - |
+                export CGO_ENABLED=0
+                export GOOS=linux
+                export GOARCH=amd64
+              - apk update && apk add git make bash curl
+              - make build
+              - make test
+
