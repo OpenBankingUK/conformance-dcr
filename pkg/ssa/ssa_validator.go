@@ -16,11 +16,18 @@ const (
 	SigningES256 = "ES256"
 )
 
+// SSAValidator is a struct responsible for verification
+// parsing and decryption of the SSA jwt
+// it can be initialised with a custom publicKeyLookup function
+// it can be initialised with a custom instance of jwt.Parser
 type SSAValidator struct {
 	pubKeyLookup func(t *jwt.Token) (interface{}, error)
 	parser       jwt.Parser
 }
 
+// NewSSAValidator returns a new instance of SSAValidator with a specified
+// pub Key lookup function that can be passed as parameter
+// the constructor also defines the allowed valid methods to verify the jwt
 func NewSSAValidator(pubKeyLookup func(t *jwt.Token) (interface{}, error)) SSAValidator {
 	return SSAValidator{
 		pubKeyLookup: pubKeyLookup,
@@ -28,12 +35,18 @@ func NewSSAValidator(pubKeyLookup func(t *jwt.Token) (interface{}, error)) SSAVa
 	}
 }
 
+// PublicKeyLookupFromByteSlice returns a function which returns
+// the same public key it has got as parameter
+// mostly used for testing and debugging purposes
 func PublicKeyLookupFromByteSlice(pubKey []byte) func(t *jwt.Token) (interface{}, error) {
 	return func(t *jwt.Token) (interface{}, error) {
 		return jwt.ParseRSAPublicKeyFromPEM(pubKey)
 	}
 }
 
+// PublicKeyLookupFromJWKSEndpoint returns a function which looks up the public key
+// from a jwk endpoint specified in the jwt token
+// it uses the kid to retrieve the right public key to verify the validity of the jwt
 func PublicKeyLookupFromJWKSEndpoint() func(t *jwt.Token) (interface{}, error) {
 	return func(t *jwt.Token) (interface{}, error) {
 		tkmap, ok := t.Claims.(jwt.MapClaims)
