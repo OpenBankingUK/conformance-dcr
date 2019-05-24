@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
@@ -55,18 +56,44 @@ func PublicKeyLookupFromJWKSEndpoint() func(t *jwt.Token) (interface{}, error) {
 		if !ok {
 			return nil, errors.New("unable to cast jwk endpoint to string")
 		}
+		jwkKid, ok := t.Header["kid"].(string)
+		if !ok {
+			return nil, errors.New("unable to cast jwk kid to string")
+		}
 		res, err := http.Get(jwkEndpoint)
 		if err != nil {
 			return nil, err
 		}
+		defer res.Body.Close()
 		var jwk map[string]interface{}
 		err = json.NewDecoder(res.Body).Decode(&jwk)
 		if err != nil {
 			return nil, errors.New(fmt.Sprintf("unable to parse json from jwk endpoint %s err: %v", jwkEndpoint, err))
 		}
-		// todo
-		// lookup for x5u with kid == tkmap["kid"]
-		return jwt.ParseRSAPublicKeyFromPEM([]byte(``))
+		for _, v := range jwk["keys"].([]interface{}) {
+			v, ok := v.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			if v["kid"].(string) != jwkKid {
+				continue
+			}
+			certURI, ok := v["x5u"].(string)
+			if !ok {
+				return nil, errors.New("unable to cast `x5u` parameter to string")
+			}
+			res, err := http.Get(certURI)
+			if err != nil {
+				return nil, err
+			}
+			defer res.Body.Close()
+			certBytes, err := ioutil.ReadAll(res.Body)
+			if err != nil {
+				return nil, errors.New(fmt.Sprintf("unable to download certificate: %v", err))
+			}
+			return jwt.ParseRSAPublicKeyFromPEM(certBytes)
+		}
+		return nil, errors.New(fmt.Sprintf("unable to find key with kid %s in jwks endpoint key store %s", jwkKid, jwkEndpoint))
 	}
 }
 
