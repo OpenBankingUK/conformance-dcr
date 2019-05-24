@@ -5,35 +5,17 @@ package ssa
 // For further details refer to https://openbanking.atlassian.net/wiki/spaces/DZ/pages/1078034771/Dynamic+Client+Registration+-+v3.2#DynamicClientRegistration-v3.2-SoftwareStatement
 type SSA struct {
 	// RFC7591 header fields
-	SSAHeader
-
-	// RFC7591 payload fields
-	SSAPayload
-
-	// OB SSA fields - Software Metadata
-	SSASoftwareMeta
-
-	// OB SSA fields - Organisation Metadata
-	SSAOrganisationMeta
-}
-
-// SSAHeader represents SSA Header fields as defined in RFC7591
-type SSAHeader struct {
 	Typ string `json:"typ"` // MUST be set to JWT
 	Alg string `json:"alg"` // MUST be set to ES256 or PS256
 	Kid string `json:"kid"` // The kid will be kept the same as the "x5t" parameter. (X.509 Certificate SHA-1 Thumbprint) of the signing certificate.
-}
 
-// SSAPayload represents the SSA Payload fields as defined in RFC7591
-type SSAPayload struct {
+	// RFC7591 payload fields
 	Issuer     string `json:"iss"`         // SSA issuer
 	IssuedAt   int64  `json:"iat"`         // Time SSA issued
 	JwtID      string `json:"jti"`         // JWT ID
 	SoftwareID string `json:"software_id"` // Unique ID for TPP client software
-}
 
-// SSASoftwareMeta represents the SSA Payload Software Metadata
-type SSASoftwareMeta struct {
+	// OB SSA fields - Software Metadata
 	SoftwasreEnvironment        string   `json:"software_environment"`           // Requested additional field to avoid certificate check
 	SoftwareMode                string   `json:"software_mode"`                  // ASPSP Requested additional field to indicate that this software is "Test" or "Live" the default is "Live". Impact and support for "Test" software is up to the ASPSP.
 	SoftwareClientID            string   `json:"software_client_id"`             // The Client ID registered at OB used to access OB resources
@@ -49,10 +31,8 @@ type SSASoftwareMeta struct {
 	SoftwareRedirectURIs        []string `json:"software_redirect_uris"`         // Registered client callback endpoints as registered with Open Banking
 	SoftwareRoles               []string `json:"software_roles"`                 // A multi value list of PSD2 roles that this software is authorized to perform.
 	SoftwareTermsOfServiceURI   string   `json:"software_terms_of_service_uri"`  // A link to the software's terms of service page
-}
 
-// SSAOrganisationMeta represents the SSA Payload Organisation Metadata
-type SSAOrganisationMeta struct {
+	// OB SSA fields - Organisation Metadata
 	OrganisationCompetentAuthorityClaims string   `json:"organisation_competent_authority_claims"` // Authorisations granted to the organsiation by an NCA
 	OrganisationStatus                   string   `json:"org_status"`                              // Included to cater for voluntary withdrawal from OB scenarios
 	OrganisationID                       string   `json:"org_id"`                                  // The Unique TPP or ASPSP ID held by OpenBanking.

@@ -84,5 +84,5 @@ func (v SSAValidator) Validate(ssa string) (SSA, error) {
 	if !ok {
 		return SSA{}, errors.New("unable to cast jwt.Claims to jwt.MapClaims")
 	}
-	return SSA{SSAPayload: SSAPayload{Issuer: tkmap["iss"].(string)}}, nil
+	return SSA{Issuer: tkmap["iss"].(string)}, nil
 }
