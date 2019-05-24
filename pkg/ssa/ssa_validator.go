@@ -87,10 +87,41 @@ func (v SSAValidator) Validate(ssa string) (SSA, error) {
 	if err := claimMap.Valid(); err != nil {
 		return SSA{}, errors.New(fmt.Sprintf("invalid jwt claims: %v", err))
 	}
+	var softwareRedirectURIs []string
+	for _, v := range claimMap["software_redirect_uris"].([]interface{}) {
+		softwareRedirectURIs = append(softwareRedirectURIs, v.(string))
+	}
+	var softwareRoles []string
+	for _, v := range claimMap["software_roles"].([]interface{}) {
+		softwareRoles = append(softwareRoles, v.(string))
+	}
 	return SSA{
-		Typ:    t.Header["typ"].(string),
-		Alg:    t.Header["alg"].(string),
-		Kid:    t.Header["kid"].(string),
-		Issuer: claimMap["iss"].(string),
+		// RFC7591 Header
+		Typ: t.Header["typ"].(string),
+		Alg: t.Header["alg"].(string),
+		Kid: t.Header["kid"].(string),
+
+		// RFC7591 Payload
+		Issuer:     claimMap["iss"].(string),
+		IssuedAt:   int64(claimMap["iat"].(float64)),
+		JwtID:      claimMap["jti"].(string),
+		SoftwareID: claimMap["software_id"].(string),
+
+		// OB Payload
+		SoftwasreEnvironment:        claimMap["software_environment"].(string),
+		SoftwareMode:                claimMap["software_mode"].(string),
+		SoftwareClientID:            claimMap["software_client_id"].(string),
+		SoftwareClientName:          claimMap["software_client_name"].(string),
+		SoftwareClientDescription:   claimMap["software_client_description"].(string),
+		SoftwareClientURI:           claimMap["software_client_uri"].(string),
+		SoftwareVersion:             claimMap["software_version"].(string),
+		SoftwareJWKSEndpoint:        claimMap["software_jwks_endpoint"].(string),
+		SoftwareJWKSRevokedEndpoint: claimMap["software_jwks_revoked_endpoint"].(string),
+		SoftwareLogoURI:             claimMap["software_logo_uri"].(string),
+		SoftwareOnBehalfOfOrg:       claimMap["software_on_behalf_of_org"].(string),
+		SoftwarePolicyURI:           claimMap["software_policy_uri"].(string),
+		SoftwareRedirectURIs:        softwareRedirectURIs,
+		SoftwareRoles:               softwareRoles,
+		SoftwareTermsOfServiceURI:   claimMap["software_tos_uri"].(string),
 	}, nil
 }

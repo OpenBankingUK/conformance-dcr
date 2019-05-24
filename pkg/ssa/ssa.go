@@ -30,7 +30,7 @@ type SSA struct {
 	SoftwarePolicyURI           string   `json:"sofware_policy_uri"`             // A link to the software's policy page
 	SoftwareRedirectURIs        []string `json:"software_redirect_uris"`         // Registered client callback endpoints as registered with Open Banking
 	SoftwareRoles               []string `json:"software_roles"`                 // A multi value list of PSD2 roles that this software is authorized to perform.
-	SoftwareTermsOfServiceURI   string   `json:"software_terms_of_service_uri"`  // A link to the software's terms of service page
+	SoftwareTermsOfServiceURI   string   `json:"software_tos_uri"`               // A link to the software's terms of service page
 
 	// OB SSA fields - Organisation Metadata
 	OrganisationCompetentAuthorityClaims string   `json:"organisation_competent_authority_claims"` // Authorisations granted to the organsiation by an NCA
