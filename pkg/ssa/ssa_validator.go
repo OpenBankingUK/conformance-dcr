@@ -74,55 +74,17 @@ func PublicKeyLookupFromJWKSEndpoint() func(t *jwt.Token) (interface{}, error) {
 // parses and validates that the jwt is valid
 // returns a valid SSA struct
 func (v SSAValidator) Validate(ssa string) (SSA, error) {
-	t, err := v.parser.Parse(ssa, v.pubKeyLookup)
+	t, err := v.parser.ParseWithClaims(ssa, &SSA{}, v.pubKeyLookup)
 	if err != nil {
 		return SSA{}, err
 	}
-	if !t.Valid {
-		return SSA{}, errors.New("jwt token is not valid")
-	}
-	claimMap, ok := t.Claims.(jwt.MapClaims)
-	if !ok {
-		return SSA{}, errors.New("unable to cast jwt.Claims to jwt.MapClaims")
-	}
-	if err := claimMap.Valid(); err != nil {
-		return SSA{}, errors.New(fmt.Sprintf("invalid jwt claims: %v", err))
-	}
-	var softwareRedirectURIs []string
-	for _, v := range claimMap["software_redirect_uris"].([]interface{}) {
-		softwareRedirectURIs = append(softwareRedirectURIs, v.(string))
-	}
-	var softwareRoles []string
-	for _, v := range claimMap["software_roles"].([]interface{}) {
-		softwareRoles = append(softwareRoles, v.(string))
-	}
-	return SSA{
-		// RFC7591 Header
-		Typ: t.Header["typ"].(string),
-		Alg: t.Header["alg"].(string),
-		Kid: t.Header["kid"].(string),
+	if claims, ok := t.Claims.(*SSA); ok && t.Valid {
+		claims.Typ = t.Header["typ"].(string)
+		claims.Alg = t.Header["alg"].(string)
+		claims.Kid = t.Header["kid"].(string)
 
-		// RFC7591 Payload
-		Issuer:     claimMap["iss"].(string),
-		IssuedAt:   int64(claimMap["iat"].(float64)),
-		JwtID:      claimMap["jti"].(string),
-		SoftwareID: claimMap["software_id"].(string),
-
-		// OB Payload
-		SoftwasreEnvironment:        claimMap["software_environment"].(string),
-		SoftwareMode:                claimMap["software_mode"].(string),
-		SoftwareClientID:            claimMap["software_client_id"].(string),
-		SoftwareClientName:          claimMap["software_client_name"].(string),
-		SoftwareClientDescription:   claimMap["software_client_description"].(string),
-		SoftwareClientURI:           claimMap["software_client_uri"].(string),
-		SoftwareVersion:             claimMap["software_version"].(string),
-		SoftwareJWKSEndpoint:        claimMap["software_jwks_endpoint"].(string),
-		SoftwareJWKSRevokedEndpoint: claimMap["software_jwks_revoked_endpoint"].(string),
-		SoftwareLogoURI:             claimMap["software_logo_uri"].(string),
-		SoftwareOnBehalfOfOrg:       claimMap["software_on_behalf_of_org"].(string),
-		SoftwarePolicyURI:           claimMap["software_policy_uri"].(string),
-		SoftwareRedirectURIs:        softwareRedirectURIs,
-		SoftwareRoles:               softwareRoles,
-		SoftwareTermsOfServiceURI:   claimMap["software_tos_uri"].(string),
-	}, nil
+		return *claims, nil
+	} else {
+		return SSA{}, err
+	}
 }

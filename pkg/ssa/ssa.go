@@ -1,5 +1,9 @@
 package ssa
 
+import (
+	"github.com/dgrijalva/jwt-go"
+)
+
 // SSA is a software statement assertion
 // It is an implementation of an [RFC7591] software statement, signed by the OpenBanking Directory.
 // For further details refer to https://openbanking.atlassian.net/wiki/spaces/DZ/pages/1078034771/Dynamic+Client+Registration+-+v3.2#DynamicClientRegistration-v3.2-SoftwareStatement
@@ -10,12 +14,10 @@ type SSA struct {
 	Kid string `json:"kid"` // The kid will be kept the same as the "x5t" parameter. (X.509 Certificate SHA-1 Thumbprint) of the signing certificate.
 
 	// RFC7591 payload fields
-	Issuer     string `json:"iss"`         // SSA issuer
-	IssuedAt   int64  `json:"iat"`         // Time SSA issued
-	JwtID      string `json:"jti"`         // JWT ID
-	SoftwareID string `json:"software_id"` // Unique ID for TPP client software
+	jwt.StandardClaims
 
 	// OB SSA fields - Software Metadata
+	SoftwareID                  string   `json:"software_id"`                    // Unique ID for TPP client software
 	SoftwasreEnvironment        string   `json:"software_environment"`           // Requested additional field to avoid certificate check
 	SoftwareMode                string   `json:"software_mode"`                  // ASPSP Requested additional field to indicate that this software is "Test" or "Live" the default is "Live". Impact and support for "Test" software is up to the ASPSP.
 	SoftwareClientID            string   `json:"software_client_id"`             // The Client ID registered at OB used to access OB resources
