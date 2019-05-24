@@ -9,13 +9,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-// The SSA header MUST comply with [RFC7519]
-// Signing algorithms MUST be PS256 or ES256
-const (
-	SigningPS256 = "PS256"
-	SigningES256 = "ES256"
-)
-
 // SSAValidator is a struct responsible for verification
 // parsing and decryption of the SSA jwt
 // it can be initialised with a custom publicKeyLookup function
@@ -28,10 +21,15 @@ type SSAValidator struct {
 // NewSSAValidator returns a new instance of SSAValidator with a specified
 // pub Key lookup function that can be passed as parameter
 // the constructor also defines the allowed valid methods to verify the jwt
+// the SSA header MUST comply with [RFC7519]
+// signing algorithms MUST be PS256 or ES256
 func NewSSAValidator(pubKeyLookup func(t *jwt.Token) (interface{}, error)) SSAValidator {
 	return SSAValidator{
 		pubKeyLookup: pubKeyLookup,
-		parser:       jwt.Parser{ValidMethods: []string{SigningPS256, SigningES256}},
+		parser: jwt.Parser{ValidMethods: []string{
+			jwt.SigningMethodPS256.Name,
+			jwt.SigningMethodES256.Name,
+		}},
 	}
 }
 
