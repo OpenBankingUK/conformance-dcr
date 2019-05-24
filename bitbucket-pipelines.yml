@@ -22,7 +22,5 @@ pipelines:
                 export GOOS=linux
                 export GOARCH=amd64
               - apk update && apk add git make bash curl
-              - make tools
-              - make dep
               - make build
               - make test
