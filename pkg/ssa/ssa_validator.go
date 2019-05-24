@@ -80,9 +80,17 @@ func (v SSAValidator) Validate(ssa string) (SSA, error) {
 	if err != nil {
 		return SSA{}, err
 	}
-	tkmap, ok := t.Claims.(jwt.MapClaims)
+	claimMap, ok := t.Claims.(jwt.MapClaims)
 	if !ok {
 		return SSA{}, errors.New("unable to cast jwt.Claims to jwt.MapClaims")
 	}
-	return SSA{Issuer: tkmap["iss"].(string)}, nil
+	if err := claimMap.Valid(); err != nil {
+		return SSA{}, errors.New(fmt.Sprintf("invalid jwt claims: %v", err))
+	}
+	return SSA{
+		Typ:    t.Header["typ"].(string),
+		Alg:    t.Header["alg"].(string),
+		Kid:    t.Header["kid"].(string),
+		Issuer: claimMap["iss"].(string),
+	}, nil
 }
