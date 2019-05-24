@@ -27,8 +27,8 @@ func NewSSAValidator(pubKeyLookup func(t *jwt.Token) (interface{}, error)) SSAVa
 	return SSAValidator{
 		pubKeyLookup: pubKeyLookup,
 		parser: jwt.Parser{ValidMethods: []string{
-			jwt.SigningMethodPS256.Name,
-			jwt.SigningMethodES256.Name,
+			jwt.SigningMethodPS256.Alg(),
+			jwt.SigningMethodES256.Alg(),
 		}},
 	}
 }
@@ -77,6 +77,9 @@ func (v SSAValidator) Validate(ssa string) (SSA, error) {
 	t, err := v.parser.Parse(ssa, v.pubKeyLookup)
 	if err != nil {
 		return SSA{}, err
+	}
+	if !t.Valid {
+		return SSA{}, errors.New("jwt token is not valid")
 	}
 	claimMap, ok := t.Claims.(jwt.MapClaims)
 	if !ok {
