@@ -12,6 +12,7 @@ help: ## Displays this help.
 
 .PHONY: run
 run: ## run binary directly without docker.
+	go run ./cmd/server
 
 .PHONY: run_image
 run_image: ## run the 'latest' docker image.
@@ -24,6 +25,8 @@ run_image: ## run the 'latest' docker image.
 
 .PHONY: build
 build: ## build the server binary directly.
+	@echo -e "\033[92m  ---> Building ... \033[0m"
+	go build -o server ./cmd/server
 
 ##@ Dependencies:
 
