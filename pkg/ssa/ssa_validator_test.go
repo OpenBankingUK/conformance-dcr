@@ -1,6 +1,9 @@
 package ssa_test
 
 import (
+	"io"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/ssa"
@@ -135,5 +138,73 @@ func TestSSAJwtIsInvalid(t *testing.T) {
 	_, err = ssaValidator.Validate(ssaJwt)
 	if err == nil {
 		t.Errorf("jwt validation should not succeed on expired token")
+	}
+}
+
+func TestRemotePubKeyJwt(t *testing.T) {
+	certServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		io.WriteString(w, PubKeyTest)
+	}))
+	defer certServer.Close()
+	jwkServer := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		io.WriteString(w, `{"keys": [
+			{
+				"e": "AQAB",
+				"kid": "GyVVcMPbU4QucpelwnDNiUJR4qQ",
+				"kty": "RSA",
+				"n": "vakAE3hb8opMX3zP6o929xh2ncsqAa9UtlbwZluVRFYZJb5s7-n4zqR2tqadaG57Fd6ZvhSqzq5qwd8ZvQeVM5N70ISwwXD5u9MFupjtmgLS3ioFucIbTNEmnobXppQC3eDTZI8x3DMkxy5H3za2e8ZFRrHwu6boNFQ-c7eibOQpmSAhD0G2CRm6sEK2uJuBEvUKQXZ5L6sli3Zd1TxsYxmO2x9fYkoml5Q_SK-OKi6x_MvDWxVOE1Ld1i4YhiPczDSgrWxPbMGh5iUdFT3Jikc3ppiE6E2h0HjQ0r1jQstlGScR5zul4-WQr9b8JEqYRK9uOE8dlW6zXu4mGtH36Q",
+				"use": "tls",
+				"x5c": [
+				  "MIIFODCCBCCgAwIBAgIEWcV+HzANBgkqhkiG9w0BAQsFADBTMQswCQYDVQQGEwJHQjEUMBIGA1UEChMLT3BlbkJhbmtpbmcxLjAsBgNVBAMTJU9wZW5CYW5raW5nIFByZS1Qcm9kdWN0aW9uIElzc3VpbmcgQ0EwHhcNMTkwNDA5MTA0ODU2WhcNMjAwNTA5MTExODU2WjBhMQswCQYDVQQGEwJHQjEUMBIGA1UEChMLT3BlbkJhbmtpbmcxGzAZBgNVBAsTEjAwMTU4MDAwMDEwNDFSYkFBSTEfMB0GA1UEAxMWUkVmWktvN3pOMkllRTBYMlJGR1RiNDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAL2pABN4W/KKTF98z+qPdvcYdp3LKgGvVLZW8GZblURWGSW+bO/p+M6kdramnWhuexXemb4Uqs6uasHfGb0HlTOTe9CEsMFw+bvTBbqY7ZoC0t4qBbnCG0zRJp6G16aUAt3g02SPMdwzJMcuR982tnvGRUax8Lum6DRUPnO3omzkKZkgIQ9BtgkZurBCtribgRL1CkF2eS+rJYt2XdU8bGMZjtsfX2JKJpeUP0ivjiousfzLw1sVThNS3dYuGIYj3Mw0oK1sT2zBoeYlHRU9yYpHN6aYhOhNodB40NK9Y0LLZRknEec7pePlkK/W/CRKmESvbjhPHZVus17uJhrR9+kCAwEAAaOCAgQwggIAMA4GA1UdDwEB/wQEAwIHgDAgBgNVHSUBAf8EFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwgeAGA1UdIASB2DCB1TCB0gYLKwYBBAGodYEGAWQwgcIwKgYIKwYBBQUHAgEWHmh0dHA6Ly9vYi50cnVzdGlzLmNvbS9wb2xpY2llczCBkwYIKwYBBQUHAgIwgYYMgYNVc2Ugb2YgdGhpcyBDZXJ0aWZpY2F0ZSBjb25zdGl0dXRlcyBhY2NlcHRhbmNlIG9mIHRoZSBPcGVuQmFua2luZyBSb290IENBIENlcnRpZmljYXRpb24gUG9saWNpZXMgYW5kIENlcnRpZmljYXRlIFByYWN0aWNlIFN0YXRlbWVudDBtBggrBgEFBQcBAQRhMF8wJgYIKwYBBQUHMAGGGmh0dHA6Ly9vYi50cnVzdGlzLmNvbS9vY3NwMDUGCCsGAQUFBzAChilodHRwOi8vb2IudHJ1c3Rpcy5jb20vb2JfcHBfaXNzdWluZ2NhLmNydDA6BgNVHR8EMzAxMC+gLaArhilodHRwOi8vb2IudHJ1c3Rpcy5jb20vb2JfcHBfaXNzdWluZ2NhLmNybDAfBgNVHSMEGDAWgBRQc5HGIXLTd/T+ABIGgVx5eW4/UDAdBgNVHQ4EFgQUanhMVcNxUI03lzhtM0Ap9Uqe9MYwDQYJKoZIhvcNAQELBQADggEBAA+Pxffl5XELhA5X2k7eL4nqqnR82DWn5iG6sHfdJOUwUlsIewyTB7M6seYiSu8ezrWfyVASqYJUqQacNVc1Q0DncmqURBetAsGNWh1hBVB7mTci54CGnqc3WAZZ9Mkl326uceNVEcE5HQ/wbynDqaZzJb7kqJlfaSZgSptV22dYnSX8ZWG7AWFYWWXytCUw29KLUZv4QDtSpOUZOP98GWkDXgEo082GaJjr4IS7BlNUVtICQGVFZ9RvJr7yAiscQTSKII+viHa+8jtaGweHKr69oAaIzvMQ1hK9jFaNRaYSK6eNgEncQSddd9U04x65N+uyHUd1qG39gtEipxOVlMs="
+				],
+				"x5t": "47LacKAUQ_OcuAmsSomIywM9e4g=",
+				"x5u": "`+certServer.URL+`",
+				"x5t#S256": "5G7DWO0Omk1GxnM_PTnpq29fY3FT81EVEAIvkYii-BI="
+			  }
+		]}`)
+	}))
+	defer jwkServer.Close()
+	token := jwt.NewWithClaims(jwt.SigningMethodPS256, jwt.MapClaims{
+		"iss":                         "OpenBanking Ltd",
+		"iat":                         1492756331,
+		"exp":                         1692756331,
+		"jti":                         "id12345685439487678",
+		"software_environment":        "production",
+		"software_mode":               "live",
+		"software_id":                 "65d1f27c-4aea-4549-9c21-60e495a7a86f",
+		"software_client_id":          "OpenBanking TPP Client Unique ID",
+		"software_client_name":        "Amazon Prime Movies",
+		"software_client_description": "Amazon Prime Movies is a moving streaming service",
+		"software_version":            "2.2",
+		"software_client_uri":         "https://prime.amazon.com",
+		"software_redirect_uris": []string{
+			"https://prime.amazon.com/cb",
+			"https://prime.amazon.co.uk/cb",
+		},
+		"software_roles": []string{
+			"PISP",
+			"AISP",
+		},
+		"software_logo_uri":              "https://prime.amazon.com/logo.png",
+		"software_jwks_endpoint":         jwkServer.URL,
+		"software_jwks_revoked_endpoint": "https://jwks.openbanking.org.uk/org_id/revoked/software_id.jkws",
+		"software_policy_uri":            "https://tpp.com/policy.html",
+		"software_tos_uri":               "https://tpp.com/tos.html",
+		"software_on_behalf_of_org":      "https://api.openbanking.org.uk/scim2/OBTrustedPaymentParty/1234567789",
+	})
+	token.Header["kid"] = "GyVVcMPbU4QucpelwnDNiUJR4qQ"
+	privKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(PrivKeyTest))
+	if err != nil {
+		t.Errorf("unable to parse private key: %v", err)
+	}
+	ssaJwt, err := token.SignedString(privKey)
+	if err != nil {
+		t.Errorf("unable to sign jwt: %v", err)
+	}
+
+	ssaValidator := ssa.NewSSAValidator(ssa.PublicKeyLookupFromJWKSEndpoint(jwkServer.Client()))
+	_, err = ssaValidator.Validate(ssaJwt)
+	if err != nil {
+		t.Errorf("should not expect error. Got %s", err.Error())
 	}
 }

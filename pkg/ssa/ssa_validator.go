@@ -46,21 +46,18 @@ func PublicKeyLookupFromByteSlice(pubKey []byte) func(t *jwt.Token) (interface{}
 // PublicKeyLookupFromJWKSEndpoint returns a function which looks up the public key
 // from a jwk endpoint specified in the jwt token
 // it uses the kid to retrieve the right public key to verify the validity of the jwt
-func PublicKeyLookupFromJWKSEndpoint() func(t *jwt.Token) (interface{}, error) {
+func PublicKeyLookupFromJWKSEndpoint(client *http.Client) func(t *jwt.Token) (interface{}, error) {
 	return func(t *jwt.Token) (interface{}, error) {
-		tkmap, ok := t.Claims.(jwt.MapClaims)
+		tkmap, ok := t.Claims.(*SSA)
 		if !ok {
 			return nil, errors.New("unable to cast token claim to map[string]interface{}")
 		}
-		jwkEndpoint, ok := tkmap["software_jwks_endpoint"].(string)
-		if !ok {
-			return nil, errors.New("unable to cast jwk endpoint to string")
-		}
+		jwkEndpoint := tkmap.SoftwareJWKSEndpoint
 		jwkKid, ok := t.Header["kid"].(string)
 		if !ok {
 			return nil, errors.New("unable to cast jwk kid to string")
 		}
-		res, err := http.Get(jwkEndpoint)
+		res, err := client.Get(jwkEndpoint)
 		if err != nil {
 			return nil, err
 		}
@@ -82,7 +79,7 @@ func PublicKeyLookupFromJWKSEndpoint() func(t *jwt.Token) (interface{}, error) {
 			if !ok {
 				return nil, errors.New("unable to cast `x5u` parameter to string")
 			}
-			res, err := http.Get(certURI)
+			res, err := client.Get(certURI)
 			if err != nil {
 				return nil, err
 			}
@@ -93,7 +90,7 @@ func PublicKeyLookupFromJWKSEndpoint() func(t *jwt.Token) (interface{}, error) {
 			}
 			return jwt.ParseRSAPublicKeyFromPEM(certBytes)
 		}
-		return nil, errors.New(fmt.Sprintf("unable to find key with kid %s in jwks endpoint key store %s", jwkKid, jwkEndpoint))
+		return nil, errors.New(fmt.Sprintf("unable to find key with kid %s in jwks endpoint key store %s. Got response %v", jwkKid, jwkEndpoint, jwk))
 	}
 }
 
