@@ -6,7 +6,9 @@
 **/*
 
 # except go server and its dependencies
-!**/*.go
-!**/go.mod
-!**/go.sum
-!**/Makefile
+!go.mod
+!go.sum
+!Makefile
+!manifests/*.json
+!pkg
+!cmd
