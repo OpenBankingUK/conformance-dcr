@@ -20,13 +20,17 @@ run_image: ## run the 'latest' docker image.
 		docker run \
 			--rm \
 			-it \
-			-p 8443:8443 \
 			"openbanking/conformance-dcr:latest"
 
 .PHONY: build
 build: ## build the server binary directly.
 	@echo -e "\033[92m  ---> Building ... \033[0m"
-	go build -o server ./cmd/server
+	go build -o dcr bitbucket.org/openbankingteam/conformance-dcr/cmd/cli
+
+.PHONY: build_image
+build_image: ## build the docker image.
+	@echo -e "\033[92m  ---> Building image ... \033[0m"
+	docker build -t "openbanking/conformance-dcr:latest" .
 
 ##@ Dependencies:
 
