@@ -14,7 +14,6 @@ ENV GOARCH=amd64
 
 # For caching technique, see: https://medium.com/@petomalina/using-go-mod-download-to-speed-up-golang-docker-builds-707591336888
 # All these steps will be cached
-RUN mkdir /app
 WORKDIR /app
 
 # COPY the source code.
