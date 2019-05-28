@@ -2,12 +2,11 @@ package ssa
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/pkg/errors"
 )
 
 // SSAValidator is a struct responsible for verification
@@ -59,13 +58,13 @@ func PublicKeyLookupFromJWKSEndpoint(client *http.Client) func(t *jwt.Token) (in
 		}
 		res, err := client.Get(jwkEndpoint)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "unable to retrieve data from jwks endpoint %s", jwkEndpoint)
 		}
 		defer res.Body.Close()
 		var jwk map[string]interface{}
 		err = json.NewDecoder(res.Body).Decode(&jwk)
 		if err != nil {
-			return nil, errors.New(fmt.Sprintf("unable to parse json from jwk endpoint %s err: %v", jwkEndpoint, err))
+			return nil, errors.Wrapf(err, "unable to parse json from jwk endpoint %s", jwkEndpoint)
 		}
 		for _, v := range jwk["keys"].([]interface{}) {
 			v, ok := v.(map[string]interface{})
@@ -81,16 +80,16 @@ func PublicKeyLookupFromJWKSEndpoint(client *http.Client) func(t *jwt.Token) (in
 			}
 			res, err := client.Get(certURI)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrapf(err, "unable to download certificate from URI %s", certURI)
 			}
 			defer res.Body.Close()
 			certBytes, err := ioutil.ReadAll(res.Body)
 			if err != nil {
-				return nil, errors.New(fmt.Sprintf("unable to download certificate: %v", err))
+				return nil, errors.Wrapf(err, "unable to read certificate bytes after download")
 			}
 			return jwt.ParseRSAPublicKeyFromPEM(certBytes)
 		}
-		return nil, errors.New(fmt.Sprintf("unable to find key with kid %s in jwks endpoint key store %s. Got response %v", jwkKid, jwkEndpoint, jwk))
+		return nil, errors.Errorf("unable to find key with kid %s in jwks endpoint key store %s. Got response %v", jwkKid, jwkEndpoint, jwk)
 	}
 }
 
