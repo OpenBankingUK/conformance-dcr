@@ -254,7 +254,7 @@ func TestRemotePubKeyJwtFailsOnMissingJWKS(t *testing.T) {
 	ssaValidator := ssa.NewSSAValidator(ssa.PublicKeyLookupFromJWKSEndpoint(&http.Client{}))
 	_, err = ssaValidator.Validate(ssaJwt)
 	require.NotNil(err)
-	require.Contains(err.Error(), "unable to retrieve data from jwks endpoint invalid url")
+	require.EqualError(err, "unable to retrieve data from jwks endpoint invalid url: Get invalid%20url: unsupported protocol scheme \"\"")
 }
 
 func TestRemotePubKeyJwtFailsOnInvalidJWKSResponse(t *testing.T) {
