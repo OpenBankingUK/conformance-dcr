@@ -51,36 +51,41 @@ kk244ZP5FygXJ2pRhOzjRlORUhVUwfzqcxDJwOsk9Jq+Z4fqeYWKI9vkGYSZu6K3
 
 func TestValidateSSA(t *testing.T) {
 	require := test.NewRequire(t)
-	claims := jwt.MapClaims{
-		"iss":                         "1lAEYTZ7ADmb",
-		"iat":                         1492756331,
-		"exp":                         1595757550,
-		"jti":                         "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
-		"software_environment":        "production",
-		"software_mode":               "live",
-		"software_id":                 "65d1f27c-4aea-4549-9c21-60e495a7a86f",
-		"software_client_id":          "65d1f27ca4aeab4549c9c21d60e495a7a86e",
-		"software_client_name":        "Amazon Prime Movies",
-		"software_client_description": "Amazon Prime Movies is a moving streaming service",
-		"software_version":            "2.2",
-		"software_client_uri":         "https://prime.amazon.com",
-		"software_redirect_uris": []string{
+	claims := ssa.SSA{
+		Typ: "jwt",
+		Alg: jwt.SigningMethodPS256.Alg(),
+		Kid: "GyVVcMPbU4QucpelwnDNiUJR4qQ",
+		StandardClaims: jwt.StandardClaims{
+			Issuer: "1lAEYTZ7ADmb",
+			IssuedAt: 1492756331,
+			ExpiresAt: 1592756331,
+			Id: "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
+		},
+		SoftwareEnvironment: "production",
+		SoftwareMode: "live",
+		SoftwareID: "65d1f27c-4aea-4549-9c21-60e495a7a86f",
+		SoftwareClientID: "65d1f27ca4aeab4549c9c21d60e495a7a86e",
+		SoftwareClientName: "Amazon Prime Movies",
+		SoftwareClientDescription: "Amazon Prime Movies is a moving streaming service",
+		SoftwareVersion: "2.2",
+		SoftwareClientURI: "https://prime.amazon.com",
+		SoftwareRedirectURIs: []string{
 			"https://prime.amazon.com/cb",
 			"https://prime.amazon.co.uk/cb",
 		},
-		"software_roles": []string{
+		SoftwareRoles: []string{
 			"PISP",
 			"AISP",
 		},
-		"software_logo_uri":              "https://prime.amazon.com/logo.png",
-		"software_jwks_endpoint":         "https://jwks.openbanking.org.uk/org_id/software_id.jkws",
-		"software_jwks_revoked_endpoint": "https://jwks.openbanking.org.uk/org_id/revoked/software_id.jkws",
-		"software_policy_uri":            "https://tpp.com/policy.html",
-		"software_tos_uri":               "https://tpp.com/tos.html",
-		"software_on_behalf_of_org":      "https://api.openbanking.org.uk/scim2/OBTrustedPaymentParty/1234567789",
+		SoftwareLogoURI: "https://prime.amazon.com/logo.png",
+		SoftwareJWKSEndpoint: "https://jwks.openbanking.org.uk/org_id/software_id.jkws",
+		SoftwareJWKSRevokedEndpoint: "https://jwks.openbanking.org.uk/org_id/revoked/software_id.jkws",
+		SoftwarePolicyURI: "https://tpp.com/policy.html",
+		SoftwareTermsOfServiceURI: "https://tpp.com/tos.html",
+		SoftwareOnBehalfOfOrg: "https://api.openbanking.org.uk/scim2/OBTrustedPaymentParty/1234567789",
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodPS256, claims)
-	token.Header["kid"] = "veryUniqueJwtKey"
+	token.Header["kid"] = "GyVVcMPbU4QucpelwnDNiUJR4qQ"
 	privKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(PrivKeyTest))
 	require.NoError(err)
 	ssaJwt, err := token.SignedString(privKey)
@@ -88,40 +93,45 @@ func TestValidateSSA(t *testing.T) {
 	ssaValidator := ssa.NewSSAValidator(ssa.PublicKeyLookupFromByteSlice([]byte(PubKeyTest)))
 	ssaValue, err := ssaValidator.Validate(ssaJwt)
 	require.NoError(err)
-	require.Equal(claims["iss"], ssaValue.Issuer)
-	require.Equal(claims["software_id"], ssaValue.SoftwareID)
-	require.Equal(claims["software_roles"], ssaValue.SoftwareRoles)
+	require.Equal(claims.Issuer, ssaValue.Issuer)
+	require.Equal(claims.SoftwareID, ssaValue.SoftwareID)
+	require.Equal(claims.SoftwareRoles, ssaValue.SoftwareRoles)
 }
 
 func TestSSAJwtIsInvalid(t *testing.T) {
 	require := test.NewRequire(t)
-	token := jwt.NewWithClaims(jwt.SigningMethodPS256, jwt.MapClaims{
-		"iss":                         "1lAEYTZ7ADmb",
-		"iat":                         1492756331,
-		"exp":                         10,
-		"jti":                         "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
-		"software_environment":        "production",
-		"software_mode":               "live",
-		"software_id":                 "65d1f27c-4aea-4549-9c21-60e495a7a86f",
-		"software_client_id":          "65d1f27ca4aeab4549c9c21d60e495a7a86e",
-		"software_client_name":        "Amazon Prime Movies",
-		"software_client_description": "Amazon Prime Movies is a moving streaming service",
-		"software_version":            "2.2",
-		"software_client_uri":         "https://prime.amazon.com",
-		"software_redirect_uris": []string{
+	token := jwt.NewWithClaims(jwt.SigningMethodPS256, ssa.SSA{
+		Typ: "jwt",
+		Alg: jwt.SigningMethodPS256.Alg(),
+		Kid: "GyVVcMPbU4QucpelwnDNiUJR4qQ",
+		StandardClaims: jwt.StandardClaims{
+			Issuer: "1lAEYTZ7ADmb",
+			IssuedAt: 1492756331,
+			ExpiresAt: 10,
+			Id: "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
+		},
+		SoftwareEnvironment: "production",
+		SoftwareMode: "live",
+		SoftwareID: "65d1f27c-4aea-4549-9c21-60e495a7a86f",
+		SoftwareClientID: "65d1f27ca4aeab4549c9c21d60e495a7a86e",
+		SoftwareClientName: "Amazon Prime Movies",
+		SoftwareClientDescription: "Amazon Prime Movies is a moving streaming service",
+		SoftwareVersion: "2.2",
+		SoftwareClientURI: "https://prime.amazon.com",
+		SoftwareRedirectURIs: []string{
 			"https://prime.amazon.com/cb",
 			"https://prime.amazon.co.uk/cb",
 		},
-		"software_roles": []string{
+		SoftwareRoles: []string{
 			"PISP",
 			"AISP",
 		},
-		"software_logo_uri":              "https://prime.amazon.com/logo.png",
-		"software_jwks_endpoint":         "https://jwks.openbanking.org.uk/org_id/software_id.jkws",
-		"software_jwks_revoked_endpoint": "https://jwks.openbanking.org.uk/org_id/revoked/software_id.jkws",
-		"software_policy_uri":            "https://tpp.com/policy.html",
-		"software_tos_uri":               "https://tpp.com/tos.html",
-		"software_on_behalf_of_org":      "https://api.openbanking.org.uk/scim2/OBTrustedPaymentParty/1234567789",
+		SoftwareLogoURI: "https://prime.amazon.com/logo.png",
+		SoftwareJWKSEndpoint: "https://jwks.openbanking.org.uk/org_id/software_id.jkws",
+		SoftwareJWKSRevokedEndpoint: "https://jwks.openbanking.org.uk/org_id/revoked/software_id.jkws",
+		SoftwarePolicyURI: "https://tpp.com/policy.html",
+		SoftwareTermsOfServiceURI: "https://tpp.com/tos.html",
+		SoftwareOnBehalfOfOrg: "https://api.openbanking.org.uk/scim2/OBTrustedPaymentParty/1234567789",
 	})
 	token.Header["kid"] = "veryUniqueJwtKey"
 	privKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(PrivKeyTest))
@@ -158,33 +168,38 @@ func TestRemotePubKeyJwt(t *testing.T) {
 		]}`)
 	}))
 	defer jwkServer.Close()
-	token := jwt.NewWithClaims(jwt.SigningMethodPS256, jwt.MapClaims{
-		"iss":                         "1lAEYTZ7ADmb",
-		"iat":                         1492756331,
-		"exp":                         1692756331,
-		"jti":                         "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
-		"software_environment":        "production",
-		"software_mode":               "live",
-		"software_id":                 "65d1f27c-4aea-4549-9c21-60e495a7a86e",
-		"software_client_id":          "65d1f27c4aea45499c2160e495a7a86f3456",
-		"software_client_name":        "Amazon Prime Movies",
-		"software_client_description": "Amazon Prime Movies is a moving streaming service",
-		"software_version":            "2.2",
-		"software_client_uri":         "https://prime.amazon.com",
-		"software_redirect_uris": []string{
+	token := jwt.NewWithClaims(jwt.SigningMethodPS256, ssa.SSA{
+		Typ: "jwt",
+		Alg: jwt.SigningMethodPS256.Alg(),
+		Kid: "GyVVcMPbU4QucpelwnDNiUJR4qQ",
+		StandardClaims: jwt.StandardClaims{
+			Issuer: "1lAEYTZ7ADmb",
+			IssuedAt: 1492756331,
+			ExpiresAt: 1692756331,
+			Id: "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
+		},
+		SoftwareEnvironment: "production",
+		SoftwareMode: "live",
+		SoftwareID: "65d1f27c-4aea-4549-9c21-60e495a7a86f",
+		SoftwareClientID: "65d1f27ca4aeab4549c9c21d60e495a7a86e",
+		SoftwareClientName: "Amazon Prime Movies",
+		SoftwareClientDescription: "Amazon Prime Movies is a moving streaming service",
+		SoftwareVersion: "2.2",
+		SoftwareClientURI: "https://prime.amazon.com",
+		SoftwareRedirectURIs: []string{
 			"https://prime.amazon.com/cb",
 			"https://prime.amazon.co.uk/cb",
 		},
-		"software_roles": []string{
+		SoftwareRoles: []string{
 			"PISP",
 			"AISP",
 		},
-		"software_logo_uri":              "https://prime.amazon.com/logo.png",
-		"software_jwks_endpoint":         jwkServer.URL,
-		"software_jwks_revoked_endpoint": "https://jwks.openbanking.org.uk/org_id/revoked/software_id.jkws",
-		"software_policy_uri":            "https://tpp.com/policy.html",
-		"software_tos_uri":               "https://tpp.com/tos.html",
-		"software_on_behalf_of_org":      "https://api.openbanking.org.uk/scim2/OBTrustedPaymentParty/1234567789",
+		SoftwareLogoURI: "https://prime.amazon.com/logo.png",
+		SoftwareJWKSEndpoint: jwkServer.URL,
+		SoftwareJWKSRevokedEndpoint: "https://jwks.openbanking.org.uk/org_id/revoked/software_id.jkws",
+		SoftwarePolicyURI: "https://tpp.com/policy.html",
+		SoftwareTermsOfServiceURI: "https://tpp.com/tos.html",
+		SoftwareOnBehalfOfOrg: "https://api.openbanking.org.uk/scim2/OBTrustedPaymentParty/1234567789",
 	})
 	token.Header["kid"] = "GyVVcMPbU4QucpelwnDNiUJR4qQ"
 	privKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(PrivKeyTest))
@@ -198,33 +213,38 @@ func TestRemotePubKeyJwt(t *testing.T) {
 
 func TestRemotePubKeyJwtFailsOnMissingJWKS(t *testing.T) {
 	require := test.NewRequire(t)
-	token := jwt.NewWithClaims(jwt.SigningMethodPS256, jwt.MapClaims{
-		"iss":                         "1lAEYTZ7ADmb",
-		"iat":                         1492756331,
-		"exp":                         1692756331,
-		"jti":                         "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
-		"software_environment":        "production",
-		"software_mode":               "live",
-		"software_id":                 "65d1f27c-4aea-4549-9c21-60e495a7a86f",
-		"software_client_id":          "65d1f27ca4aeab4549c9c21d60e495a7a86e",
-		"software_client_name":        "Amazon Prime Movies",
-		"software_client_description": "Amazon Prime Movies is a moving streaming service",
-		"software_version":            "2.2",
-		"software_client_uri":         "https://prime.amazon.com",
-		"software_redirect_uris": []string{
+	token := jwt.NewWithClaims(jwt.SigningMethodPS256, ssa.SSA{
+		Typ: "jwt",
+		Alg: jwt.SigningMethodPS256.Alg(),
+		Kid: "GyVVcMPbU4QucpelwnDNiUJR4qQ",
+		StandardClaims: jwt.StandardClaims{
+			Issuer: "1lAEYTZ7ADmb",
+			IssuedAt: 1492756331,
+			ExpiresAt: 1692756331,
+			Id: "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
+		},
+		SoftwareEnvironment: "production",
+		SoftwareMode: "live",
+		SoftwareID: "65d1f27c-4aea-4549-9c21-60e495a7a86f",
+		SoftwareClientID: "65d1f27ca4aeab4549c9c21d60e495a7a86e",
+		SoftwareClientName: "Amazon Prime Movies",
+		SoftwareClientDescription: "Amazon Prime Movies is a moving streaming service",
+		SoftwareVersion: "2.2",
+		SoftwareClientURI: "https://prime.amazon.com",
+		SoftwareRedirectURIs: []string{
 			"https://prime.amazon.com/cb",
 			"https://prime.amazon.co.uk/cb",
 		},
-		"software_roles": []string{
+		SoftwareRoles: []string{
 			"PISP",
 			"AISP",
 		},
-		"software_logo_uri":              "https://prime.amazon.com/logo.png",
-		"software_jwks_endpoint":         "invalid url",
-		"software_jwks_revoked_endpoint": "https://jwks.openbanking.org.uk/org_id/revoked/software_id.jkws",
-		"software_policy_uri":            "https://tpp.com/policy.html",
-		"software_tos_uri":               "https://tpp.com/tos.html",
-		"software_on_behalf_of_org":      "https://api.openbanking.org.uk/scim2/OBTrustedPaymentParty/1234567789",
+		SoftwareLogoURI: "https://prime.amazon.com/logo.png",
+		SoftwareJWKSEndpoint: "invalid url",
+		SoftwareJWKSRevokedEndpoint: "https://jwks.openbanking.org.uk/org_id/revoked/software_id.jkws",
+		SoftwarePolicyURI: "https://tpp.com/policy.html",
+		SoftwareTermsOfServiceURI: "https://tpp.com/tos.html",
+		SoftwareOnBehalfOfOrg: "https://api.openbanking.org.uk/scim2/OBTrustedPaymentParty/1234567789",
 	})
 	token.Header["kid"] = "GyVVcMPbU4QucpelwnDNiUJR4qQ"
 	privKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(PrivKeyTest))
@@ -243,33 +263,38 @@ func TestRemotePubKeyJwtFailsOnInvalidJWKSResponse(t *testing.T) {
 		io.WriteString(w, `foobar`)
 	}))
 	defer jwkServer.Close()
-	token := jwt.NewWithClaims(jwt.SigningMethodPS256, jwt.MapClaims{
-		"iss":                         "1lAEYTZ7ADmb",
-		"iat":                         1492756331,
-		"exp":                         1692756331,
-		"jti":                         "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
-		"software_environment":        "production",
-		"software_mode":               "live",
-		"software_id":                 "65d1f27c-4aea-4549-9c21-60e495a7a86f",
-		"software_client_id":          "65d1f27ca4aeab4549c9c21d60e495a7a86e",
-		"software_client_name":        "Amazon Prime Movies",
-		"software_client_description": "Amazon Prime Movies is a moving streaming service",
-		"software_version":            "2.2",
-		"software_client_uri":         "https://prime.amazon.com",
-		"software_redirect_uris": []string{
+	token := jwt.NewWithClaims(jwt.SigningMethodPS256, ssa.SSA{
+		Typ: "jwt",
+		Alg: jwt.SigningMethodPS256.Alg(),
+		Kid: "GyVVcMPbU4QucpelwnDNiUJR4qQ",
+		StandardClaims: jwt.StandardClaims{
+			Issuer: "1lAEYTZ7ADmb",
+			IssuedAt: 1492756331,
+			ExpiresAt: 1692756331,
+			Id: "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
+		},
+		SoftwareEnvironment: "production",
+		SoftwareMode: "live",
+		SoftwareID: "65d1f27c-4aea-4549-9c21-60e495a7a86f",
+		SoftwareClientID: "65d1f27ca4aeab4549c9c21d60e495a7a86e",
+		SoftwareClientName: "Amazon Prime Movies",
+		SoftwareClientDescription: "Amazon Prime Movies is a moving streaming service",
+		SoftwareVersion: "2.2",
+		SoftwareClientURI: "https://prime.amazon.com",
+		SoftwareRedirectURIs: []string{
 			"https://prime.amazon.com/cb",
 			"https://prime.amazon.co.uk/cb",
 		},
-		"software_roles": []string{
+		SoftwareRoles: []string{
 			"PISP",
 			"AISP",
 		},
-		"software_logo_uri":              "https://prime.amazon.com/logo.png",
-		"software_jwks_endpoint":         jwkServer.URL,
-		"software_jwks_revoked_endpoint": "https://jwks.openbanking.org.uk/org_id/revoked/software_id.jkws",
-		"software_policy_uri":            "https://tpp.com/policy.html",
-		"software_tos_uri":               "https://tpp.com/tos.html",
-		"software_on_behalf_of_org":      "https://api.openbanking.org.uk/scim2/OBTrustedPaymentParty/1234567789",
+		SoftwareLogoURI: "https://prime.amazon.com/logo.png",
+		SoftwareJWKSEndpoint: jwkServer.URL,
+		SoftwareJWKSRevokedEndpoint: "https://jwks.openbanking.org.uk/org_id/revoked/software_id.jkws",
+		SoftwarePolicyURI: "https://tpp.com/policy.html",
+		SoftwareTermsOfServiceURI: "https://tpp.com/tos.html",
+		SoftwareOnBehalfOfOrg: "https://api.openbanking.org.uk/scim2/OBTrustedPaymentParty/1234567789",
 	})
 	token.Header["kid"] = "GyVVcMPbU4QucpelwnDNiUJR4qQ"
 	privKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(PrivKeyTest))
@@ -306,33 +331,38 @@ func TestRemotePubKeyJwtFailsOnNonMatchingKid(t *testing.T) {
 		]}`)
 	}))
 	defer jwkServer.Close()
-	token := jwt.NewWithClaims(jwt.SigningMethodPS256, jwt.MapClaims{
-		"iss":                         "1lAEYTZ7ADmb",
-		"iat":                         1492756331,
-		"exp":                         1692756331,
-		"jti":                         "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
-		"software_environment":        "production",
-		"software_mode":               "live",
-		"software_id":                 "65d1f27c-4aea-4549-9c21-60e495a7a86f",
-		"software_client_id":          "65d1f27ca4aeab4549c9c21d60e495a7a86e",
-		"software_client_name":        "Amazon Prime Movies",
-		"software_client_description": "Amazon Prime Movies is a moving streaming service",
-		"software_version":            "2.2",
-		"software_client_uri":         "https://prime.amazon.com",
-		"software_redirect_uris": []string{
+	token := jwt.NewWithClaims(jwt.SigningMethodPS256, ssa.SSA{
+		Typ: "jwt",
+		Alg: jwt.SigningMethodPS256.Alg(),
+		Kid: "GyVVcMPbU4QucpelwnDNiUJR4qT",
+		StandardClaims: jwt.StandardClaims{
+			Issuer: "1lAEYTZ7ADmb",
+			IssuedAt: 1492756331,
+			ExpiresAt: 1692756331,
+			Id: "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
+		},
+		SoftwareEnvironment: "production",
+		SoftwareMode: "live",
+		SoftwareID: "65d1f27c-4aea-4549-9c21-60e495a7a86f",
+		SoftwareClientID: "65d1f27ca4aeab4549c9c21d60e495a7a86e",
+		SoftwareClientName: "Amazon Prime Movies",
+		SoftwareClientDescription: "Amazon Prime Movies is a moving streaming service",
+		SoftwareVersion: "2.2",
+		SoftwareClientURI: "https://prime.amazon.com",
+		SoftwareRedirectURIs: []string{
 			"https://prime.amazon.com/cb",
 			"https://prime.amazon.co.uk/cb",
 		},
-		"software_roles": []string{
+		SoftwareRoles: []string{
 			"PISP",
 			"AISP",
 		},
-		"software_logo_uri":              "https://prime.amazon.com/logo.png",
-		"software_jwks_endpoint":         jwkServer.URL,
-		"software_jwks_revoked_endpoint": "https://jwks.openbanking.org.uk/org_id/revoked/software_id.jkws",
-		"software_policy_uri":            "https://tpp.com/policy.html",
-		"software_tos_uri":               "https://tpp.com/tos.html",
-		"software_on_behalf_of_org":      "https://api.openbanking.org.uk/scim2/OBTrustedPaymentParty/1234567789",
+		SoftwareLogoURI: "https://prime.amazon.com/logo.png",
+		SoftwareJWKSEndpoint: jwkServer.URL,
+		SoftwareJWKSRevokedEndpoint: "https://jwks.openbanking.org.uk/org_id/revoked/software_id.jkws",
+		SoftwarePolicyURI: "https://tpp.com/policy.html",
+		SoftwareTermsOfServiceURI: "https://tpp.com/tos.html",
+		SoftwareOnBehalfOfOrg: "https://api.openbanking.org.uk/scim2/OBTrustedPaymentParty/1234567789",
 	})
 	token.Header["kid"] = "GyVVcMPbU4QucpelwnDNiUJR4qQ"
 	privKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(PrivKeyTest))
@@ -365,33 +395,38 @@ func TestRemotePubKeyJwtFailsOnInvalidCertURL(t *testing.T) {
 		]}`)
 	}))
 	defer jwkServer.Close()
-	token := jwt.NewWithClaims(jwt.SigningMethodPS256, jwt.MapClaims{
-		"iss":                         "1lAEYTZ7ADmb",
-		"iat":                         1492756331,
-		"exp":                         1692756331,
-		"jti":                         "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
-		"software_environment":        "production",
-		"software_mode":               "live",
-		"software_id":                 "65d1f27c-4aea-4549-9c21-60e495a7a86f",
-		"software_client_id":          "65d1f27ca4aeab4549c9c21d60e495a7a86e",
-		"software_client_name":        "Amazon Prime Movies",
-		"software_client_description": "Amazon Prime Movies is a moving streaming service",
-		"software_version":            "2.2",
-		"software_client_uri":         "https://prime.amazon.com",
-		"software_redirect_uris": []string{
+	token := jwt.NewWithClaims(jwt.SigningMethodPS256, ssa.SSA{
+		Typ: "jwt",
+		Alg: jwt.SigningMethodPS256.Alg(),
+		Kid: "GyVVcMPbU4QucpelwnDNiUJR4qQ",
+		StandardClaims: jwt.StandardClaims{
+			Issuer: "1lAEYTZ7ADmb",
+			IssuedAt: 1492756331,
+			ExpiresAt: 1692756331,
+			Id: "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
+		},
+		SoftwareEnvironment: "production",
+		SoftwareMode: "live",
+		SoftwareID: "65d1f27c-4aea-4549-9c21-60e495a7a86f",
+		SoftwareClientID: "65d1f27ca4aeab4549c9c21d60e495a7a86e",
+		SoftwareClientName: "Amazon Prime Movies",
+		SoftwareClientDescription: "Amazon Prime Movies is a moving streaming service",
+		SoftwareVersion: "2.2",
+		SoftwareClientURI: "https://prime.amazon.com",
+		SoftwareRedirectURIs: []string{
 			"https://prime.amazon.com/cb",
 			"https://prime.amazon.co.uk/cb",
 		},
-		"software_roles": []string{
+		SoftwareRoles: []string{
 			"PISP",
 			"AISP",
 		},
-		"software_logo_uri":              "https://prime.amazon.com/logo.png",
-		"software_jwks_endpoint":         jwkServer.URL,
-		"software_jwks_revoked_endpoint": "https://jwks.openbanking.org.uk/org_id/revoked/software_id.jkws",
-		"software_policy_uri":            "https://tpp.com/policy.html",
-		"software_tos_uri":               "https://tpp.com/tos.html",
-		"software_on_behalf_of_org":      "https://api.openbanking.org.uk/scim2/OBTrustedPaymentParty/1234567789",
+		SoftwareLogoURI: "https://prime.amazon.com/logo.png",
+		SoftwareJWKSEndpoint: jwkServer.URL,
+		SoftwareJWKSRevokedEndpoint: "https://jwks.openbanking.org.uk/org_id/revoked/software_id.jkws",
+		SoftwarePolicyURI: "https://tpp.com/policy.html",
+		SoftwareTermsOfServiceURI: "https://tpp.com/tos.html",
+		SoftwareOnBehalfOfOrg: "https://api.openbanking.org.uk/scim2/OBTrustedPaymentParty/1234567789",
 	})
 	token.Header["kid"] = "GyVVcMPbU4QucpelwnDNiUJR4qQ"
 	privKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(PrivKeyTest))

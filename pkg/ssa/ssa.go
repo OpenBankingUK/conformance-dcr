@@ -18,7 +18,7 @@ type SSA struct {
 
 	// OB SSA fields - Software Metadata
 	SoftwareID                  string   `json:"software_id"`                    // Unique ID for TPP client software
-	SoftwasreEnvironment        string   `json:"software_environment"`           // Requested additional field to avoid certificate check
+	SoftwareEnvironment         string   `json:"software_environment"`           // Requested additional field to avoid certificate check
 	SoftwareMode                string   `json:"software_mode"`                  // ASPSP Requested additional field to indicate that this software is "Test" or "Live" the default is "Live". Impact and support for "Test" software is up to the ASPSP.
 	SoftwareClientID            string   `json:"software_client_id"`             // The Client ID registered at OB used to access OB resources
 	SoftwareClientName          string   `json:"software_client_name"`           // Human-readable Software Name
