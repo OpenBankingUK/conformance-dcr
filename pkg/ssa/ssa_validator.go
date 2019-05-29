@@ -9,6 +9,16 @@ import (
 	"github.com/pkg/errors"
 )
 
+
+const (
+	// references for json keys
+	Kid = "kid"
+	Alg = "alg"
+	Typ = "typ"
+	X5u = "x5u"
+	Keys = "keys"
+)
+
 // SSAValidator is a struct responsible for verification
 // parsing and decryption of the SSA jwt
 // it can be initialised with a custom publicKeyLookup function
@@ -49,10 +59,10 @@ func PublicKeyLookupFromJWKSEndpoint(client *http.Client) func(t *jwt.Token) (in
 	return func(t *jwt.Token) (interface{}, error) {
 		tkmap, ok := t.Claims.(*SSA)
 		if !ok {
-			return nil, errors.New("unable to cast token claim to map[string]interface{}")
+			return nil, errors.New("unable to cast token claim to SSA struct")
 		}
 		jwkEndpoint := tkmap.SoftwareJWKSEndpoint
-		jwkKid, ok := t.Header["kid"].(string)
+		jwkKid, ok := t.Header[Kid].(string)
 		if !ok {
 			return nil, errors.New("unable to cast jwk kid to string")
 		}
@@ -66,15 +76,15 @@ func PublicKeyLookupFromJWKSEndpoint(client *http.Client) func(t *jwt.Token) (in
 		if err != nil {
 			return nil, errors.Wrapf(err, "unable to parse json from jwk endpoint %s", jwkEndpoint)
 		}
-		for _, v := range jwk["keys"].([]interface{}) {
+		for _, v := range jwk[Keys].([]interface{}) {
 			v, ok := v.(map[string]interface{})
 			if !ok {
 				continue
 			}
-			if v["kid"].(string) != jwkKid {
+			if v[Kid].(string) != jwkKid {
 				continue
 			}
-			certURI, ok := v["x5u"].(string)
+			certURI, ok := v[X5u].(string)
 			if !ok {
 				return nil, errors.New("unable to cast `x5u` parameter to string")
 			}
@@ -101,13 +111,16 @@ func (v SSAValidator) Validate(ssa string) (SSA, error) {
 	if err != nil {
 		return SSA{}, err
 	}
-	if ssa, ok := t.Claims.(*SSA); ok && t.Valid {
-		ssa.Typ = t.Header["typ"].(string)
-		ssa.Alg = t.Header["alg"].(string)
-		ssa.Kid = t.Header["kid"].(string)
-
-		return *ssa, nil
-	} else {
-		return SSA{}, err
+	if !t.Valid {
+		return SSA{}, errors.New("invalid jwt token")
 	}
+	ssaClaim, ok := t.Claims.(*SSA)
+	if !ok {
+		return SSA{}, errors.New("unable to cast jwt claims to SSA struct")
+	}
+	ssaClaim.Typ = t.Header[Typ].(string)
+	ssaClaim.Alg = t.Header[Alg].(string)
+	ssaClaim.Kid = t.Header[Kid].(string)
+
+	return *ssaClaim, nil
 }
