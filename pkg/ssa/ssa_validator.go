@@ -101,12 +101,16 @@ func (v SSAValidator) Validate(ssa string) (SSA, error) {
 	if err != nil {
 		return SSA{}, err
 	}
-	if claims, ok := t.Claims.(*SSA); ok && t.Valid {
-		claims.Typ = t.Header["typ"].(string)
-		claims.Alg = t.Header["alg"].(string)
-		claims.Kid = t.Header["kid"].(string)
+	if ssa, ok := t.Claims.(*SSA); ok && t.Valid {
+		ssa.Typ = t.Header["typ"].(string)
+		ssa.Alg = t.Header["alg"].(string)
+		ssa.Kid = t.Header["kid"].(string)
 
-		return *claims, nil
+		if err := ssa.Validate(); err != nil {
+			return SSA{}, errors.Wrap(err, "ssa is not valid")
+		}
+
+		return *ssa, nil
 	} else {
 		return SSA{}, errors.New("unable to parse token claims to a valid SSA struct")
 	}

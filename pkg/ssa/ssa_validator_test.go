@@ -52,14 +52,14 @@ kk244ZP5FygXJ2pRhOzjRlORUhVUwfzqcxDJwOsk9Jq+Z4fqeYWKI9vkGYSZu6K3
 func TestValidateSSA(t *testing.T) {
 	require := test.NewRequire(t)
 	claims := jwt.MapClaims{
-		"iss":                         "OpenBanking Ltd",
+		"iss":                         "1lAEYTZ7ADmb",
 		"iat":                         1492756331,
 		"exp":                         1595757550,
-		"jti":                         "id12345685439487678",
+		"jti":                         "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
 		"software_environment":        "production",
 		"software_mode":               "live",
 		"software_id":                 "65d1f27c-4aea-4549-9c21-60e495a7a86f",
-		"software_client_id":          "OpenBanking TPP Client Unique ID",
+		"software_client_id":          "65d1f27ca4aeab4549c9c21d60e495a7a86e",
 		"software_client_name":        "Amazon Prime Movies",
 		"software_client_description": "Amazon Prime Movies is a moving streaming service",
 		"software_version":            "2.2",
@@ -96,14 +96,14 @@ func TestValidateSSA(t *testing.T) {
 func TestSSAJwtIsInvalid(t *testing.T) {
 	require := test.NewRequire(t)
 	token := jwt.NewWithClaims(jwt.SigningMethodPS256, jwt.MapClaims{
-		"iss":                         "OpenBanking Ltd",
+		"iss":                         "1lAEYTZ7ADmb",
 		"iat":                         1492756331,
 		"exp":                         10,
-		"jti":                         "id12345685439487678",
+		"jti":                         "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
 		"software_environment":        "production",
 		"software_mode":               "live",
 		"software_id":                 "65d1f27c-4aea-4549-9c21-60e495a7a86f",
-		"software_client_id":          "OpenBanking TPP Client Unique ID",
+		"software_client_id":          "65d1f27ca4aeab4549c9c21d60e495a7a86e",
 		"software_client_name":        "Amazon Prime Movies",
 		"software_client_description": "Amazon Prime Movies is a moving streaming service",
 		"software_version":            "2.2",
@@ -159,14 +159,14 @@ func TestRemotePubKeyJwt(t *testing.T) {
 	}))
 	defer jwkServer.Close()
 	token := jwt.NewWithClaims(jwt.SigningMethodPS256, jwt.MapClaims{
-		"iss":                         "OpenBanking Ltd",
+		"iss":                         "1lAEYTZ7ADmb",
 		"iat":                         1492756331,
 		"exp":                         1692756331,
-		"jti":                         "id12345685439487678",
+		"jti":                         "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
 		"software_environment":        "production",
 		"software_mode":               "live",
-		"software_id":                 "65d1f27c-4aea-4549-9c21-60e495a7a86f",
-		"software_client_id":          "OpenBanking TPP Client Unique ID",
+		"software_id":                 "65d1f27c-4aea-4549-9c21-60e495a7a86e",
+		"software_client_id":          "65d1f27c4aea45499c2160e495a7a86f3456",
 		"software_client_name":        "Amazon Prime Movies",
 		"software_client_description": "Amazon Prime Movies is a moving streaming service",
 		"software_version":            "2.2",
@@ -199,14 +199,14 @@ func TestRemotePubKeyJwt(t *testing.T) {
 func TestRemotePubKeyJwtFailsOnMissingJWKS(t *testing.T) {
 	require := test.NewRequire(t)
 	token := jwt.NewWithClaims(jwt.SigningMethodPS256, jwt.MapClaims{
-		"iss":                         "OpenBanking Ltd",
+		"iss":                         "1lAEYTZ7ADmb",
 		"iat":                         1492756331,
 		"exp":                         1692756331,
-		"jti":                         "id12345685439487678",
+		"jti":                         "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
 		"software_environment":        "production",
 		"software_mode":               "live",
 		"software_id":                 "65d1f27c-4aea-4549-9c21-60e495a7a86f",
-		"software_client_id":          "OpenBanking TPP Client Unique ID",
+		"software_client_id":          "65d1f27ca4aeab4549c9c21d60e495a7a86e",
 		"software_client_name":        "Amazon Prime Movies",
 		"software_client_description": "Amazon Prime Movies is a moving streaming service",
 		"software_version":            "2.2",
@@ -244,14 +244,14 @@ func TestRemotePubKeyJwtFailsOnInvalidJWKSResponse(t *testing.T) {
 	}))
 	defer jwkServer.Close()
 	token := jwt.NewWithClaims(jwt.SigningMethodPS256, jwt.MapClaims{
-		"iss":                         "OpenBanking Ltd",
+		"iss":                         "1lAEYTZ7ADmb",
 		"iat":                         1492756331,
 		"exp":                         1692756331,
-		"jti":                         "id12345685439487678",
+		"jti":                         "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
 		"software_environment":        "production",
 		"software_mode":               "live",
 		"software_id":                 "65d1f27c-4aea-4549-9c21-60e495a7a86f",
-		"software_client_id":          "OpenBanking TPP Client Unique ID",
+		"software_client_id":          "65d1f27ca4aeab4549c9c21d60e495a7a86e",
 		"software_client_name":        "Amazon Prime Movies",
 		"software_client_description": "Amazon Prime Movies is a moving streaming service",
 		"software_version":            "2.2",
@@ -307,14 +307,14 @@ func TestRemotePubKeyJwtFailsOnNonMatchingKid(t *testing.T) {
 	}))
 	defer jwkServer.Close()
 	token := jwt.NewWithClaims(jwt.SigningMethodPS256, jwt.MapClaims{
-		"iss":                         "OpenBanking Ltd",
+		"iss":                         "1lAEYTZ7ADmb",
 		"iat":                         1492756331,
 		"exp":                         1692756331,
-		"jti":                         "id12345685439487678",
+		"jti":                         "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
 		"software_environment":        "production",
 		"software_mode":               "live",
 		"software_id":                 "65d1f27c-4aea-4549-9c21-60e495a7a86f",
-		"software_client_id":          "OpenBanking TPP Client Unique ID",
+		"software_client_id":          "65d1f27ca4aeab4549c9c21d60e495a7a86e",
 		"software_client_name":        "Amazon Prime Movies",
 		"software_client_description": "Amazon Prime Movies is a moving streaming service",
 		"software_version":            "2.2",
@@ -366,14 +366,14 @@ func TestRemotePubKeyJwtFailsOnInvalidCertURL(t *testing.T) {
 	}))
 	defer jwkServer.Close()
 	token := jwt.NewWithClaims(jwt.SigningMethodPS256, jwt.MapClaims{
-		"iss":                         "OpenBanking Ltd",
+		"iss":                         "1lAEYTZ7ADmb",
 		"iat":                         1492756331,
 		"exp":                         1692756331,
-		"jti":                         "id12345685439487678",
+		"jti":                         "65D1F27C-4AEA-4549-9C21-60E495A7A86F",
 		"software_environment":        "production",
 		"software_mode":               "live",
 		"software_id":                 "65d1f27c-4aea-4549-9c21-60e495a7a86f",
-		"software_client_id":          "OpenBanking TPP Client Unique ID",
+		"software_client_id":          "65d1f27ca4aeab4549c9c21d60e495a7a86e",
 		"software_client_name":        "Amazon Prime Movies",
 		"software_client_description": "Amazon Prime Movies is a moving streaming service",
 		"software_version":            "2.2",

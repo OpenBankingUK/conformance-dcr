@@ -5,6 +5,7 @@ go 1.12
 require (
 	bitbucket.org/openbankingteam/conformance-suite v1.1.8-0.20190524140052-b2075337b2e7
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/go-ozzo/ozzo-validation v3.5.0+incompatible
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/gommon v0.2.8 // indirect
 	github.com/mattn/go-colorable v0.1.2 // indirect

@@ -1,7 +1,10 @@
 package ssa
 
 import (
+	"regexp"
+
 	"github.com/dgrijalva/jwt-go"
+	validation "github.com/go-ozzo/ozzo-validation"
 )
 
 // SSA is a software statement assertion
@@ -43,4 +46,13 @@ type SSA struct {
 	OrganisationJWKSEndpoint             string   `json:"org_jwks_endpoint"`                       // Contains all active signing and network certs for the organisation
 	OrganisationJWKSRevokedEndpoint      string   `json:"org_jwks_revoked_endpoint"`               // Contains all revoked signing and network certs for the organisation
 	OBRegistryTermsOfService             string   `json:"ob_registry_tos"`                         // A link to the OB registries terms of service page
+}
+
+func (ssa SSA) Validate() error {
+	return validation.ValidateStruct(&ssa,
+		validation.Field(&ssa.Issuer, validation.Match(regexp.MustCompile("^[0-9a-zA-Z]{1,22}$"))),
+		validation.Field(&ssa.Audience, validation.Match(regexp.MustCompile("^[0-9a-zA-Z]{1,18}$"))),
+		validation.Field(&ssa.Id, validation.Match(regexp.MustCompile("^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$"))),
+		validation.Field(&ssa.SoftwareClientID, validation.Required, validation.Match(regexp.MustCompile("^[\\w]{1,36}$"))),
+	)
 }
