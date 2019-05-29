@@ -106,10 +106,6 @@ func (v SSAValidator) Validate(ssa string) (SSA, error) {
 		ssa.Alg = t.Header["alg"].(string)
 		ssa.Kid = t.Header["kid"].(string)
 
-		if err := ssa.Validate(); err != nil {
-			return SSA{}, errors.Wrap(err, "ssa is not valid")
-		}
-
 		return *ssa, nil
 	} else {
 		return SSA{}, err
