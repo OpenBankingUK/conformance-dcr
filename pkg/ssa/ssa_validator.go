@@ -112,6 +112,6 @@ func (v SSAValidator) Validate(ssa string) (SSA, error) {
 
 		return *ssa, nil
 	} else {
-		return SSA{}, errors.New("unable to parse token claims to a valid SSA struct")
+		return SSA{}, err
 	}
 }
