@@ -5,7 +5,6 @@ ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV GOARCH=amd64
 
-RUN mkdir /app
 WORKDIR /app
 
 COPY . .
