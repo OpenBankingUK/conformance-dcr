@@ -24,3 +24,4 @@ pipelines:
               - apk update && apk add git make bash curl
               - make build
               - make test
+              - make lint

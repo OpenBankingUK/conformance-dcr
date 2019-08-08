@@ -6,3 +6,9 @@ The [Dynamic Client Registration](https://openbanking.atlassian.net/wiki/spaces/
 ASPSPs in a manner that offers very low friction and removes hurdles and barriers to entry. The goal of the DCR Conformance Tool is to allow implementers of DCR to test a interface against the DCR standard.
 
 The supporting documentation assumes technical understanding of the Open Banking ecosystem and DCR. An introduction to the concepts is available via the [Open Banking Website](https://www.openbanking.org.uk/).
+
+## Running
+
+```bash
+make run
+```

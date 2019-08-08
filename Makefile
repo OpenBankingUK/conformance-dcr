@@ -12,7 +12,7 @@ help: ## Displays this help.
 
 .PHONY: run
 run: ## run binary directly without docker.
-	go run ./cmd/server
+	go run ./cmd/cli
 
 .PHONY: run_image
 run_image: ## run the 'latest' docker image.
@@ -56,11 +56,7 @@ clean: ## run the clean up
 
 .PHONY: test
 test: ## Run the test suite
-	go test -bench -cover -benchmem -coverprofile=coverage.out ./...
-
-.PHONY: test-quick ## Run the quick test suite
-test-quick:
-	go test -short -failfast
+	go test -bench -cover -benchmem ./...
 
 .PHONY: fmt
 fmt: ## Run gofmt on all go files
@@ -70,8 +66,4 @@ fmt: ## Run gofmt on all go files
 
 .PHONY: lint
 lint: ## Basic linting and vetting of code
-	golangci-lint run -E golint
-
-.PHONY: full-lint
-full-lint: ## Run a more extensive lint suite
-	golangci-lint run -E gosec -E unconvert -E dupl -E goconst -E gocyclo -E maligned -E misspell -E unparam -E prealloc -E gochecknoglobals -E nakedret -E gocritic
+	golangci-lint run
