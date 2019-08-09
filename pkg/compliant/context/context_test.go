@@ -31,9 +31,10 @@ func TestContext_GetString_MultipleKeys(t *testing.T) {
 	ctx.SetString("key2", "value2")
 
 	value1, err := ctx.GetString("key1")
-	value2, err := ctx.GetString("key2")
-
 	assert.NoError(t, err)
+	value2, err := ctx.GetString("key2")
+	assert.NoError(t, err)
+
 	assert.Equal(t, "value1", value1)
 	assert.Equal(t, "value2", value2)
 }

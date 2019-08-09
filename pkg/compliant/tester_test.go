@@ -5,25 +5,27 @@ import (
 	"fmt"
 )
 
-var scenarios = Scenarios{
-	NewScenario(
-		"Scenario with one test",
-		[]TestCase{
-			NewTestCase(
-				1,
-				"Always pass test",
-				[]step.Step{
-					step.NewAlwaysPass(1),
-				},
-			),
-		},
-	),
+func testScenarios() Scenarios {
+	return Scenarios{
+		NewScenario(
+			"Scenario with one test",
+			[]TestCase{
+				NewTestCase(
+					1,
+					"Always pass test",
+					[]step.Step{
+						step.NewAlwaysPass(1),
+					},
+				),
+			},
+		),
+	}
 }
 
-func ExampleCompliant() {
+func ExampleTester_Compliant() {
 	tester := NewTester()
 
-	isCompliant := tester.Compliant(scenarios)
+	isCompliant := tester.Compliant(testScenarios())
 
 	compliantText := map[bool]string{
 		false: "NOT compliant",
@@ -35,10 +37,10 @@ func ExampleCompliant() {
 	// Scenario with one test is compliant
 }
 
-func ExampleVerboseCompliant() {
+func ExampleNewVerboseTester() {
 	tester := NewVerboseTester()
 
-	isCompliant := tester.Compliant(scenarios)
+	isCompliant := tester.Compliant(testScenarios())
 
 	compliantText := map[bool]string{
 		false: "FAIL",
