@@ -4,7 +4,6 @@ import "bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/context"
 
 type Step interface {
 	Run(ctx context.Context) Result
-	Order() int
 }
 
 type Result struct {

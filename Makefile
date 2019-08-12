@@ -56,13 +56,12 @@ clean: ## run the clean up
 
 .PHONY: test
 test: ## Run the test suite
-	go test -bench -cover -benchmem ./...
+	go test -cover ./...
 
 .PHONY: fmt
 fmt: ## Run gofmt on all go files
 	gofmt -w -s .
 	goimports -w .
-	go clean -i -r -cache -testcache -modcache
 
 .PHONY: lint
 lint: ## Basic linting and vetting of code

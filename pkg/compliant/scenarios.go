@@ -1,6 +1,8 @@
 package compliant
 
-import "bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/context"
+import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/context"
+)
 
 type Scenario interface {
 	Run() ScenarioResult
@@ -40,9 +42,10 @@ func (s scenario) Run() ScenarioResult {
 	ctx := context.NewContext()
 	var results TestCaseResults
 	for _, tc := range s.tcs {
-		tcResults := tc.Run(ctx)
-		results = append(results, tcResults...)
+		tcResult := tc.Run(ctx)
+		results = append(results, tcResult)
 	}
+
 	return ScenarioResult{
 		Name:            s.name,
 		TestCaseResults: results,

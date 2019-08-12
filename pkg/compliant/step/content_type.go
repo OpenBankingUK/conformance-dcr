@@ -1,22 +1,21 @@
 package step
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/context"
 	"fmt"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/context"
 )
 
 type assertContentType struct {
 	responseContextVar string
 	contentType        string
-	order              int
 	stepName           string
 }
 
-func NewAssertContentType(order int, responseContextVar string, contentType string) Step {
+func NewAssertContentType(responseContextVar string, contentType string) Step {
 	return assertContentType{
 		responseContextVar: responseContextVar,
 		contentType:        contentType,
-		order:              order,
 		stepName:           fmt.Sprintf("Content-Type header is %s", contentType),
 	}
 }
@@ -38,8 +37,4 @@ func (a assertContentType) Run(ctx context.Context) Result {
 	}
 
 	return NewPassResult(a.stepName)
-}
-
-func (a assertContentType) Order() int {
-	return a.order
 }

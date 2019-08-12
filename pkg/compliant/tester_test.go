@@ -1,31 +1,29 @@
 package compliant
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 	"fmt"
+	"github.com/stretchr/testify/assert"
+	"testing"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 )
 
-func testScenarios() Scenarios {
+func testPassScenarios() Scenarios {
 	return Scenarios{
-		NewScenario(
-			"Scenario with one test",
-			[]TestCase{
-				NewTestCase(
-					1,
-					"Always pass test",
-					[]step.Step{
-						step.NewAlwaysPass(1),
-					},
-				),
-			},
-		),
+		NewBuilder("Scenario with one test").
+			TestCase(
+				NewTestCaseBuilder("Always pass test").
+					Step(step.NewAlwaysPass()).
+					Build(),
+			).
+			Build(),
 	}
 }
 
 func ExampleTester_Compliant() {
 	tester := NewTester()
 
-	isCompliant := tester.Compliant(testScenarios())
+	isCompliant := tester.Compliant(testPassScenarios())
 
 	compliantText := map[bool]string{
 		false: "NOT compliant",
@@ -40,7 +38,7 @@ func ExampleTester_Compliant() {
 func ExampleNewVerboseTester() {
 	tester := NewVerboseTester()
 
-	isCompliant := tester.Compliant(testScenarios())
+	isCompliant := tester.Compliant(testPassScenarios())
 
 	compliantText := map[bool]string{
 		false: "FAIL",
@@ -53,4 +51,21 @@ func ExampleNewVerboseTester() {
 	// 	Test case: Always pass test
 	// 		PASS always dumb pass step
 	// PASS
+}
+
+func TestVerboseTester_Compliant(t *testing.T) {
+	scenarios := Scenarios{
+		NewBuilder("Scenario with one test").
+			TestCase(
+				NewTestCaseBuilder("Always fail test").
+					Step(step.NewAlwaysFail()).
+					Build(),
+			).
+			Build(),
+	}
+	tester := NewVerboseTester()
+
+	isCompliant := tester.Compliant(scenarios)
+
+	assert.False(t, isCompliant)
 }

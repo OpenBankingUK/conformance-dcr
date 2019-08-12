@@ -7,10 +7,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAlwaysPass_Run(t *testing.T) {
-	step := NewAlwaysPass()
+func TestAlwaysFail_Run(t *testing.T) {
+	step := NewAlwaysFail()
 
 	results := step.Run(context.NewContext())
 
-	assert.True(t, results.Pass)
+	assert.False(t, results.Pass)
 }

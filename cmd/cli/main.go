@@ -1,15 +1,16 @@
 package main
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant"
 	"fmt"
 	"os"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant"
 )
 
 func main() {
 	fmt.Println("Dynamic Client Registration Conformance Tool cli")
 
-	scenarios := compliant.NewGoogleScenarios()
+	scenarios := compliant.NewDCR31()
 	tester := compliant.NewVerboseTester()
 
 	passes := tester.Compliant(scenarios)

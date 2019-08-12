@@ -1,31 +1,30 @@
 package step
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/context"
 	"fmt"
 	"net/http"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/context"
 )
 
 type getRequest struct {
 	url        string
 	contextVar string
-	order      int
 	stepName   string
+	httpClient *http.Client
 }
 
-func NewGetRequest(order int, url, responseContextVar string) Step {
+func NewGetRequest(url, responseContextVar string, httpClient *http.Client) Step {
 	return getRequest{
 		url:        url,
 		contextVar: responseContextVar,
-		order:      order,
 		stepName:   fmt.Sprintf("GET request %s", url),
+		httpClient: httpClient,
 	}
 }
 
 func (s getRequest) Run(ctx context.Context) Result {
-	c := http.Client{}
-
-	r, err := c.Get(s.url)
+	r, err := s.httpClient.Get(s.url)
 	if err != nil {
 		return NewFailResult(s.stepName, err.Error())
 	}
@@ -33,8 +32,4 @@ func (s getRequest) Run(ctx context.Context) Result {
 	ctx.SetResponse(s.contextVar, r)
 
 	return NewPassResult(s.stepName)
-}
-
-func (s getRequest) Order() int {
-	return s.order
 }
