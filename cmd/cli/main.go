@@ -1,31 +1,41 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
+	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/config"
-	"github.com/spf13/viper"
 )
 
-func init() {
-	viper.AutomaticEnv()
-	viper.SetConfigName("config")
-	viper.AddConfigPath("configs")
-	viper.SetConfigType("json")
-	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("unable to read config file: %v", err)
+func loadConfig() config.Config {
+	var configFilePath string
+	flag.StringVar(&configFilePath, "config-path", "", "Config file path")
+	flag.Parse()
+	if configFilePath == "" {
+		log.Fatalf("config-path cannot be empty")
 	}
+	f, err := os.Open(configFilePath)
+	if err != nil {
+		log.Fatalf("unable to open config file %s, %v", configFilePath, err)
+	}
+	defer f.Close()
+	rawCfg, err := ioutil.ReadAll(f)
+	var cfg config.Config
+	if err := json.NewDecoder(bytes.NewBuffer(rawCfg)).Decode(&cfg); err != nil {
+		log.Fatalf("unable to json decode file contents, %v", err)
+	}
+	return cfg
 }
 
 func main() {
 	fmt.Println("Dynamic Client Registration Conformance Tool cli")
-	var cfg config.Config
-	if err := viper.Unmarshal(&cfg); err != nil {
-		log.Fatalf("unable to parse config %v\n", err)
-	}
+	cfg := loadConfig()
 	scenarios := compliant.NewDCR31(cfg.WellknownEndpoint)
 	tester := compliant.NewVerboseTester()
 
