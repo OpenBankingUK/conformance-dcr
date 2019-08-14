@@ -31,6 +31,9 @@ func loadConfig() Config {
 	}
 	defer f.Close()
 	rawCfg, err := ioutil.ReadAll(f)
+	if err != nil {
+		log.Fatalf("unable to read config file contents %v", err)
+	}
 	var cfg Config
 	if err := json.NewDecoder(bytes.NewBuffer(rawCfg)).Decode(&cfg); err != nil {
 		log.Fatalf("unable to json decode file contents, %v", err)
