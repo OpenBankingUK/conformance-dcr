@@ -22,7 +22,8 @@ func loadConfig() Config {
 	flag.StringVar(&configFilePath, "config-path", "", "Config file path")
 	flag.Parse()
 	if configFilePath == "" {
-		log.Fatalf("config-path cannot be empty")
+		flag.Usage()
+		os.Exit(1)
 	}
 	f, err := os.Open(configFilePath)
 	if err != nil {
