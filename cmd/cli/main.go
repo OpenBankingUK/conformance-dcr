@@ -10,10 +10,14 @@ import (
 	"os"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/config"
 )
 
-func loadConfig() config.Config {
+type Config struct {
+	WellknownEndpoint string `json:"wellknown_endpoint"`
+	SSA               string `json:"ssa"`
+}
+
+func loadConfig() Config {
 	var configFilePath string
 	flag.StringVar(&configFilePath, "config-path", "", "Config file path")
 	flag.Parse()
@@ -26,7 +30,7 @@ func loadConfig() config.Config {
 	}
 	defer f.Close()
 	rawCfg, err := ioutil.ReadAll(f)
-	var cfg config.Config
+	var cfg Config
 	if err := json.NewDecoder(bytes.NewBuffer(rawCfg)).Decode(&cfg); err != nil {
 		log.Fatalf("unable to json decode file contents, %v", err)
 	}
