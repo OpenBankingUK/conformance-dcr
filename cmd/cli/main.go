@@ -17,21 +17,21 @@ type Config struct {
 	SSA               string `json:"ssa"`
 }
 
-func loadConfig(configFilePath string) Config {
+func loadConfig(configFilePath string) (Config, error) {
+	var cfg Config
 	f, err := os.Open(configFilePath)
 	if err != nil {
-		log.Fatalf("unable to open config file %s, %v", configFilePath, err)
+		return cfg, fmt.Errorf("unable to open config file %s, %v", configFilePath, err)
 	}
 	defer f.Close()
 	rawCfg, err := ioutil.ReadAll(f)
 	if err != nil {
-		log.Fatalf("unable to read config file contents %v", err)
+		return cfg, fmt.Errorf("unable to read config file contents %v", err)
 	}
-	var cfg Config
 	if err := json.NewDecoder(bytes.NewBuffer(rawCfg)).Decode(&cfg); err != nil {
-		log.Fatalf("unable to json decode file contents, %v", err)
+		return cfg, fmt.Errorf("unable to json decode file contents, %v", err)
 	}
-	return cfg
+	return cfg, nil
 }
 
 func main() {
@@ -43,7 +43,10 @@ func main() {
 		flag.Usage()
 		os.Exit(1)
 	}
-	cfg := loadConfig(configFilePath)
+	cfg, err := loadConfig(configFilePath)
+	if err != nil {
+		log.Fatalf("unable to load config: %v", err)
+	}
 	scenarios := compliant.NewDCR31(cfg.WellknownEndpoint)
 	tester := compliant.NewVerboseTester()
 
