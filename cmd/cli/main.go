@@ -17,14 +17,7 @@ type Config struct {
 	SSA               string `json:"ssa"`
 }
 
-func loadConfig() Config {
-	var configFilePath string
-	flag.StringVar(&configFilePath, "config-path", "", "Config file path")
-	flag.Parse()
-	if configFilePath == "" {
-		flag.Usage()
-		os.Exit(1)
-	}
+func loadConfig(configFilePath string) Config {
 	f, err := os.Open(configFilePath)
 	if err != nil {
 		log.Fatalf("unable to open config file %s, %v", configFilePath, err)
@@ -43,7 +36,14 @@ func loadConfig() Config {
 
 func main() {
 	fmt.Println("Dynamic Client Registration Conformance Tool cli")
-	cfg := loadConfig()
+	var configFilePath string
+	flag.StringVar(&configFilePath, "config-path", "", "Config file path")
+	flag.Parse()
+	if configFilePath == "" {
+		flag.Usage()
+		os.Exit(1)
+	}
+	cfg := loadConfig(configFilePath)
 	scenarios := compliant.NewDCR31(cfg.WellknownEndpoint)
 	tester := compliant.NewVerboseTester()
 
