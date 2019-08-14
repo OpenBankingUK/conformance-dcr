@@ -1,6 +1,6 @@
 package compliant
 
-func NewOzoneDCR31() Scenarios {
+func NewDCR31(wellKnownEndpoint string) Scenarios {
 	return Scenarios{
 		NewBuilder("Dynamically create a new software client").
 			TestCase(
