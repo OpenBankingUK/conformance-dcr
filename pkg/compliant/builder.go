@@ -55,6 +55,12 @@ func (t *testCaseBuilder) AssertContextTypeApplicationHtml() *testCaseBuilder {
 	return t
 }
 
+func (t *testCaseBuilder) ParseWellKnownRegistrationEndpoint() *testCaseBuilder {
+	nextStep := step.NewParseWellKnownRegistrationEndpoint("response", "registration_endpoint")
+	t.steps = append(t.steps, nextStep)
+	return t
+}
+
 func (t *testCaseBuilder) Step(nextStep step.Step) *testCaseBuilder {
 	t.steps = append(t.steps, nextStep)
 	return t

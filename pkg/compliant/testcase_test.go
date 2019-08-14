@@ -1,7 +1,6 @@
 package compliant
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/context"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -37,7 +36,7 @@ func TestTestCaseResults_Fail_TrueOneFails(t *testing.T) {
 }
 
 func TestTestCase_Run_ReturnsOneResultPerTest(t *testing.T) {
-	ctx := context.NewContext()
+	ctx := step.NewContext()
 	steps := []step.Step{step.NewAlwaysPass(), step.NewAlwaysPass()}
 	tc := NewTestCase("test case", steps)
 

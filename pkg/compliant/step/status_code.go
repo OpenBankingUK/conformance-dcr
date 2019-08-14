@@ -1,7 +1,6 @@
 package step
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/context"
 	"fmt"
 )
 
@@ -19,7 +18,7 @@ func NewAssertStatus(code int, responseContextVar string) Step {
 	}
 }
 
-func (a assertStatusCode) Run(ctx context.Context) Result {
+func (a assertStatusCode) Run(ctx Context) Result {
 	response, err := ctx.GetResponse(a.responseContextVar)
 	if err != nil {
 		return NewFailResult(a.stepName, fmt.Sprintf("getting response object from context: %s", err.Error()))

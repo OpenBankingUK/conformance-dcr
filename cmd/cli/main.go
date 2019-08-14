@@ -10,7 +10,7 @@ import (
 func main() {
 	fmt.Println("Dynamic Client Registration Conformance Tool cli")
 
-	scenarios := compliant.NewDCR31()
+	scenarios := compliant.NewOzoneDCR31()
 	tester := compliant.NewVerboseTester()
 
 	passes := tester.Compliant(scenarios)

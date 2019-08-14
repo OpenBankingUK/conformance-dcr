@@ -2,8 +2,6 @@ package step
 
 import (
 	"fmt"
-
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/context"
 )
 
 type assertContentType struct {
@@ -20,7 +18,7 @@ func NewAssertContentType(responseContextVar string, contentType string) Step {
 	}
 }
 
-func (a assertContentType) Run(ctx context.Context) Result {
+func (a assertContentType) Run(ctx Context) Result {
 	response, err := ctx.GetResponse(a.responseContextVar)
 	if err != nil {
 		return NewFailResult(a.stepName, fmt.Sprintf("getting response object from context: %s", err.Error()))

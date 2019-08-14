@@ -1,12 +1,11 @@
 package compliant
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/context"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 )
 
 type TestCase interface {
-	Run(ctx context.Context) TestCaseResult
+	Run(ctx step.Context) TestCaseResult
 }
 
 type TestCaseResult struct {
@@ -37,7 +36,7 @@ func NewTestCase(name string, steps []step.Step) testCase {
 	}
 }
 
-func (t testCase) Run(ctx context.Context) TestCaseResult {
+func (t testCase) Run(ctx step.Context) TestCaseResult {
 	var results step.Results
 	for _, step := range t.steps {
 		results = append(results, step.Run(ctx))

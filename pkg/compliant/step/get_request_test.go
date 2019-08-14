@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/context"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -18,7 +17,7 @@ func TestGetRequest_Pass(t *testing.T) {
 		require.NoError(t, err)
 	}))
 	defer server.Close()
-	ctx := context.NewContext()
+	ctx := NewContext()
 	url := server.URL + "/some/path"
 	step := NewGetRequest(url, "response", server.Client())
 
@@ -30,7 +29,7 @@ func TestGetRequest_Pass(t *testing.T) {
 }
 
 func TestGetRequest_FailsIfHttpCallFails(t *testing.T) {
-	ctx := context.NewContext()
+	ctx := NewContext()
 	step := NewGetRequest("invalid_url", "response", &http.Client{})
 
 	result := step.Run(ctx)
@@ -46,7 +45,7 @@ func TestGetRequest_SetsResponseInContext(t *testing.T) {
 		require.NoError(t, err)
 	}))
 	defer server.Close()
-	ctx := context.NewContext()
+	ctx := NewContext()
 	url := server.URL + "/some/path"
 	step := NewGetRequest(url, "response", server.Client())
 	step.Run(ctx)

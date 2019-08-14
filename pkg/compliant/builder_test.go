@@ -20,8 +20,9 @@ func TestNewTestCaseBuilder(t *testing.T) {
 		Get("www.google.com").
 		AssertStatusCodeOk().
 		AssertContextTypeApplicationHtml().
+		ParseWellKnownRegistrationEndpoint().
 		Step(step.NewAlwaysPass())
 
 	assert.Equal(t, "test case", tc.name)
-	assert.Len(t, tc.steps, 4)
+	assert.Len(t, tc.steps, 5)
 }

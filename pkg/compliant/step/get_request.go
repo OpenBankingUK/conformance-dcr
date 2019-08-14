@@ -3,8 +3,6 @@ package step
 import (
 	"fmt"
 	"net/http"
-
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/context"
 )
 
 type getRequest struct {
@@ -23,7 +21,7 @@ func NewGetRequest(url, responseContextVar string, httpClient *http.Client) Step
 	}
 }
 
-func (s getRequest) Run(ctx context.Context) Result {
+func (s getRequest) Run(ctx Context) Result {
 	r, err := s.httpClient.Get(s.url)
 	if err != nil {
 		return NewFailResult(s.stepName, err.Error())

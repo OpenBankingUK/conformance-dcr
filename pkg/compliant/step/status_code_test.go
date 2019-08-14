@@ -4,12 +4,11 @@ import (
 	"net/http"
 	"testing"
 
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/context"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAssertStatusOk_Pass(t *testing.T) {
-	ctx := context.NewContext()
+	ctx := NewContext()
 	ctx.SetResponse("response", &http.Response{StatusCode: http.StatusOK})
 	step := NewAssertStatus(200, "response")
 
@@ -20,7 +19,7 @@ func TestAssertStatusOk_Pass(t *testing.T) {
 }
 
 func TestAssertStatusOk_FailsIfResponseNotInContext(t *testing.T) {
-	ctx := context.NewContext()
+	ctx := NewContext()
 	step := NewAssertStatus(200, "response")
 
 	result := step.Run(ctx)
@@ -30,7 +29,7 @@ func TestAssertStatusOk_FailsIfResponseNotInContext(t *testing.T) {
 }
 
 func TestAssertStatusOk_FailsIfStatusCodeIsOtherThenOk(t *testing.T) {
-	ctx := context.NewContext()
+	ctx := NewContext()
 	ctx.SetResponse("response", &http.Response{StatusCode: http.StatusTeapot})
 	step := NewAssertStatus(200, "response")
 

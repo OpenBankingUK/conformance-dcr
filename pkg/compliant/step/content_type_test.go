@@ -4,12 +4,11 @@ import (
 	"net/http"
 	"testing"
 
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/context"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAssertContentType_Pass(t *testing.T) {
-	ctx := context.NewContext()
+	ctx := NewContext()
 	headers := http.Header{"Content-Type": []string{"application/vorgon"}}
 	ctx.SetResponse("response", &http.Response{Header: headers})
 	step := NewAssertContentType("response", "application/vorgon")
@@ -21,7 +20,7 @@ func TestAssertContentType_Pass(t *testing.T) {
 }
 
 func TestAssertContentType_FailsIfResponseNotInContext(t *testing.T) {
-	ctx := context.NewContext()
+	ctx := NewContext()
 	step := NewAssertContentType("response", "application/vorgon")
 
 	result := step.Run(ctx)
@@ -31,7 +30,7 @@ func TestAssertContentType_FailsIfResponseNotInContext(t *testing.T) {
 }
 
 func TestAssertContentType_FailsIfHeaderIsNotInResponse(t *testing.T) {
-	ctx := context.NewContext()
+	ctx := NewContext()
 	ctx.SetResponse("response", &http.Response{})
 	step := NewAssertContentType("response", "application/vorgon")
 
@@ -42,7 +41,7 @@ func TestAssertContentType_FailsIfHeaderIsNotInResponse(t *testing.T) {
 }
 
 func TestAssertContentType_FailsIfStatusCodeIsOtherThenOk(t *testing.T) {
-	ctx := context.NewContext()
+	ctx := NewContext()
 	headers := http.Header{"Content-Type": []string{"application/klingon"}}
 	ctx.SetResponse("response", &http.Response{Header: headers})
 	step := NewAssertContentType("response", "application/vorgon")

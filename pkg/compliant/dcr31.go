@@ -1,13 +1,13 @@
 package compliant
 
-func NewDCR31() Scenarios {
+func NewOzoneDCR31() Scenarios {
 	return Scenarios{
 		NewBuilder("Dynamically create a new software client").
 			TestCase(
-				NewTestCaseBuilder("Creates software client").
-					Get("/register").
+				NewTestCaseBuilder("Retrieve registration endpoint from OIDC Discovery Endpoint").
+					Get("https://modelobankauth2018.o3bank.co.uk:4101/.well-known/openid-configuration").
 					AssertStatusCodeOk().
-					AssertContextTypeApplicationHtml().
+					ParseWellKnownRegistrationEndpoint().
 					Build(),
 			).
 			Build(),
