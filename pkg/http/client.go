@@ -3,15 +3,14 @@ package http
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"github.com/pkg/errors"
 	"net/http"
 )
 
 type MATLSConfig struct {
-	certPEMBlock       []byte
-	keyPEMBlock        []byte
-	insecureSkipVerify bool
-	caCerts            []byte
+	ClientCerts        []tls.Certificate
+	InsecureSkipVerify bool
+	RootCAs            []*x509.Certificate
+	TLSMinVersion      uint16
 }
 
 // NewMATLSClient creates a new http client that is configured for Mutually Authenticated TLS. `insecureSkipVerify`
@@ -19,21 +18,18 @@ type MATLSConfig struct {
 // `caCerts` is an optional list of root CA certificates that can be used to validate host certificates.
 // Can be set to nil if not required.
 func NewMATLSClient(config MATLSConfig) (*http.Client, error) {
-	crt, err := tls.X509KeyPair(config.certPEMBlock, config.keyPEMBlock)
-	if err != nil {
-		return nil, errors.Wrap(err, "tls.X509KeyPair")
-	}
-
 	tlsConfig := &tls.Config{
-		Certificates:       []tls.Certificate{crt},
-		InsecureSkipVerify: config.insecureSkipVerify,
-		MinVersion:         tls.VersionTLS12,
+		Certificates:       config.ClientCerts,
+		InsecureSkipVerify: config.InsecureSkipVerify,
+		MinVersion:         config.TLSMinVersion,
 		Renegotiation:      tls.RenegotiateFreelyAsClient,
 	}
 
-	if config.caCerts != nil {
+	if config.RootCAs != nil {
 		caCrtPool := x509.NewCertPool()
-		caCrtPool.AppendCertsFromPEM(config.caCerts)
+		for _, cert := range config.RootCAs {
+			caCrtPool.AddCert(cert)
+		}
 		tlsConfig.RootCAs = caCrtPool
 	}
 
