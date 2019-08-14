@@ -4,12 +4,19 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"github.com/stretchr/testify/assert"
+	"log"
 	"net/http"
 	"testing"
 )
 
 func certificatesFromPEMBlock(certBlock, keyBlock []byte) []tls.Certificate {
-	crt, _ := tls.X509KeyPair(certBlock, keyBlock)
+	crt, err := tls.X509KeyPair(certBlock, keyBlock)
+	if err != nil {
+		// What to do here?
+		// This is a helper function where we are in full control of the input
+		// and expect it to be either valid or invalid at our discretion.
+		log.Print(err)
+	}
 	return []tls.Certificate{crt}
 }
 
@@ -179,7 +186,7 @@ YtfkskMi
 				},
 			},
 			wantClient: &http.Client{},
-			wantErr: true,
+			wantErr:    true,
 		},
 		{
 			name: "Invalid key block",
@@ -192,7 +199,7 @@ YtfkskMi
 				},
 			},
 			wantClient: &http.Client{},
-			wantErr: true,
+			wantErr:    true,
 		},
 	}
 	for _, tt := range tests {
@@ -209,8 +216,10 @@ YtfkskMi
 			}
 			assert.NoError(t, err)
 
-			trsActual := got.Transport.(*http.Transport)
-			trsExpected := tt.wantClient.Transport.(*http.Transport)
+			trsActual, ok := got.Transport.(*http.Transport)
+			assert.True(t, ok)
+			trsExpected, ok := tt.wantClient.Transport.(*http.Transport)
+			assert.True(t, ok)
 
 			assert.Equal(t, trsExpected.TLSClientConfig.MinVersion, trsActual.TLSClientConfig.MinVersion)
 			assert.Equal(t, trsExpected.TLSClientConfig.InsecureSkipVerify, trsActual.TLSClientConfig.InsecureSkipVerify)
