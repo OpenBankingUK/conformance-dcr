@@ -57,14 +57,14 @@ func rootCAPoolFromCerts(certs []*x509.Certificate) *x509.CertPool {
 
 func TestNewMATLSClient(t *testing.T) {
 	// Bootstrap the tests with required keys certificates
-	rootCAs, err := rootCASFromFile("testdata/client-sample-root-ca.pem")
+	rootCAs, err := rootCASFromFile("../../testdata/client-sample-root-ca.pem")
 	if err != nil {
 		t.Fatalf("load root CAs from file: %s", err.Error())
 	}
 	rootCAPool := rootCAPoolFromCerts(rootCAs)
 
 	clientCerts, err := clientCertsFromFile(
-		"testdata/client-sample-key.key", "testdata/client-sample-cert.pem")
+		"../../testdata/client-sample-key.key", "../../testdata/client-sample-cert.pem")
 	if err != nil {
 		t.Fatalf("Create client certs: %s", err.Error())
 	}
