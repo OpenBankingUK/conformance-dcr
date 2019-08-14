@@ -7,9 +7,10 @@ import (
 	"net/http"
 )
 
-// NewMATLSClient creates a new http client that is configured for Mutually Authenticated TLS. `insecureSkipVerify` can be set
-// to true if host certificates are not to be validated against a local trusted list of CA certificates. `caCerts` is an
-// optional list of root CA certificates that can be used to validate host certificates. Can be set to nil if not required.
+// NewMATLSClient creates a new http client that is configured for Mutually Authenticated TLS. `insecureSkipVerify`
+// can be set to true if host certificates are not to be validated against a local trusted list of CA certificates.
+// `caCerts` is an optional list of root CA certificates that can be used to validate host certificates.
+// Can be set to nil if not required.
 func NewMATLSClient(certPEMBlock, keyPEMBlock []byte, insecureSkipVerify bool, caCerts []byte) (*http.Client, error) {
 	crt, err := tls.X509KeyPair(certPEMBlock, keyPEMBlock)
 	if err != nil {
@@ -17,7 +18,7 @@ func NewMATLSClient(certPEMBlock, keyPEMBlock []byte, insecureSkipVerify bool, c
 	}
 
 	tlsConfig := &tls.Config{
-		Certificates: []tls.Certificate{crt},
+		Certificates:       []tls.Certificate{crt},
 		InsecureSkipVerify: insecureSkipVerify,
 		MinVersion:         tls.VersionTLS12,
 		Renegotiation:      tls.RenegotiateFreelyAsClient,
