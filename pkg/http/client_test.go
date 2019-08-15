@@ -2,58 +2,10 @@ package http
 
 import (
 	"crypto/tls"
-	"crypto/x509"
-	"encoding/pem"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
 	"net/http"
 	"testing"
 )
-
-func clientCertsFromFile(keyPath, certPath string) ([]tls.Certificate, error) {
-	keyBlock, err := ioutil.ReadFile(keyPath)
-	if err != nil {
-		return nil, errors.Wrap(err, "read key file")
-	}
-	certBlock, err := ioutil.ReadFile(certPath)
-	if err != nil {
-		return nil, errors.Wrap(err, "read cert file")
-	}
-
-	crt, err := tls.X509KeyPair(certBlock, keyBlock)
-	if err != nil {
-		return nil, errors.Wrap(err, "parse x509 key pair")
-	}
-	return []tls.Certificate{crt}, nil
-}
-
-func rootCASFromFile(path string) ([]*x509.Certificate, error) {
-	pemBytes, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, errors.Wrap(err, "read file")
-	}
-
-	// Currently only support one block
-	var block *pem.Block
-	block, _ = pem.Decode(pemBytes)
-
-	cert, err := x509.ParseCertificate(block.Bytes)
-	if err != nil {
-		return nil, errors.Wrap(err, "parse x509 certificate")
-	}
-
-	return []*x509.Certificate{cert}, nil
-}
-
-func rootCAPoolFromCerts(certs []*x509.Certificate) *x509.CertPool {
-	rootCAPool := x509.NewCertPool()
-	for _, rootCert := range certs {
-		rootCAPool.AddCert(rootCert)
-	}
-
-	return rootCAPool
-}
 
 func TestNewMATLSClient(t *testing.T) {
 	// Bootstrap the tests with required keys certificates
