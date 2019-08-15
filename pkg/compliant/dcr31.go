@@ -5,7 +5,7 @@ func NewDCR31(wellKnownEndpoint string) Scenarios {
 		NewBuilder("Dynamically create a new software client").
 			TestCase(
 				NewTestCaseBuilder("Retrieve registration endpoint from OIDC Discovery Endpoint").
-					Get("https://modelobankauth2018.o3bank.co.uk:4101/.well-known/openid-configuration").
+					Get(wellKnownEndpoint).
 					AssertStatusCodeOk().
 					ParseWellKnownRegistrationEndpoint().
 					Build(),
