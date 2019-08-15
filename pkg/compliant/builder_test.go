@@ -21,8 +21,11 @@ func TestNewTestCaseBuilder(t *testing.T) {
 		AssertStatusCodeOk().
 		AssertContextTypeApplicationHtml().
 		ParseWellKnownRegistrationEndpoint().
+		ClientRegister("ssa").
+		AssertStatusCodeCreated().
+		ParseClientRegisterResponse().
 		Step(step.NewAlwaysPass())
 
 	assert.Equal(t, "test case", tc.name)
-	assert.Len(t, tc.steps, 5)
+	assert.Len(t, tc.steps, 8)
 }

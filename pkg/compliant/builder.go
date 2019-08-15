@@ -38,25 +38,49 @@ func NewTestCaseBuilder(name string) *testCaseBuilder {
 	}
 }
 
+const (
+	openIdConfigCtxKey = "openid_config"
+	responseCtxKey     = "response"
+	clientCtxKey       = "software_client"
+)
+
 func (t *testCaseBuilder) Get(url string) *testCaseBuilder {
-	t.steps = append(t.steps, step.NewGetRequest(url, "response", &http.Client{}))
+	t.steps = append(t.steps, step.NewGetRequest(url, responseCtxKey, &http.Client{}))
 	return t
 }
 
 func (t *testCaseBuilder) AssertStatusCodeOk() *testCaseBuilder {
-	nextStep := step.NewAssertStatus(200, "response")
+	nextStep := step.NewAssertStatus(http.StatusOK, responseCtxKey)
+	t.steps = append(t.steps, nextStep)
+	return t
+}
+
+func (t *testCaseBuilder) AssertStatusCodeCreated() *testCaseBuilder {
+	nextStep := step.NewAssertStatus(http.StatusCreated, responseCtxKey)
 	t.steps = append(t.steps, nextStep)
 	return t
 }
 
 func (t *testCaseBuilder) AssertContextTypeApplicationHtml() *testCaseBuilder {
-	nextStep := step.NewAssertContentType("response", "application/html")
+	nextStep := step.NewAssertContentType(responseCtxKey, "application/html")
 	t.steps = append(t.steps, nextStep)
 	return t
 }
 
 func (t *testCaseBuilder) ParseWellKnownRegistrationEndpoint() *testCaseBuilder {
-	nextStep := step.NewParseWellKnownRegistrationEndpoint("response", "registration_endpoint")
+	nextStep := step.NewParseWellKnownRegistrationEndpoint(responseCtxKey, openIdConfigCtxKey)
+	t.steps = append(t.steps, nextStep)
+	return t
+}
+
+func (t *testCaseBuilder) ClientRegister(ssa string) *testCaseBuilder {
+	nextStep := step.NewClientRegister(openIdConfigCtxKey, ssa, responseCtxKey, &http.Client{})
+	t.steps = append(t.steps, nextStep)
+	return t
+}
+
+func (t *testCaseBuilder) ParseClientRegisterResponse() *testCaseBuilder {
+	nextStep := step.NewClientRegisterResponse(responseCtxKey, clientCtxKey)
 	t.steps = append(t.steps, nextStep)
 	return t
 }

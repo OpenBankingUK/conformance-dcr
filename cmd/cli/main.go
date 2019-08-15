@@ -36,6 +36,7 @@ func loadConfig(configFilePath string) (Config, error) {
 
 func main() {
 	fmt.Println("Dynamic Client Registration Conformance Tool cli")
+
 	var configFilePath string
 	flag.StringVar(&configFilePath, "config-path", "", "Config file path")
 	flag.Parse()
@@ -47,11 +48,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("unable to load config: %v", err)
 	}
-	scenarios := compliant.NewDCR31(cfg.WellknownEndpoint)
+
+	scenarios := compliant.NewDCR32(cfg.WellknownEndpoint, cfg.SSA)
 	tester := compliant.NewVerboseTester()
 
 	passes := tester.Compliant(scenarios)
-
 	if !passes {
 		fmt.Println("FAIL")
 		os.Exit(1)

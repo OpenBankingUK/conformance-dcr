@@ -10,17 +10,17 @@ import (
 func TestAssertStatusOk_Pass(t *testing.T) {
 	ctx := NewContext()
 	ctx.SetResponse("response", &http.Response{StatusCode: http.StatusOK})
-	step := NewAssertStatus(200, "response")
+	step := NewAssertStatus(http.StatusOK, "response")
 
 	result := step.Run(ctx)
 
 	assert.True(t, result.Pass)
-	assert.Equal(t, "Status Code 200", result.Name)
+	assert.Equal(t, "Assert status code 200", result.Name)
 }
 
 func TestAssertStatusOk_FailsIfResponseNotInContext(t *testing.T) {
 	ctx := NewContext()
-	step := NewAssertStatus(200, "response")
+	step := NewAssertStatus(http.StatusOK, "response")
 
 	result := step.Run(ctx)
 
@@ -31,7 +31,7 @@ func TestAssertStatusOk_FailsIfResponseNotInContext(t *testing.T) {
 func TestAssertStatusOk_FailsIfStatusCodeIsOtherThenOk(t *testing.T) {
 	ctx := NewContext()
 	ctx.SetResponse("response", &http.Response{StatusCode: http.StatusTeapot})
-	step := NewAssertStatus(200, "response")
+	step := NewAssertStatus(http.StatusOK, "response")
 
 	result := step.Run(ctx)
 

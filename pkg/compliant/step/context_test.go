@@ -1,6 +1,8 @@
 package step
 
 import (
+	dcr "bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"net/http"
 	"testing"
 
@@ -76,6 +78,48 @@ func TestContext_GetResponse_ReturnsError_IfDoesntExists(t *testing.T) {
 	ctx.SetResponse("key", r)
 
 	_, err := ctx.GetResponse("non existing key")
+
+	assert.Equal(t, ErrKeyNotFoundInContext, err)
+}
+
+func TestContext_SetOpenIdConfig(t *testing.T) {
+	ctx := NewContext()
+	config := openid.Configuration{}
+	ctx.SetOpenIdConfig("key", config)
+
+	value, err := ctx.GetOpenIdConfig("key")
+
+	assert.NoError(t, err)
+	assert.Equal(t, config, value)
+}
+
+func TestContext_GetOpenIdConfig_ReturnsError_IfDoesntExists(t *testing.T) {
+	ctx := NewContext()
+	config := openid.Configuration{}
+	ctx.SetOpenIdConfig("key", config)
+
+	_, err := ctx.GetOpenIdConfig("non existing key")
+
+	assert.Equal(t, ErrKeyNotFoundInContext, err)
+}
+
+func TestContext_SetClient(t *testing.T) {
+	ctx := NewContext()
+	client := dcr.Client{}
+	ctx.SetClient("key", client)
+
+	value, err := ctx.GetClient("key")
+
+	assert.NoError(t, err)
+	assert.Equal(t, client, value)
+}
+
+func TestContext_GetClient_ReturnsError_IfDoesntExists(t *testing.T) {
+	ctx := NewContext()
+	client := dcr.Client{}
+	ctx.SetClient("key", client)
+
+	_, err := ctx.GetClient("non existing key")
 
 	assert.Equal(t, ErrKeyNotFoundInContext, err)
 }

@@ -1,21 +1,22 @@
 package step
 
 import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"encoding/json"
 	"fmt"
 )
 
 type parseWellKnownRegistrationEndpoint struct {
 	responseContextVar string
-	storeContextVar    string
+	openIdConfigKey    string
 	stepName           string
 }
 
-func NewParseWellKnownRegistrationEndpoint(responseContextVar, storeContextVar string) Step {
+func NewParseWellKnownRegistrationEndpoint(responseContextVar, openIdConfigKey string) Step {
 	return parseWellKnownRegistrationEndpoint{
 		responseContextVar: responseContextVar,
-		storeContextVar:    storeContextVar,
-		stepName:           "parse well-known response registration endpoint",
+		openIdConfigKey:    openIdConfigKey,
+		stepName:           "Decode well-known response registration endpoint",
 	}
 }
 
@@ -26,16 +27,12 @@ func (s parseWellKnownRegistrationEndpoint) Run(ctx Context) Result {
 	}
 
 	defer response.Body.Close()
-	config := OpenIDConfiguration{}
+	config := openid.Configuration{}
 	if err := json.NewDecoder(response.Body).Decode(&config); err != nil {
 		return NewFailResult(s.stepName, fmt.Sprintf("reading response body: %s", err.Error()))
 	}
 
-	ctx.SetString(s.storeContextVar, config.RegistrationEndpoint)
+	ctx.SetOpenIdConfig(s.openIdConfigKey, config)
 
 	return NewPassResult(s.stepName)
-}
-
-type OpenIDConfiguration struct {
-	RegistrationEndpoint string `json:"registration_endpoint"`
 }

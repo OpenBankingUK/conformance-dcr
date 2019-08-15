@@ -1,6 +1,6 @@
 package compliant
 
-func NewDCR31(wellKnownEndpoint string) Scenarios {
+func NewDCR32(wellKnownEndpoint, ssa string) Scenarios {
 	return Scenarios{
 		NewBuilder("Dynamically create a new software client").
 			TestCase(
@@ -8,6 +8,13 @@ func NewDCR31(wellKnownEndpoint string) Scenarios {
 					Get(wellKnownEndpoint).
 					AssertStatusCodeOk().
 					ParseWellKnownRegistrationEndpoint().
+					Build(),
+			).
+			TestCase(
+				NewTestCaseBuilder("Register software client").
+					ClientRegister(ssa).
+					AssertStatusCodeCreated().
+					ParseClientRegisterResponse().
 					Build(),
 			).
 			Build(),

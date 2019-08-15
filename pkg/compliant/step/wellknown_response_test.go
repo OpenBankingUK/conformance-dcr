@@ -11,17 +11,17 @@ import (
 
 func TestNewParseWellKnownRegistrationEndpoint(t *testing.T) {
 	ctx := NewContext()
-	body := ioutil.NopCloser(strings.NewReader(`{"registration_endpoint": "hal"}`))
+	body := ioutil.NopCloser(strings.NewReader(`{"registration_endpoint": "http://registration_endpoint"}`))
 	ctx.SetResponse("response", &http.Response{Body: body})
 	step := NewParseWellKnownRegistrationEndpoint("response", "registration_endpoint")
 
 	result := step.Run(ctx)
 
 	assert.True(t, result.Pass)
-	assert.Equal(t, "parse well-known response registration endpoint", result.Name)
-	r, err := ctx.GetString("registration_endpoint")
+	assert.Equal(t, "Decode well-known response registration endpoint", result.Name)
+	r, err := ctx.GetOpenIdConfig("registration_endpoint")
 	require.NoError(t, err)
-	assert.Equal(t, "hal", r)
+	assert.Equal(t, "http://registration_endpoint", r.RegistrationEndpoint)
 }
 
 func TestNewParseWellKnownRegistrationEndpoint_FailsIfResponseNotFoundInContext(t *testing.T) {

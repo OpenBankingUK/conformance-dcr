@@ -1,6 +1,8 @@
 package step
 
 import (
+	dcr "bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"errors"
 	"net/http"
 )
@@ -12,21 +14,29 @@ type Context interface {
 	GetInt(key string) (int, error)
 	SetResponse(key string, response *http.Response)
 	GetResponse(key string) (*http.Response, error)
+	SetOpenIdConfig(key string, config openid.Configuration)
+	GetOpenIdConfig(key string) (openid.Configuration, error)
+	SetClient(key string, client dcr.Client)
+	GetClient(key string) (dcr.Client, error)
 }
 
 var ErrKeyNotFoundInContext = errors.New("key not found in context")
 
 type context struct {
-	strings   map[string]string
-	ints      map[string]int
-	responses map[string]*http.Response
+	strings       map[string]string
+	ints          map[string]int
+	responses     map[string]*http.Response
+	openIdConfigs map[string]openid.Configuration
+	clients       map[string]dcr.Client
 }
 
 func NewContext() Context {
 	return &context{
-		strings:   map[string]string{},
-		ints:      map[string]int{},
-		responses: map[string]*http.Response{},
+		strings:       map[string]string{},
+		ints:          map[string]int{},
+		responses:     map[string]*http.Response{},
+		openIdConfigs: map[string]openid.Configuration{},
+		clients:       map[string]dcr.Client{},
 	}
 }
 
@@ -62,6 +72,30 @@ func (c *context) GetResponse(key string) (*http.Response, error) {
 	value, ok := c.responses[key]
 	if !ok {
 		return nil, ErrKeyNotFoundInContext
+	}
+	return value, nil
+}
+
+func (c *context) SetOpenIdConfig(key string, config openid.Configuration) {
+	c.openIdConfigs[key] = config
+}
+
+func (c *context) GetOpenIdConfig(key string) (openid.Configuration, error) {
+	value, ok := c.openIdConfigs[key]
+	if !ok {
+		return openid.Configuration{}, ErrKeyNotFoundInContext
+	}
+	return value, nil
+}
+
+func (c *context) SetClient(key string, client dcr.Client) {
+	c.clients[key] = client
+}
+
+func (c *context) GetClient(key string) (dcr.Client, error) {
+	value, ok := c.clients[key]
+	if !ok {
+		return dcr.Client{}, ErrKeyNotFoundInContext
 	}
 	return value, nil
 }

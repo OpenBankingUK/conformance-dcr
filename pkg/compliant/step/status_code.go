@@ -14,7 +14,7 @@ func NewAssertStatus(code int, responseContextVar string) Step {
 	return assertStatusCode{
 		code:               code,
 		responseContextVar: responseContextVar,
-		stepName:           fmt.Sprintf("Status Code %d", code),
+		stepName:           fmt.Sprintf("Assert status code %d", code),
 	}
 }
 
