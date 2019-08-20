@@ -12,16 +12,16 @@ type clientRegister struct {
 	client          *http.Client
 	openIdConfigKey string
 	responseKey     string
-	ssa             string
+	jwtClaimsCtxKey string
 }
 
-func NewClientRegister(openIdConfigKey, ssa, responseKey string, httpClient *http.Client) Step {
+func NewClientRegister(openIdConfigCtxKey, jwtClaimsCtxKey, responseCtxKey string, httpClient *http.Client) Step {
 	return clientRegister{
 		stepName:        "Software client register",
-		openIdConfigKey: openIdConfigKey,
+		openIdConfigKey: openIdConfigCtxKey,
 		client:          httpClient,
-		ssa:             ssa,
-		responseKey:     responseKey,
+		jwtClaimsCtxKey: jwtClaimsCtxKey,
+		responseKey:     responseCtxKey,
 	}
 }
 
@@ -31,7 +31,12 @@ func (s clientRegister) Run(ctx Context) Result {
 		return NewFailResult(s.stepName, fmt.Sprintf("getting openid config: %s", err.Error()))
 	}
 
-	response, err := s.doJwtPostRequest(configuration.RegistrationEndpoint)
+	jwtClaims, err := ctx.GetString(s.jwtClaimsCtxKey)
+	if err != nil {
+		return NewFailResult(s.stepName, fmt.Sprintf("getting jwt claims: %s", err.Error()))
+	}
+
+	response, err := s.doJwtPostRequest(configuration.RegistrationEndpoint, jwtClaims)
 	if err != nil {
 		return NewFailResult(s.stepName, err.Error())
 	}
@@ -41,8 +46,8 @@ func (s clientRegister) Run(ctx Context) Result {
 	return NewPassResult(s.stepName)
 }
 
-func (s clientRegister) doJwtPostRequest(endpoint string) (*http.Response, error) {
-	body := bytes.NewBufferString(signedClaims(s.ssa))
+func (s clientRegister) doJwtPostRequest(endpoint, jwtClaims string) (*http.Response, error) {
+	body := bytes.NewBufferString(jwtClaims)
 	request, err := http.NewRequest(http.MethodPost, endpoint, body)
 	if err != nil {
 		return nil, errors.Wrap(err, "creating jwt post request")
@@ -55,8 +60,4 @@ func (s clientRegister) doJwtPostRequest(endpoint string) (*http.Response, error
 		return nil, errors.Wrap(err, "making jwt post request")
 	}
 	return response, nil
-}
-
-func signedClaims(ssa string) string {
-	return ssa
 }

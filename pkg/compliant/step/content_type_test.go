@@ -16,7 +16,7 @@ func TestAssertContentType_Pass(t *testing.T) {
 	result := step.Run(ctx)
 
 	assert.True(t, result.Pass)
-	assert.Equal(t, "Content-Type header is application/vorgon", result.Name)
+	assert.Equal(t, "Assert `Content-Type` header is application/vorgon", result.Name)
 }
 
 func TestAssertContentType_FailsIfResponseNotInContext(t *testing.T) {

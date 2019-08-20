@@ -1,6 +1,8 @@
 package compliant
 
-func NewDCR32(wellKnownEndpoint, ssa string) Scenarios {
+import "crypto/rsa"
+
+func NewDCR32(wellKnownEndpoint, ssa string, privateKey *rsa.PrivateKey) Scenarios {
 	return Scenarios{
 		NewBuilder("Dynamically create a new software client").
 			TestCase(
@@ -12,7 +14,8 @@ func NewDCR32(wellKnownEndpoint, ssa string) Scenarios {
 			).
 			TestCase(
 				NewTestCaseBuilder("Register software client").
-					ClientRegister(ssa).
+					GenerateSignedClaims(ssa, privateKey).
+					ClientRegister().
 					AssertStatusCodeCreated().
 					ParseClientRegisterResponse().
 					Build(),

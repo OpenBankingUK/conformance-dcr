@@ -21,7 +21,7 @@ func TestNewClientRegister(t *testing.T) {
 		// does it have the JWT body?
 		body, err := ioutil.ReadAll(req.Body)
 		require.NoError(t, err)
-		assert.Equal(t, "ssa", string(body))
+		assert.Equal(t, "jwt.Claims.xxxx", string(body))
 
 		_, err = rw.Write([]byte(`OK`))
 		require.NoError(t, err)
@@ -34,7 +34,8 @@ func TestNewClientRegister(t *testing.T) {
 		RegistrationEndpoint: url,
 		TokenEndpoint:        "",
 	})
-	step := NewClientRegister("openIdConfigKey", "ssa", "responseKey", server.Client())
+	ctx.SetString("jwtClaimsCtxKey", "jwt.Claims.xxxx")
+	step := NewClientRegister("openIdConfigKey", "jwtClaimsCtxKey", "responseKey", server.Client())
 
 	result := step.Run(ctx)
 
@@ -53,7 +54,8 @@ func TestNewClientRegister_HandlesHttpErrors(t *testing.T) {
 		RegistrationEndpoint: "invalid url",
 		TokenEndpoint:        "",
 	})
-	step := NewClientRegister("openIdConfigKey", "ssa", "responseKey", &http.Client{})
+	ctx.SetString("jwtClaimsCtxKey", "jwt.Claims.xxxx")
+	step := NewClientRegister("openIdConfigKey", "jwtClaimsCtxKey", "responseKey", &http.Client{})
 
 	result := step.Run(ctx)
 
@@ -67,7 +69,8 @@ func TestNewClientRegister_HandlesCreateRequestError(t *testing.T) {
 		RegistrationEndpoint: string(0x7f),
 		TokenEndpoint:        "",
 	})
-	step := NewClientRegister("openIdConfigKey", "ssa", "responseKey", &http.Client{})
+	ctx.SetString("jwtClaimsCtxKey", "jwt.Claims.xxxx")
+	step := NewClientRegister("openIdConfigKey", "jwtClaimsCtxKey", "responseKey", &http.Client{})
 
 	result := step.Run(ctx)
 
@@ -77,10 +80,25 @@ func TestNewClientRegister_HandlesCreateRequestError(t *testing.T) {
 
 func TestNewClientRegister_HandlesOpenIdConfigNotInContext(t *testing.T) {
 	ctx := NewContext()
-	step := NewClientRegister("openIdConfigKey", "ssa", "responseKey", &http.Client{})
+	ctx.SetString("jwtClaimsCtxKey", "jwt.Claims.xxxx")
+	step := NewClientRegister("openIdConfigKey", "jwtClaimsCtxKey", "responseKey", &http.Client{})
 
 	result := step.Run(ctx)
 
 	assert.False(t, result.Pass)
 	assert.Equal(t, "getting openid config: key not found in context", result.Message)
+}
+
+func TestNewClientRegister_HandlesJwtClaimsNotInContext(t *testing.T) {
+	ctx := NewContext()
+	ctx.SetOpenIdConfig("openIdConfigKey", openid.Configuration{
+		RegistrationEndpoint: string(0x7f),
+		TokenEndpoint:        "",
+	})
+	step := NewClientRegister("openIdConfigKey", "jwtClaimsCtxKey", "responseKey", &http.Client{})
+
+	result := step.Run(ctx)
+
+	assert.False(t, result.Pass)
+	assert.Equal(t, "getting jwt claims: key not found in context", result.Message)
 }

@@ -2,6 +2,7 @@ package compliant
 
 import (
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
+	"crypto/rsa"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -21,11 +22,12 @@ func TestNewTestCaseBuilder(t *testing.T) {
 		AssertStatusCodeOk().
 		AssertContextTypeApplicationHtml().
 		ParseWellKnownRegistrationEndpoint().
-		ClientRegister("ssa").
+		GenerateSignedClaims("ssa", &rsa.PrivateKey{}).
+		ClientRegister().
 		AssertStatusCodeCreated().
 		ParseClientRegisterResponse().
 		Step(step.NewAlwaysPass())
 
 	assert.Equal(t, "test case", tc.name)
-	assert.Len(t, tc.steps, 8)
+	assert.Len(t, tc.steps, 9)
 }

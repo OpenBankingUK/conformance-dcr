@@ -7,8 +7,16 @@ ASPSPs in a manner that offers very low friction and removes hurdles and barrier
 
 The supporting documentation assumes technical understanding of the Open Banking ecosystem and DCR. An introduction to the concepts is available via the [Open Banking Website](https://www.openbanking.org.uk/).
 
-## Running
+## Development
+
+### Requirements
+
+- Go 1.12
+
+### Running
+
+To run against Ozone:
 
 ```bash
-make run
+make build; ./dcr -config-path configs/config.json
 ```

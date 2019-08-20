@@ -2,6 +2,7 @@ package compliant
 
 import (
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
+	"crypto/rsa"
 	"net/http"
 )
 
@@ -42,6 +43,7 @@ const (
 	openIdConfigCtxKey = "openid_config"
 	responseCtxKey     = "response"
 	clientCtxKey       = "software_client"
+	jwtClaimsCtxKey    = "jwt_claims"
 )
 
 func (t *testCaseBuilder) Get(url string) *testCaseBuilder {
@@ -73,8 +75,14 @@ func (t *testCaseBuilder) ParseWellKnownRegistrationEndpoint() *testCaseBuilder 
 	return t
 }
 
-func (t *testCaseBuilder) ClientRegister(ssa string) *testCaseBuilder {
-	nextStep := step.NewClientRegister(openIdConfigCtxKey, ssa, responseCtxKey, &http.Client{})
+func (t *testCaseBuilder) GenerateSignedClaims(ssa string, privateKey *rsa.PrivateKey) *testCaseBuilder {
+	nextStep := step.NewClaims(jwtClaimsCtxKey, openIdConfigCtxKey, ssa, privateKey)
+	t.steps = append(t.steps, nextStep)
+	return t
+}
+
+func (t *testCaseBuilder) ClientRegister() *testCaseBuilder {
+	nextStep := step.NewClientRegister(openIdConfigCtxKey, jwtClaimsCtxKey, responseCtxKey, &http.Client{})
 	t.steps = append(t.steps, nextStep)
 	return t
 }

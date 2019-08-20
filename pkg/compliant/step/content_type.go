@@ -14,7 +14,7 @@ func NewAssertContentType(responseContextVar string, contentType string) Step {
 	return assertContentType{
 		responseContextVar: responseContextVar,
 		contentType:        contentType,
-		stepName:           fmt.Sprintf("Content-Type header is %s", contentType),
+		stepName:           fmt.Sprintf("Assert `Content-Type` header is %s", contentType),
 	}
 }
 
