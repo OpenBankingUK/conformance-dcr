@@ -31,6 +31,7 @@ func NewDCR32(wellKnownEndpoint, ssa string, privateKey *rsa.PrivateKey) Scenari
 			).
 			TestCase(
 				NewTestCaseBuilder("Register software client").
+					GenerateSignedClaims(ssa, privateKey).
 					ClientRegister().
 					AssertStatusCodeCreated().
 					ParseClientRegisterResponse().

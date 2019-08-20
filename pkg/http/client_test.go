@@ -22,7 +22,7 @@ func TestNewMATLSClient(t *testing.T) {
 	}
 
 	config := MATLSConfig{
-		InsecureSkipVerify: true,
+		InsecureSkipVerify: false,
 		ClientCerts:        clientCerts,
 		RootCAs:            rootCAs,
 		TLSMinVersion:      tls.VersionTLS12,
@@ -30,7 +30,7 @@ func TestNewMATLSClient(t *testing.T) {
 	wantClient := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true,
+				InsecureSkipVerify: false,
 				Certificates:       clientCerts,
 				MinVersion:         tls.VersionTLS12,
 				Renegotiation:      tls.RenegotiateFreelyAsClient,

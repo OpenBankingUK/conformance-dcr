@@ -21,11 +21,14 @@ type MATLSConfig struct {
 // `caCerts` is an optional list of root CA certificates that can be used to validate host certificates.
 // Can be set to nil if not required.
 func NewMATLSClient(config MATLSConfig) (*http.Client, error) {
+	if config.InsecureSkipVerify {
+		return nil, errors.New("insecure skip verify not implemented")
+	}
+
 	tlsConfig := &tls.Config{
-		Certificates:       config.ClientCerts,
-		InsecureSkipVerify: config.InsecureSkipVerify,
-		MinVersion:         config.TLSMinVersion,
-		Renegotiation:      tls.RenegotiateFreelyAsClient,
+		Certificates:  config.ClientCerts,
+		MinVersion:    config.TLSMinVersion,
+		Renegotiation: tls.RenegotiateFreelyAsClient,
 	}
 
 	if config.RootCAs != nil {
