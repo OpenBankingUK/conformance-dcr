@@ -12,7 +12,7 @@ help: ## Displays this help.
 
 .PHONY: run
 run: ## run binary directly without docker.
-	go run ./cmd/cli
+	go run ./cmd/cli --config-path configs/config.json
 
 .PHONY: run_image
 run_image: ## run the 'latest' docker image.
