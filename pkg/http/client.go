@@ -22,7 +22,7 @@ type MATLSConfig struct {
 // Can be set to nil if not required.
 func NewMATLSClient(config MATLSConfig) (*http.Client, error) {
 	if config.InsecureSkipVerify {
-		return nil, errors.New("insecure skip verify not implemented")
+		return nil, errors.New("insecure skip verify not allowed")
 	}
 
 	tlsConfig := &tls.Config{
@@ -32,11 +32,7 @@ func NewMATLSClient(config MATLSConfig) (*http.Client, error) {
 	}
 
 	if config.RootCAs != nil {
-		caCrtPool := x509.NewCertPool()
-		for _, cert := range config.RootCAs {
-			caCrtPool.AddCert(cert)
-		}
-		tlsConfig.RootCAs = caCrtPool
+		tlsConfig.RootCAs = RootCAPoolFromCerts(config.RootCAs)
 	}
 
 	tlsConfig.BuildNameToCertificate()
@@ -45,46 +41,68 @@ func NewMATLSClient(config MATLSConfig) (*http.Client, error) {
 	return &http.Client{Transport: transport}, nil
 }
 
-func clientCertsFromFile(keyPath, certPath string) ([]tls.Certificate, error) {
-	keyBlock, err := ioutil.ReadFile(keyPath)
-	if err != nil {
-		return nil, errors.Wrap(err, "read key file")
-	}
-	certBlock, err := ioutil.ReadFile(certPath)
-	if err != nil {
-		return nil, errors.Wrap(err, "read cert file")
-	}
-
-	crt, err := tls.X509KeyPair(certBlock, keyBlock)
+func TlsClientCert(certPEMBlock, keyPEMBlock []byte) ([]tls.Certificate, error) {
+	crt, err := tls.X509KeyPair(certPEMBlock, keyPEMBlock)
 	if err != nil {
 		return nil, errors.Wrap(err, "parse x509 key pair")
 	}
 	return []tls.Certificate{crt}, nil
 }
 
-func rootCASFromFile(path string) ([]*x509.Certificate, error) {
-	pemBytes, err := ioutil.ReadFile(path)
+func TlsCertFromFile(keyPath, certPath string) ([]tls.Certificate, error) {
+	keyBlock, err := ioutil.ReadFile(keyPath)
 	if err != nil {
-		return nil, errors.Wrap(err, "read file")
+		return nil, errors.Wrap(err, "tls cert from file")
+	}
+	certBlock, err := ioutil.ReadFile(certPath)
+	if err != nil {
+		return nil, errors.Wrap(err, "tls cert from file")
 	}
 
+	return TlsClientCert(certBlock, keyBlock)
+}
+
+func RootCASCertificate(pemBytes []byte) (*x509.Certificate, error) {
 	// Currently only support one block
 	var block *pem.Block
 	block, _ = pem.Decode(pemBytes)
+	if block == nil {
+		return nil, errors.New("could not find a PEM formatted block")
+	}
 
 	cert, err := x509.ParseCertificate(block.Bytes)
 	if err != nil {
 		return nil, errors.Wrap(err, "parse x509 certificate")
 	}
 
-	return []*x509.Certificate{cert}, nil
+	return cert, nil
 }
 
-func rootCAPoolFromCerts(certs []*x509.Certificate) *x509.CertPool {
+func RootCASFromFile(path string) (*x509.Certificate, error) {
+	pemBytes, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, errors.Wrap(err, "rootCAs from file")
+	}
+
+	return RootCASCertificate(pemBytes)
+}
+
+func RootCAs(cas []string) ([]*x509.Certificate, error) {
+	rootCAs := make([]*x509.Certificate, len(cas))
+	for key, rootCA := range cas {
+		ca, err := RootCASCertificate([]byte(rootCA))
+		if err != nil {
+			return nil, errors.Wrapf(err, "building rootCAs certificate: %d", key)
+		}
+		rootCAs[key] = ca
+	}
+	return rootCAs, nil
+}
+
+func RootCAPoolFromCerts(certs []*x509.Certificate) *x509.CertPool {
 	rootCAPool := x509.NewCertPool()
 	for _, rootCert := range certs {
 		rootCAPool.AddCert(rootCert)
 	}
-
 	return rootCAPool
 }

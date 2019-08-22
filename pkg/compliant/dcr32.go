@@ -1,8 +1,11 @@
 package compliant
 
-import "crypto/rsa"
+import (
+	"crypto/rsa"
+	"net/http"
+)
 
-func NewDCR32(wellKnownEndpoint, ssa string, privateKey *rsa.PrivateKey) Scenarios {
+func NewDCR32(wellKnownEndpoint, ssa string, privateKey *rsa.PrivateKey, secureClient *http.Client) Scenarios {
 	return Scenarios{
 		NewBuilder("Dynamically create a new software client").
 			TestCase(
@@ -14,8 +17,9 @@ func NewDCR32(wellKnownEndpoint, ssa string, privateKey *rsa.PrivateKey) Scenari
 			).
 			TestCase(
 				NewTestCaseBuilder("Register software client").
+					WithHttpClient(secureClient).
 					GenerateSignedClaims(ssa, privateKey).
-					ClientRegister().
+					PostClientRegister().
 					AssertStatusCodeCreated().
 					ParseClientRegisterResponse().
 					Build(),
@@ -31,14 +35,16 @@ func NewDCR32(wellKnownEndpoint, ssa string, privateKey *rsa.PrivateKey) Scenari
 			).
 			TestCase(
 				NewTestCaseBuilder("Register software client").
+					WithHttpClient(secureClient).
 					GenerateSignedClaims(ssa, privateKey).
-					ClientRegister().
+					PostClientRegister().
 					AssertStatusCodeCreated().
 					ParseClientRegisterResponse().
 					Build(),
 			).
 			TestCase(
 				NewTestCaseBuilder("Retrieve software client").
+					WithHttpClient(secureClient).
 					ClientRetrieve().
 					AssertStatusCodeOk().
 					ParseClientRetrieveResponse().

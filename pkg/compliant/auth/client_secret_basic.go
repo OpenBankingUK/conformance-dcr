@@ -29,36 +29,44 @@ func (c clientSecretBasic) ClientRegister(response []byte) (client.Client, error
 }
 
 func (c clientSecretBasic) Claims() (string, error) {
-	iat := time.Now()
+	// @todo move up
+	clientId := "Qeyb9TC0IzLympA9mKoSQ0"
+	redirectURIs := []string{"https://0.0.0.0:8443/conformancesuite/callback"}
+
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return "", errors.Wrap(err, "generating claims")
+	}
+
+	iat := time.Now().UTC()
 	exp := iat.Add(time.Hour)
 	signingMethod := jwt.SigningMethodRS256
 	token := jwt.NewWithClaims(
 		signingMethod,
 		jwt.MapClaims{
+			// standard claims
+			"aud": c.config.Issuer,
+			"exp": exp.Unix(),
+			"jti": id.String(),
+			"iat": iat.Unix(),
+			"iss": clientId,
+			//"nbf": "",
+			//"sub": "",
+
+			// metadata
 			"kid":                             "YqL1S1MVsiknkoNpAMcXXui0VOQ",
 			"token_endpoint_auth_signing_alg": signingMethod.Alg(),
 			"grant_types": []string{
 				"authorization_code",
-				"refresh_token",
 				"client_credentials",
 			},
-			"subject_type":     "public",
-			"application_type": "web",
-			"iss":              c.config.Issuer,
-			"redirect_uris": []string{
-				"http://redirec_url",
-			},
+			"subject_type":               "public",
+			"application_type":           "web",
+			"redirect_uris":              redirectURIs,
 			"token_endpoint_auth_method": "client_secret_basic",
-			"aud":                        c.config.Issuer,
 			"software_statement":         c.ssa,
-			"scopes": []string{
-				"openid",
-				"accounts",
-			},
+			"scope":                      "accounts openid",
 			"request_object_signing_alg": "none",
-			"exp":                        exp.Unix(),
-			"iat":                        iat.Unix(),
-			"jti":                        uuid.New().String(),
 			"response_types": []string{
 				"code",
 				"code id_token",

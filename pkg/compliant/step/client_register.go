@@ -15,7 +15,7 @@ type clientRegister struct {
 	jwtClaimsCtxKey string
 }
 
-func NewClientRegister(openIdConfigCtxKey, jwtClaimsCtxKey, responseCtxKey string, httpClient *http.Client) Step {
+func NewPostClientRegister(openIdConfigCtxKey, jwtClaimsCtxKey, responseCtxKey string, httpClient *http.Client) Step {
 	return clientRegister{
 		stepName:        "Software client register",
 		openIdConfigKey: openIdConfigCtxKey,

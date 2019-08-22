@@ -2,29 +2,73 @@ package http
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 )
 
+func TestRootCASCertificate(t *testing.T) {
+	cert, err := RootCASCertificate([]byte(""))
+
+	assert.EqualError(t, err, "could not find a PEM formatted block")
+	assert.Nil(t, cert)
+}
+
+func TestTlsClientCertFromFile_HandlesKeyFileError(t *testing.T) {
+	certs, err := TlsCertFromFile(
+		"wrongfile",
+		"testdata/client-sample-cert.pem",
+	)
+
+	assert.EqualError(t, err, "tls cert from file: open wrongfile: no such file or directory")
+	assert.Nil(t, certs)
+}
+
+func TestTlsClientCertFromFile_HandlesCertFileError(t *testing.T) {
+	certs, err := TlsCertFromFile(
+		"testdata/client-sample-key.key",
+		"wrongfile",
+	)
+
+	assert.EqualError(t, err, "tls cert from file: open wrongfile: no such file or directory")
+	assert.Nil(t, certs)
+}
+
+func TestRootCASFromFile_HandlesFileError(t *testing.T) {
+	cert, err := RootCASFromFile("wrongfile")
+
+	assert.EqualError(t, err, "rootCAs from file: open wrongfile: no such file or directory")
+	assert.Nil(t, cert)
+}
+
+func TestNewMATLSClient_ReturnsErrIfITryInsecureVerify(t *testing.T) {
+	client, err := NewMATLSClient(MATLSConfig{
+		InsecureSkipVerify: true,
+	})
+
+	assert.EqualError(t, err, "insecure skip verify not allowed")
+	assert.Nil(t, client)
+}
+
 func TestNewMATLSClient(t *testing.T) {
 	// Bootstrap the tests with required keys certificates
-	rootCAs, err := rootCASFromFile("testdata/client-sample-root-ca.pem")
-	if err != nil {
-		t.Fatalf("load root CAs from file: %s", err.Error())
-	}
-	rootCAPool := rootCAPoolFromCerts(rootCAs)
+	rootCAs, err := RootCASFromFile("testdata/client-sample-root-ca.pem")
+	require.NoError(t, err)
 
-	clientCerts, err := clientCertsFromFile(
-		"testdata/client-sample-key.key", "testdata/client-sample-cert.pem")
-	if err != nil {
-		t.Fatalf("Create client certs: %s", err.Error())
-	}
+	rootCAPool := RootCAPoolFromCerts([]*x509.Certificate{rootCAs})
+
+	clientCerts, err := TlsCertFromFile(
+		"testdata/client-sample-key.key",
+		"testdata/client-sample-cert.pem",
+	)
+	require.NoError(t, err)
 
 	config := MATLSConfig{
 		InsecureSkipVerify: false,
 		ClientCerts:        clientCerts,
-		RootCAs:            rootCAs,
+		RootCAs:            []*x509.Certificate{rootCAs},
 		TLSMinVersion:      tls.VersionTLS12,
 	}
 	wantClient := &http.Client{
@@ -38,13 +82,9 @@ func TestNewMATLSClient(t *testing.T) {
 			},
 		},
 	}
-	wantErr := false
 
 	got, err := NewMATLSClient(config)
-	if (err != nil) != wantErr {
-		t.Errorf("NewMATLSClient() error = %v, wantErr %v", err, wantErr)
-		return
-	}
+	require.NoError(t, err)
 
 	trsActual, ok := got.Transport.(*http.Transport)
 	assert.True(t, ok)

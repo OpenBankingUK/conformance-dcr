@@ -20,7 +20,6 @@ func (r Results) Fail() bool {
 	}
 	return false
 }
-
 func NewPassResult(name string) Result {
 	return Result{Name: name, Pass: true}
 }

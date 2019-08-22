@@ -1,10 +1,10 @@
 package compliant
 
 import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 	"crypto/rsa"
 	"net/http"
-
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
+	"time"
 )
 
 type Builder struct {
@@ -29,15 +29,21 @@ func (b *Builder) Build() Scenario {
 }
 
 type testCaseBuilder struct {
-	name  string
-	steps []step.Step
+	name       string
+	steps      []step.Step
+	httpClient *http.Client
 }
 
 func NewTestCaseBuilder(name string) *testCaseBuilder {
 	return &testCaseBuilder{
-		name:  name,
-		steps: []step.Step{},
+		name:       name,
+		steps:      []step.Step{},
+		httpClient: newDefaultHttpClient(),
 	}
+}
+
+func newDefaultHttpClient() *http.Client {
+	return &http.Client{Timeout: time.Second * 5}
 }
 
 const (
@@ -47,8 +53,13 @@ const (
 	jwtClaimsCtxKey    = "jwt_claims"
 )
 
+func (t *testCaseBuilder) WithHttpClient(client *http.Client) *testCaseBuilder {
+	t.httpClient = client
+	return t
+}
+
 func (t *testCaseBuilder) Get(url string) *testCaseBuilder {
-	t.steps = append(t.steps, step.NewGetRequest(url, responseCtxKey, &http.Client{}))
+	t.steps = append(t.steps, step.NewGetRequest(url, responseCtxKey, t.httpClient))
 	return t
 }
 
@@ -82,14 +93,14 @@ func (t *testCaseBuilder) GenerateSignedClaims(ssa string, privateKey *rsa.Priva
 	return t
 }
 
-func (t *testCaseBuilder) ClientRegister() *testCaseBuilder {
-	nextStep := step.NewClientRegister(openIdConfigCtxKey, jwtClaimsCtxKey, responseCtxKey, &http.Client{})
+func (t *testCaseBuilder) PostClientRegister() *testCaseBuilder {
+	nextStep := step.NewPostClientRegister(openIdConfigCtxKey, jwtClaimsCtxKey, responseCtxKey, t.httpClient)
 	t.steps = append(t.steps, nextStep)
 	return t
 }
 
 func (t *testCaseBuilder) ClientRetrieve() *testCaseBuilder {
-	nextStep := step.NewClientRetrieve(responseCtxKey, openIdConfigCtxKey, clientCtxKey, &http.Client{})
+	nextStep := step.NewClientRetrieve(responseCtxKey, openIdConfigCtxKey, clientCtxKey, t.httpClient)
 	t.steps = append(t.steps, nextStep)
 	return t
 }

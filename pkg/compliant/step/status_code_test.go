@@ -36,5 +36,5 @@ func TestAssertStatusOk_FailsIfStatusCodeIsOtherThenOk(t *testing.T) {
 	result := step.Run(ctx)
 
 	assert.False(t, result.Pass)
-	assert.Equal(t, "status received 418", result.Message)
+	assert.Equal(t, "HTTP/0.0 418 I'm a teapot\r\nContent-Length: 0\r\n\r\n", result.Message)
 }

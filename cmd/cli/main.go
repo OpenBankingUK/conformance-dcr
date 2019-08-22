@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
 	"bytes"
 	"encoding/json"
 	"flag"
@@ -36,8 +37,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	scenarios := compliant.NewDCR32(cfg.WellknownEndpoint, cfg.SSA, privateKey)
-	tester := compliant.NewVerboseTester()
+	httpClient, err := http.NewBuilder().
+		WithRootCAs(cfg.TransportRootCAs).
+		WithTransportKeyPair(cfg.TransportCert, cfg.TransportKey).
+		Build()
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	scenarios := compliant.NewDCR32(cfg.WellknownEndpoint, cfg.SSA, privateKey, httpClient)
+	tester := compliant.NewColourTester()
 
 	passes := tester.Compliant(scenarios)
 	if !passes {
@@ -48,9 +58,12 @@ func main() {
 }
 
 type Config struct {
-	WellknownEndpoint string `json:"wellknown_endpoint"`
-	SSA               string `json:"ssa"`
-	PrivateKey        string `json:"private_key"`
+	WellknownEndpoint string   `json:"wellknown_endpoint"`
+	SSA               string   `json:"ssa"`
+	PrivateKey        string   `json:"private_key"`
+	TransportRootCAs  []string `json:"transport_root_cas"`
+	TransportCert     string   `json:"transport_cert"`
+	TransportKey      string   `json:"transport_key"`
 }
 
 func loadConfig(configFilePath string) (Config, error) {

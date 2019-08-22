@@ -2,6 +2,8 @@ package step
 
 import (
 	"fmt"
+	"net/http"
+	"net/http/httputil"
 )
 
 type assertStatusCode struct {
@@ -25,8 +27,16 @@ func (a assertStatusCode) Run(ctx Context) Result {
 	}
 
 	if response.StatusCode != a.code {
-		return NewFailResult(a.stepName, fmt.Sprintf("status received %d", response.StatusCode))
+		return NewFailResult(a.stepName, a.debugMessage(response))
 	}
 
 	return NewPassResult(a.stepName)
+}
+
+func (a assertStatusCode) debugMessage(r *http.Response) string {
+	debug, err := httputil.DumpResponse(r, true)
+	if err != nil {
+		return fmt.Sprintf("could not dump response object: %s", err.Error())
+	}
+	return string(debug)
 }
