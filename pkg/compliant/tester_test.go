@@ -35,24 +35,6 @@ func ExampleTester_Compliant() {
 	// Scenario with one test is compliant
 }
 
-func ExampleNewVerboseTester() {
-	tester := NewVerboseTester()
-
-	isCompliant := tester.Compliant(testPassScenarios())
-
-	compliantText := map[bool]string{
-		false: "FAIL",
-		true:  "PASS",
-	}
-
-	fmt.Println(compliantText[isCompliant])
-	// Output:
-	// === Scenario: Scenario with one test
-	// 	Test case: Always pass test
-	// 		PASS always dumb pass step
-	// PASS
-}
-
 func TestVerboseTester_Compliant(t *testing.T) {
 	scenarios := Scenarios{
 		NewBuilder("Scenario with one test").
@@ -63,7 +45,7 @@ func TestVerboseTester_Compliant(t *testing.T) {
 			).
 			Build(),
 	}
-	tester := NewVerboseTester()
+	tester := NewVerboseColourTester(false)
 
 	isCompliant := tester.Compliant(scenarios)
 

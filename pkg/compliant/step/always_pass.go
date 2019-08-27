@@ -7,5 +7,7 @@ func NewAlwaysPass() Step {
 }
 
 func (s alwaysPass) Run(ctx Context) Result {
-	return NewPassResult("always dumb pass step")
+	debug := NewDebug()
+	debug.Log("always fail step")
+	return NewPassResultWithDebug("always dumb pass step", debug)
 }

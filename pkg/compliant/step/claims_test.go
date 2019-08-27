@@ -19,7 +19,7 @@ func TestClaims_Run(t *testing.T) {
 
 	assert.True(t, result.Pass)
 	assert.Equal(t, "Generate signed software client claims", result.Name)
-	assert.Equal(t, "", result.Message)
+	assert.Equal(t, "", result.FailReason)
 	claims, err := ctx.GetString("jwtClaimsCtxKey")
 	assert.NoError(t, err)
 	assert.NotEmpty(t, claims)
@@ -32,7 +32,7 @@ func TestClaims_Run_FailsIOpenIdConfigNotInContext(t *testing.T) {
 	result := step.Run(ctx)
 
 	assert.False(t, result.Pass)
-	assert.Equal(t, "getting openid config: key not found in context", result.Message)
+	assert.Equal(t, "getting openid config: key not found in context", result.FailReason)
 }
 
 func TestClaims_Run_FailsOnClaimsError(t *testing.T) {
@@ -44,7 +44,7 @@ func TestClaims_Run_FailsOnClaimsError(t *testing.T) {
 	result := step.Run(ctx)
 
 	assert.False(t, result.Pass)
-	assert.Equal(t, "no authoriser was found for openid config", result.Message)
+	assert.Equal(t, "no authoriser was found for openid config", result.FailReason)
 }
 
 func generateKey(t *testing.T) *rsa.PrivateKey {

@@ -1,6 +1,7 @@
 package compliant
 
 import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 	"fmt"
 	"github.com/logrusorgru/aurora"
 )
@@ -24,37 +25,15 @@ func (t tester) Compliant(scenarios Scenarios) bool {
 	return ok
 }
 
-func NewVerboseTester() Tester {
-	return verboseTester{}
-}
-
-type verboseTester struct{}
-
-func (t verboseTester) Compliant(scenarios Scenarios) bool {
-	ok := true
-	for _, scenario := range scenarios {
-		scenarioResult := scenario.Run()
-		fmt.Printf("=== Scenario: %s\n", scenarioResult.Name)
-		for _, testCasesResult := range scenarioResult.TestCaseResults {
-			fmt.Printf("\tTest case: %s\n", testCasesResult.Name)
-			for _, stepResult := range testCasesResult.Results {
-				if stepResult.Pass {
-					fmt.Printf("\t\tPASS %s\n", stepResult.Name)
-				} else {
-					fmt.Printf("\t\tFAIL %s: %s\n", stepResult.Name, stepResult.Message)
-				}
-			}
-		}
-		ok = ok && !scenarioResult.Fail()
+func NewVerboseColourTester(debug bool) Tester {
+	return colourVerboseTester{
+		debug: debug,
 	}
-	return ok
 }
 
-func NewColourTester() Tester {
-	return colourVerboseTester{}
+type colourVerboseTester struct {
+	debug bool
 }
-
-type colourVerboseTester struct{}
 
 func (t colourVerboseTester) Compliant(scenarios Scenarios) bool {
 	ok := true
@@ -64,14 +43,36 @@ func (t colourVerboseTester) Compliant(scenarios Scenarios) bool {
 		for _, testCasesResult := range scenarioResult.TestCaseResults {
 			fmt.Printf("\tTest case: %s\n", testCasesResult.Name)
 			for _, stepResult := range testCasesResult.Results {
-				if stepResult.Pass {
-					fmt.Printf("\t\t%s %s\n", aurora.Green("PASS"), stepResult.Name)
-				} else {
-					fmt.Printf("\t\t%s %s: \n%s\n", aurora.Red("FAIL"), stepResult.Name, aurora.Gray(15, stepResult.Message))
-				}
+				t.printColourTestResult(stepResult)
 			}
 		}
 		ok = ok && !scenarioResult.Fail()
 	}
 	return ok
+}
+
+func (t colourVerboseTester) printColourTestResult(result step.Result) {
+	if result.Pass {
+		fmt.Printf("\t\t%s %s\n", aurora.Green("PASS"), result.Name)
+	} else {
+		fmt.Printf(
+			"\t\t%s %s: %s\n",
+			aurora.Red("FAIL"),
+			result.Name,
+			result.FailReason,
+		)
+	}
+	if t.debug {
+		printColourDebugMessages(result.Debug)
+	}
+}
+
+func printColourDebugMessages(log step.DebugMessages) {
+	for _, msg := range log.Item {
+		fmt.Printf(
+			"%s %s\n",
+			msg.Time.Format("2006/01/02 15:04:05"),
+			aurora.Gray(15, msg.Message),
+		)
+	}
 }

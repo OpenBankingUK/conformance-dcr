@@ -18,15 +18,9 @@ import (
 func main() {
 	fmt.Println("Dynamic Client Registration Conformance Tool cli")
 
-	var configFilePath string
-	flag.StringVar(&configFilePath, "config-path", "", "Config file path")
-	flag.Parse()
-	if configFilePath == "" {
-		flag.Usage()
-		os.Exit(1)
-	}
+	flags := mustParseFlags()
 
-	cfg, err := loadConfig(configFilePath)
+	cfg, err := loadConfig(flags.configFilePath)
 	if err != nil {
 		log.Fatalf("unable to load config: %v", err)
 	}
@@ -47,7 +41,7 @@ func main() {
 	}
 
 	scenarios := compliant.NewDCR32(cfg.WellknownEndpoint, cfg.SSA, privateKey, httpClient)
-	tester := compliant.NewColourTester()
+	tester := compliant.NewVerboseColourTester(flags.debug)
 
 	passes := tester.Compliant(scenarios)
 	if !passes {
@@ -55,6 +49,27 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Println("PASS")
+}
+
+type flags struct {
+	configFilePath string
+	debug          bool
+}
+
+func mustParseFlags() flags {
+	var configFilePath string
+	var debug bool
+	flag.StringVar(&configFilePath, "config-path", "", "Config file path")
+	flag.BoolVar(&debug, "debug", false, "Enable debug defaults to disabled")
+	flag.Parse()
+	if configFilePath == "" {
+		flag.Usage()
+		os.Exit(1)
+	}
+	return flags{
+		configFilePath: configFilePath,
+		debug:          debug,
+	}
 }
 
 type Config struct {

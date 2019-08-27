@@ -5,59 +5,86 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"net/http"
+	"net/http/httputil"
 )
 
 type clientRegister struct {
-	stepName        string
-	client          *http.Client
-	openIdConfigKey string
-	responseKey     string
-	jwtClaimsCtxKey string
+	stepName           string
+	client             *http.Client
+	openIdConfigCtxKey string
+	responseCtxKey     string
+	jwtClaimsCtxKey    string
+	debug              *DebugMessages
 }
 
 func NewPostClientRegister(openIdConfigCtxKey, jwtClaimsCtxKey, responseCtxKey string, httpClient *http.Client) Step {
 	return clientRegister{
-		stepName:        "Software client register",
-		openIdConfigKey: openIdConfigCtxKey,
-		client:          httpClient,
-		jwtClaimsCtxKey: jwtClaimsCtxKey,
-		responseKey:     responseCtxKey,
+		stepName:           "Software client register",
+		openIdConfigCtxKey: openIdConfigCtxKey,
+		client:             httpClient,
+		jwtClaimsCtxKey:    jwtClaimsCtxKey,
+		responseCtxKey:     responseCtxKey,
+		debug:              NewDebug(),
 	}
 }
 
 func (s clientRegister) Run(ctx Context) Result {
-	configuration, err := ctx.GetOpenIdConfig(s.openIdConfigKey)
+	s.debug.Logf("get openid config from ctx var: %s", s.openIdConfigCtxKey)
+	configuration, err := ctx.GetOpenIdConfig(s.openIdConfigCtxKey)
 	if err != nil {
-		return NewFailResult(s.stepName, fmt.Sprintf("getting openid config: %s", err.Error()))
+		return s.failResult(fmt.Sprintf("getting openid config: %s", err.Error()))
 	}
 
+	s.debug.Logf("get jwt claims from ctx var: %s", s.jwtClaimsCtxKey)
 	jwtClaims, err := ctx.GetString(s.jwtClaimsCtxKey)
 	if err != nil {
-		return NewFailResult(s.stepName, fmt.Sprintf("getting jwt claims: %s", err.Error()))
+		return s.failResult(fmt.Sprintf("getting jwt claims: %s", err.Error()))
 	}
 
 	response, err := s.doJwtPostRequest(configuration.RegistrationEndpoint, jwtClaims)
 	if err != nil {
-		return NewFailResult(s.stepName, err.Error())
+		return s.failResult(err.Error())
 	}
 
-	ctx.SetResponse(s.responseKey, response)
+	s.debug.Logf("setting response object in context var: %s", s.responseCtxKey)
+	ctx.SetResponse(s.responseCtxKey, response)
 
-	return NewPassResult(s.stepName)
+	return NewPassResultWithDebug(s.stepName, s.debug)
 }
 
 func (s clientRegister) doJwtPostRequest(endpoint, jwtClaims string) (*http.Response, error) {
 	body := bytes.NewBufferString(jwtClaims)
-	request, err := http.NewRequest(http.MethodPost, endpoint, body)
+	req, err := http.NewRequest(http.MethodPost, endpoint, body)
 	if err != nil {
 		return nil, errors.Wrap(err, "creating jwt post request")
 	}
-	request.Header.Add("Content-Type", "application/jwt")
-	request.Header.Add("Accept", "application/json")
+	req.Header.Add("Content-Type", "application/jwt")
+	req.Header.Add("Accept", "application/json")
+	s.debugRequest(req)
 
-	response, err := s.client.Do(request)
+	s.debug.Log("making request")
+	response, err := s.client.Do(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "making jwt post request")
 	}
+	s.debug.Logf("request finished with response status code %d", response.StatusCode)
+
 	return response, nil
+}
+
+func (s clientRegister) debugRequest(req *http.Request) {
+	debug, err := httputil.DumpRequest(req, true)
+	if err != nil {
+		s.debug.Logf("cant debug request object: %s", err.Error())
+	} else {
+		s.debug.Logf("request built: %s", string(debug))
+	}
+}
+
+func (s clientRegister) failResult(msg string) Result {
+	return NewFailResultWithDebug(
+		s.stepName,
+		msg,
+		s.debug,
+	)
 }

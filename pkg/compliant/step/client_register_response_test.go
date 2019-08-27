@@ -32,7 +32,7 @@ func TestNewClientRegisterResponse_FailsIfResponseNotFoundInContext(t *testing.T
 	result := step.Run(ctx)
 
 	assert.False(t, result.Pass)
-	assert.Equal(t, "getting response object from context: key not found in context", result.Message)
+	assert.Equal(t, "getting response object from context: key not found in context", result.FailReason)
 }
 
 func TestNewClientRegisterResponse_HandlesParsingResponseObject(t *testing.T) {
@@ -44,5 +44,5 @@ func TestNewClientRegisterResponse_HandlesParsingResponseObject(t *testing.T) {
 	result := step.Run(ctx)
 
 	assert.False(t, result.Pass)
-	assert.Equal(t, "decoding response: invalid character 'i' looking for beginning of value", result.Message)
+	assert.Equal(t, "decoding response: invalid character 'i' looking for beginning of value", result.FailReason)
 }

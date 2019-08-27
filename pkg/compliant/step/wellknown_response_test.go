@@ -31,7 +31,7 @@ func TestNewParseWellKnownRegistrationEndpoint_FailsIfResponseNotFoundInContext(
 	result := step.Run(ctx)
 
 	assert.False(t, result.Pass)
-	assert.Equal(t, "getting response object from context: key not found in context", result.Message)
+	assert.Equal(t, "getting response object from context: key not found in context", result.FailReason)
 }
 
 func TestNewParseWellKnownRegistrationEndpoint_HandlesParsingResponseObject(t *testing.T) {
@@ -43,5 +43,5 @@ func TestNewParseWellKnownRegistrationEndpoint_HandlesParsingResponseObject(t *t
 	result := step.Run(ctx)
 
 	assert.False(t, result.Pass)
-	assert.Equal(t, "reading response body: invalid character 'i' looking for beginning of value", result.Message)
+	assert.Equal(t, "reading response body: invalid character 'i' looking for beginning of value", result.FailReason)
 }

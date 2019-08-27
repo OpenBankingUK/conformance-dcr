@@ -15,9 +15,9 @@ func TestScenarioResult(t *testing.T) {
 					Name: "some test case",
 					Results: step.Results{
 						step.Result{
-							Name:    "some step",
-							Pass:    true,
-							Message: "",
+							Name:       "some step",
+							Pass:       true,
+							FailReason: "",
 						},
 					},
 				},
@@ -37,14 +37,14 @@ func TestScenarioResult_OneFails(t *testing.T) {
 					Name: "some test case",
 					Results: step.Results{
 						step.Result{
-							Name:    "some step that fails",
-							Pass:    false,
-							Message: "",
+							Name:       "some step that fails",
+							Pass:       false,
+							FailReason: "",
 						},
 						step.Result{
-							Name:    "some step that passes",
-							Pass:    true,
-							Message: "",
+							Name:       "some step that passes",
+							Pass:       true,
+							FailReason: "",
 						},
 					},
 				},

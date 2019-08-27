@@ -7,5 +7,7 @@ func NewAlwaysFail() Step {
 }
 
 func (s alwaysFail) Run(ctx Context) Result {
-	return NewFailResult("always dumb fail step", "failed because of reasons")
+	debug := NewDebug()
+	debug.Log("always fail step")
+	return NewFailResultWithDebug("always dumb fail step", "failed because of reasons", debug)
 }

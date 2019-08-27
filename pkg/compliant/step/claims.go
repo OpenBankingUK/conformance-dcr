@@ -25,18 +25,27 @@ func NewClaims(jwtClaimsCtxKey, openIdConfigCtxKey, ssa string, privateKey *rsa.
 }
 
 func (c claims) Run(ctx Context) Result {
+	debug := NewDebug()
+
+	debug.Logf("get openid config from ctx var: %s", c.openIdConfigCtxKey)
 	configuration, err := ctx.GetOpenIdConfig(c.openIdConfigCtxKey)
 	if err != nil {
-		return NewFailResult(c.stepName, fmt.Sprintf("getting openid config: %s", err.Error()))
+		return NewFailResultWithDebug(
+			c.stepName,
+			fmt.Sprintf("getting openid config: %s", err.Error()),
+			debug,
+		)
 	}
 
+	debug.Log("creating a authoriser")
 	auther := auth.NewAuthoriser(configuration, c.privateKey, c.ssa)
 	signedClaims, err := auther.Claims()
 	if err != nil {
-		return NewFailResult(c.stepName, err.Error())
+		return NewFailResultWithDebug(c.stepName, err.Error(), debug)
 	}
 
+	debug.Logf("setting signed claims in context var: %s", c.jwtClaimsCtxKey)
 	ctx.SetString(c.jwtClaimsCtxKey, signedClaims)
 
-	return NewPassResult(c.stepName)
+	return NewPassResultWithDebug(c.stepName, debug)
 }

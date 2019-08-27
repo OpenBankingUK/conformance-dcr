@@ -26,7 +26,7 @@ func TestAssertContentType_FailsIfResponseNotInContext(t *testing.T) {
 	result := step.Run(ctx)
 
 	assert.False(t, result.Pass)
-	assert.Equal(t, "getting response object from context: key not found in context", result.Message)
+	assert.Equal(t, "getting response object from context: key not found in context", result.FailReason)
 }
 
 func TestAssertContentType_FailsIfHeaderIsNotInResponse(t *testing.T) {
@@ -37,7 +37,7 @@ func TestAssertContentType_FailsIfHeaderIsNotInResponse(t *testing.T) {
 	result := step.Run(ctx)
 
 	assert.False(t, result.Pass)
-	assert.Equal(t, "Content-Type header is not present", result.Message)
+	assert.Equal(t, "Content-Type header is not present", result.FailReason)
 }
 
 func TestAssertContentType_FailsIfStatusCodeIsOtherThenOk(t *testing.T) {
@@ -49,5 +49,5 @@ func TestAssertContentType_FailsIfStatusCodeIsOtherThenOk(t *testing.T) {
 	result := step.Run(ctx)
 
 	assert.False(t, result.Pass)
-	assert.Equal(t, "Content-Type is 'application/klingon'", result.Message)
+	assert.Equal(t, "Content-Type is 'application/klingon'", result.FailReason)
 }
