@@ -4,6 +4,7 @@ import "bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 
 type Scenario interface {
 	Run() ScenarioResult
+	Name() string
 }
 
 type Scenarios []Scenario
@@ -34,6 +35,10 @@ func NewScenario(name string, tcs []TestCase) Scenario {
 		name: name,
 		tcs:  tcs,
 	}
+}
+
+func (s scenario) Name() string {
+	return s.name
 }
 
 func (s scenario) Run() ScenarioResult {

@@ -9,7 +9,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
 	"io/ioutil"
-	"log"
 	"os"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant"
@@ -22,13 +21,12 @@ func main() {
 
 	cfg, err := loadConfig(flags.configFilePath)
 	if err != nil {
-		log.Fatalf("unable to load config: %v", err)
+		exitErr(err.Error())
 	}
 
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(cfg.PrivateKey))
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		exitErr(err.Error())
 	}
 
 	httpClient, err := http.NewBuilder().
@@ -36,30 +34,30 @@ func main() {
 		WithTransportKeyPair(cfg.TransportCert, cfg.TransportKey).
 		Build()
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		exitErr(err.Error())
 	}
 
 	scenarios := compliant.NewDCR32(cfg.WellknownEndpoint, cfg.SSA, privateKey, httpClient)
-	tester := compliant.NewVerboseColourTester(flags.debug)
+	tester := compliant.NewTester(flags.filterExpression, flags.debug)
 
 	passes := tester.Compliant(scenarios)
 	if !passes {
-		fmt.Println("FAIL")
-		os.Exit(1)
+		exitErr("FAIL")
 	}
 	fmt.Println("PASS")
 }
 
 type flags struct {
-	configFilePath string
-	debug          bool
+	configFilePath   string
+	filterExpression string
+	debug            bool
 }
 
 func mustParseFlags() flags {
-	var configFilePath string
+	var configFilePath, filterExpression string
 	var debug bool
 	flag.StringVar(&configFilePath, "config-path", "", "Config file path")
+	flag.StringVar(&filterExpression, "filter", "", "Filter scenarios containing value")
 	flag.BoolVar(&debug, "debug", false, "Enable debug defaults to disabled")
 	flag.Parse()
 	if configFilePath == "" {
@@ -67,8 +65,9 @@ func mustParseFlags() flags {
 		os.Exit(1)
 	}
 	return flags{
-		configFilePath: configFilePath,
-		debug:          debug,
+		configFilePath:   configFilePath,
+		filterExpression: filterExpression,
+		debug:            debug,
 	}
 }
 
@@ -96,4 +95,9 @@ func loadConfig(configFilePath string) (Config, error) {
 		return cfg, errors.Wrapf(err, "unable to json decode file contents")
 	}
 	return cfg, nil
+}
+
+func exitErr(msg string) {
+	fmt.Println(msg)
+	os.Exit(1)
 }
