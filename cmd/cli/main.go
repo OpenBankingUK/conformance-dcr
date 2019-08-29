@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
 	"bytes"
 	"encoding/json"
@@ -9,7 +11,9 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
 	"io/ioutil"
+	http2 "net/http"
 	"os"
+	"time"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant"
 )
@@ -29,7 +33,15 @@ func main() {
 		exitErr(err.Error())
 	}
 
-	httpClient, err := http.NewBuilder().
+	client := &http2.Client{Timeout: time.Second * 2}
+	openIdConfig, err := openid.Get(cfg.WellknownEndpoint, client)
+	if err != nil {
+		exitErr(err.Error())
+	}
+
+	authoriser := auth.NewAuthoriser(openIdConfig, privateKey, cfg.SSA)
+
+	securedClient, err := http.NewBuilder().
 		WithRootCAs(cfg.TransportRootCAs).
 		WithTransportKeyPair(cfg.TransportCert, cfg.TransportKey).
 		Build()
@@ -37,7 +49,7 @@ func main() {
 		exitErr(err.Error())
 	}
 
-	scenarios := compliant.NewDCR32(cfg.WellknownEndpoint, cfg.SSA, privateKey, httpClient)
+	scenarios := compliant.NewDCR32(cfg.WellknownEndpoint, openIdConfig.RegistrationEndpoint, securedClient, authoriser)
 	tester := compliant.NewTester(flags.filterExpression, flags.debug)
 
 	passes := tester.Compliant(scenarios)

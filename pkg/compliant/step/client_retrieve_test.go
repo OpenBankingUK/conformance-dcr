@@ -24,12 +24,8 @@ func TestNewClientRetrieve(t *testing.T) {
 	defer server.Close()
 
 	ctx := NewContext()
-	ctx.SetOpenIdConfig("openIdConfigCtxKey", openid.Configuration{
-		RegistrationEndpoint: server.URL,
-		TokenEndpoint:        "",
-	})
 	ctx.SetClient("clientKey", client.NewClient(clientID, clientSecret))
-	step := NewClientRetrieve("responseCtxKey", "openIdConfigCtxKey", "clientKey", server.Client())
+	step := NewClientRetrieve("responseCtxKey", server.URL, "clientKey", server.Client())
 
 	result := step.Run(ctx)
 
@@ -46,12 +42,8 @@ func TestNewClientRegister_HandlesError(t *testing.T) {
 	clientID := "foo"
 	clientSecret := "bar"
 	ctx := NewContext()
-	ctx.SetOpenIdConfig("openIdConfigCtxKey", openid.Configuration{
-		RegistrationEndpoint: string(0x7f),
-		TokenEndpoint:        "",
-	})
 	ctx.SetClient("clientKey", client.NewClient(clientID, clientSecret))
-	step := NewClientRetrieve("responseCtxKey", "openIdConfigCtxKey", "clientKey", &http.Client{})
+	step := NewClientRetrieve("responseCtxKey", string(0x7f), "clientKey", &http.Client{})
 
 	result := step.Run(ctx)
 

@@ -1,8 +1,8 @@
 package compliant
 
 import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
-	"crypto/rsa"
 	"net/http"
 	"time"
 )
@@ -47,10 +47,9 @@ func newDefaultHttpClient() *http.Client {
 }
 
 const (
-	openIdConfigCtxKey = "openid_config"
-	responseCtxKey     = "response"
-	clientCtxKey       = "software_client"
-	jwtClaimsCtxKey    = "jwt_claims"
+	responseCtxKey  = "response"
+	clientCtxKey    = "software_client"
+	jwtClaimsCtxKey = "jwt_claims"
 )
 
 func (t *testCaseBuilder) WithHttpClient(client *http.Client) *testCaseBuilder {
@@ -81,26 +80,20 @@ func (t *testCaseBuilder) AssertContextTypeApplicationHtml() *testCaseBuilder {
 	return t
 }
 
-func (t *testCaseBuilder) ParseWellKnownRegistrationEndpoint() *testCaseBuilder {
-	nextStep := step.NewParseWellKnownRegistrationEndpoint(responseCtxKey, openIdConfigCtxKey)
+func (t *testCaseBuilder) GenerateSignedClaims(authoriser auth.Authoriser) *testCaseBuilder {
+	nextStep := step.NewClaims(jwtClaimsCtxKey, authoriser)
 	t.steps = append(t.steps, nextStep)
 	return t
 }
 
-func (t *testCaseBuilder) GenerateSignedClaims(ssa string, privateKey *rsa.PrivateKey) *testCaseBuilder {
-	nextStep := step.NewClaims(jwtClaimsCtxKey, openIdConfigCtxKey, ssa, privateKey)
+func (t *testCaseBuilder) PostClientRegister(registrationEndpoint string) *testCaseBuilder {
+	nextStep := step.NewPostClientRegister(registrationEndpoint, jwtClaimsCtxKey, responseCtxKey, t.httpClient)
 	t.steps = append(t.steps, nextStep)
 	return t
 }
 
-func (t *testCaseBuilder) PostClientRegister() *testCaseBuilder {
-	nextStep := step.NewPostClientRegister(openIdConfigCtxKey, jwtClaimsCtxKey, responseCtxKey, t.httpClient)
-	t.steps = append(t.steps, nextStep)
-	return t
-}
-
-func (t *testCaseBuilder) ClientRetrieve() *testCaseBuilder {
-	nextStep := step.NewClientRetrieve(responseCtxKey, openIdConfigCtxKey, clientCtxKey, t.httpClient)
+func (t *testCaseBuilder) ClientRetrieve(registrationEndpoint string) *testCaseBuilder {
+	nextStep := step.NewClientRetrieve(responseCtxKey, registrationEndpoint, clientCtxKey, t.httpClient)
 	t.steps = append(t.steps, nextStep)
 	return t
 }

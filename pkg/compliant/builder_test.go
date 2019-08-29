@@ -1,6 +1,8 @@
 package compliant
 
 import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 	"crypto/rsa"
 	"github.com/stretchr/testify/assert"
@@ -23,15 +25,14 @@ func TestNewTestCaseBuilder(t *testing.T) {
 		Get("www.google.com").
 		AssertStatusCodeOk().
 		AssertContextTypeApplicationHtml().
-		ParseWellKnownRegistrationEndpoint().
-		GenerateSignedClaims("ssa", &rsa.PrivateKey{}).
-		PostClientRegister().
+		GenerateSignedClaims(auth.NewAuthoriser(openid.Configuration{}, &rsa.PrivateKey{}, "ssa")).
+		PostClientRegister("http://registration_endpoint").
 		AssertStatusCodeCreated().
 		ParseClientRegisterResponse().
-		ClientRetrieve().
+		ClientRetrieve("http://registration_endpoint").
 		ParseClientRetrieveResponse().
 		Step(step.NewAlwaysPass())
 
 	assert.Equal(t, "test case", tc.name)
-	assert.Len(t, tc.steps, 11)
+	assert.Len(t, tc.steps, 10)
 }

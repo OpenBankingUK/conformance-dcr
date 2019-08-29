@@ -9,39 +9,33 @@ import (
 )
 
 type clientRegister struct {
-	stepName           string
-	client             *http.Client
-	openIdConfigCtxKey string
-	responseCtxKey     string
-	jwtClaimsCtxKey    string
-	debug              *DebugMessages
+	stepName             string
+	client               *http.Client
+	registrationEndpoint string
+	responseCtxKey       string
+	jwtClaimsCtxKey      string
+	debug                *DebugMessages
 }
 
-func NewPostClientRegister(openIdConfigCtxKey, jwtClaimsCtxKey, responseCtxKey string, httpClient *http.Client) Step {
+func NewPostClientRegister(registrationEndpoint, jwtClaimsCtxKey, responseCtxKey string, httpClient *http.Client) Step {
 	return clientRegister{
-		stepName:           "Software client register",
-		openIdConfigCtxKey: openIdConfigCtxKey,
-		client:             httpClient,
-		jwtClaimsCtxKey:    jwtClaimsCtxKey,
-		responseCtxKey:     responseCtxKey,
-		debug:              NewDebug(),
+		stepName:             "Software client register",
+		registrationEndpoint: registrationEndpoint,
+		client:               httpClient,
+		jwtClaimsCtxKey:      jwtClaimsCtxKey,
+		responseCtxKey:       responseCtxKey,
+		debug:                NewDebug(),
 	}
 }
 
 func (s clientRegister) Run(ctx Context) Result {
-	s.debug.Logf("get openid config from ctx var: %s", s.openIdConfigCtxKey)
-	configuration, err := ctx.GetOpenIdConfig(s.openIdConfigCtxKey)
-	if err != nil {
-		return s.failResult(fmt.Sprintf("getting openid config: %s", err.Error()))
-	}
-
 	s.debug.Logf("get jwt claims from ctx var: %s", s.jwtClaimsCtxKey)
 	jwtClaims, err := ctx.GetString(s.jwtClaimsCtxKey)
 	if err != nil {
 		return s.failResult(fmt.Sprintf("getting jwt claims: %s", err.Error()))
 	}
 
-	response, err := s.doJwtPostRequest(configuration.RegistrationEndpoint, jwtClaims)
+	response, err := s.doJwtPostRequest(s.registrationEndpoint, jwtClaims)
 	if err != nil {
 		return s.failResult(err.Error())
 	}

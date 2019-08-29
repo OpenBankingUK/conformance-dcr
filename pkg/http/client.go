@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 type MATLSConfig struct {
@@ -38,7 +39,7 @@ func NewMATLSClient(config MATLSConfig) (*http.Client, error) {
 	tlsConfig.BuildNameToCertificate()
 	transport := &http.Transport{TLSClientConfig: tlsConfig}
 
-	return &http.Client{Transport: transport}, nil
+	return &http.Client{Transport: transport, Timeout: time.Second * 5}, nil
 }
 
 func TlsClientCert(certPEMBlock, keyPEMBlock []byte) ([]tls.Certificate, error) {

@@ -30,12 +30,8 @@ func TestNewClientRegister(t *testing.T) {
 
 	ctx := NewContext()
 	url := server.URL + "/some/path"
-	ctx.SetOpenIdConfig("openIdConfigCtxKey", openid.Configuration{
-		RegistrationEndpoint: url,
-		TokenEndpoint:        "",
-	})
 	ctx.SetString("jwtClaimsCtxKey", "jwt.Claims.xxxx")
-	step := NewPostClientRegister("openIdConfigCtxKey", "jwtClaimsCtxKey", "responseCtxKey", server.Client())
+	step := NewPostClientRegister(url, "jwtClaimsCtxKey", "responseCtxKey", server.Client())
 
 	result := step.Run(ctx)
 
@@ -50,12 +46,8 @@ func TestNewClientRegister(t *testing.T) {
 
 func TestNewClientRegister_HandlesHttpErrors(t *testing.T) {
 	ctx := NewContext()
-	ctx.SetOpenIdConfig("openIdConfigCtxKey", openid.Configuration{
-		RegistrationEndpoint: "invalid url",
-		TokenEndpoint:        "",
-	})
 	ctx.SetString("jwtClaimsCtxKey", "jwt.Claims.xxxx")
-	step := NewPostClientRegister("openIdConfigCtxKey", "jwtClaimsCtxKey", "responseCtxKey", &http.Client{})
+	step := NewPostClientRegister("invalid url", "jwtClaimsCtxKey", "responseCtxKey", &http.Client{})
 
 	result := step.Run(ctx)
 
@@ -65,12 +57,8 @@ func TestNewClientRegister_HandlesHttpErrors(t *testing.T) {
 
 func TestNewClientRegister_HandlesCreateRequestError(t *testing.T) {
 	ctx := NewContext()
-	ctx.SetOpenIdConfig("openIdConfigCtxKey", openid.Configuration{
-		RegistrationEndpoint: string(0x7f),
-		TokenEndpoint:        "",
-	})
 	ctx.SetString("jwtClaimsCtxKey", "jwt.Claims.xxxx")
-	step := NewPostClientRegister("openIdConfigCtxKey", "jwtClaimsCtxKey", "responseCtxKey", &http.Client{})
+	step := NewPostClientRegister(string(0x7f), "jwtClaimsCtxKey", "responseCtxKey", &http.Client{})
 
 	result := step.Run(ctx)
 
@@ -80,17 +68,6 @@ func TestNewClientRegister_HandlesCreateRequestError(t *testing.T) {
 		"creating jwt post request: parse \u007f: net/url: invalid control character in URL",
 		result.FailReason,
 	)
-}
-
-func TestNewClientRegister_HandlesOpenIdConfigNotInContext(t *testing.T) {
-	ctx := NewContext()
-	ctx.SetString("jwtClaimsCtxKey", "jwt.Claims.xxxx")
-	step := NewPostClientRegister("openIdConfigCtxKey", "jwtClaimsCtxKey", "responseCtxKey", &http.Client{})
-
-	result := step.Run(ctx)
-
-	assert.False(t, result.Pass)
-	assert.Equal(t, "getting openid config: key not found in context", result.FailReason)
 }
 
 func TestNewClientRegister_HandlesJwtClaimsNotInContext(t *testing.T) {

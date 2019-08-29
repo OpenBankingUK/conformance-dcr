@@ -1,6 +1,7 @@
 package step
 
 import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"crypto/rand"
 	"crypto/rsa"
@@ -12,8 +13,7 @@ import (
 func TestClaims_Run(t *testing.T) {
 	ctx := NewContext()
 	config := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{"client_secret_basic"}}
-	ctx.SetOpenIdConfig("openIdConfigCtxKey", config)
-	step := NewClaims("jwtClaimsCtxKey", "openIdConfigCtxKey", "ssa", generateKey(t))
+	step := NewClaims("jwtClaimsCtxKey", auth.NewAuthoriser(config, generateKey(t), ""))
 
 	result := step.Run(ctx)
 
@@ -25,21 +25,10 @@ func TestClaims_Run(t *testing.T) {
 	assert.NotEmpty(t, claims)
 }
 
-func TestClaims_Run_FailsIOpenIdConfigNotInContext(t *testing.T) {
-	ctx := NewContext()
-	step := NewClaims("jwtClaimsCtxKey", "openIdConfigCtxKey", "ssa", &rsa.PrivateKey{})
-
-	result := step.Run(ctx)
-
-	assert.False(t, result.Pass)
-	assert.Equal(t, "getting openid config: key not found in context", result.FailReason)
-}
-
 func TestClaims_Run_FailsOnClaimsError(t *testing.T) {
 	ctx := NewContext()
 	config := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{""}}
-	ctx.SetOpenIdConfig("openIdConfigCtxKey", config)
-	step := NewClaims("jwtClaimsCtxKey", "openIdConfigCtxKey", "ssa", generateKey(t))
+	step := NewClaims("jwtClaimsCtxKey", auth.NewAuthoriser(config, nil, ""))
 
 	result := step.Run(ctx)
 

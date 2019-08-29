@@ -1,25 +1,22 @@
 package compliant
 
 import (
-	"crypto/rsa"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"net/http"
 )
 
-func NewDCR32(wellKnownEndpoint, ssa string, privateKey *rsa.PrivateKey, secureClient *http.Client) Scenarios {
+func NewDCR32(
+	wellKnownEndpoint, registrationEndpoint string,
+	secureClient *http.Client,
+	authoriser auth.Authoriser,
+) Scenarios {
 	return Scenarios{
 		NewBuilder("Dynamically create a new software client").
 			TestCase(
-				NewTestCaseBuilder("Retrieve registration endpoint from OIDC Discovery Endpoint").
-					Get(wellKnownEndpoint).
-					AssertStatusCodeOk().
-					ParseWellKnownRegistrationEndpoint().
-					Build(),
-			).
-			TestCase(
 				NewTestCaseBuilder("Register software client").
 					WithHttpClient(secureClient).
-					GenerateSignedClaims(ssa, privateKey).
-					PostClientRegister().
+					GenerateSignedClaims(authoriser).
+					PostClientRegister(registrationEndpoint).
 					AssertStatusCodeCreated().
 					ParseClientRegisterResponse().
 					Build(),
@@ -27,17 +24,10 @@ func NewDCR32(wellKnownEndpoint, ssa string, privateKey *rsa.PrivateKey, secureC
 			Build(),
 		NewBuilder("Dynamically retrieve a new software client").
 			TestCase(
-				NewTestCaseBuilder("Retrieve registration endpoint from OIDC Discovery Endpoint").
-					Get(wellKnownEndpoint).
-					AssertStatusCodeOk().
-					ParseWellKnownRegistrationEndpoint().
-					Build(),
-			).
-			TestCase(
 				NewTestCaseBuilder("Register software client").
 					WithHttpClient(secureClient).
-					GenerateSignedClaims(ssa, privateKey).
-					PostClientRegister().
+					GenerateSignedClaims(authoriser).
+					PostClientRegister(registrationEndpoint).
 					AssertStatusCodeCreated().
 					ParseClientRegisterResponse().
 					Build(),
@@ -45,7 +35,7 @@ func NewDCR32(wellKnownEndpoint, ssa string, privateKey *rsa.PrivateKey, secureC
 			TestCase(
 				NewTestCaseBuilder("Retrieve software client").
 					WithHttpClient(secureClient).
-					ClientRetrieve().
+					ClientRetrieve(registrationEndpoint).
 					AssertStatusCodeOk().
 					ParseClientRetrieveResponse().
 					Build(),
