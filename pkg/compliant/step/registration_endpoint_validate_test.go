@@ -7,21 +7,23 @@ import (
 )
 
 func TestNewValidateRegistrationEndpoint_Run_ReturnsSuccessfullResult(t *testing.T) {
-	registrationEndpointStep := NewValidateRegistrationEndpoint("http://x.org/api/register")
+	url := "http://x.org/api/register"
+	registrationEndpointStep := NewValidateRegistrationEndpoint(&url)
 	result := registrationEndpointStep.Run(NewContext())
 	assert.True(t, result.Pass)
 	assert.Equal(t, result.Name, "Registration Endpoint Validate")
 }
 
 func TestNewValidateRegistrationEndpoint_Run_ReturnsFailureResultOnInvalidEndpoint(t *testing.T) {
-	registrationEndpointStep := NewValidateRegistrationEndpoint("foo/bar")
+	url := "foo/bar"
+	registrationEndpointStep := NewValidateRegistrationEndpoint(&url)
 	result := registrationEndpointStep.Run(NewContext())
 	assert.False(t, result.Pass)
 	assert.Equal(t, result.Name, "Registration Endpoint Validate")
 }
 
 func TestNewValidateRegistrationEndpoint_Run_ReturnsFailureResultOnBlankEndpoint(t *testing.T) {
-	registrationEndpointStep := NewValidateRegistrationEndpoint("")
+	registrationEndpointStep := NewValidateRegistrationEndpoint(nil)
 	result := registrationEndpointStep.Run(NewContext())
 	assert.False(t, result.Pass)
 	assert.Equal(t, result.Name, "Registration Endpoint Validate")

@@ -49,7 +49,7 @@ func main() {
 		exitErr(err.Error())
 	}
 
-	scenarios := compliant.NewDCR32(cfg.WellknownEndpoint, openIDConfig.RegistrationEndpoint, securedClient, authoriser)
+	scenarios := compliant.NewDCR32(cfg.WellknownEndpoint, openIDConfig, securedClient, authoriser)
 	tester := compliant.NewTester(flags.filterExpression, flags.debug)
 
 	passes := tester.Compliant(scenarios)

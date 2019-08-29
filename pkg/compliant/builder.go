@@ -111,7 +111,7 @@ func (t *testCaseBuilder) ParseClientRetrieveResponse() *testCaseBuilder {
 	return t
 }
 
-func (t *testCaseBuilder) ValidateRegistrationEndpoint(registrationEndpoint string) *testCaseBuilder {
+func (t *testCaseBuilder) ValidateRegistrationEndpoint(registrationEndpoint *string) *testCaseBuilder {
 	nextStep := step.NewValidateRegistrationEndpoint(registrationEndpoint)
 	t.steps = append(t.steps, nextStep)
 	return t

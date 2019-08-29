@@ -57,8 +57,9 @@ func TestNewClientRegister_HandlesError(t *testing.T) {
 
 func TestNewClientRegister_HandlesErrorForClientNotFound(t *testing.T) {
 	ctx := NewContext()
+	registrationEndpoint := string(0x7f)
 	ctx.SetOpenIdConfig("openIdConfigCtxKey", openid.Configuration{
-		RegistrationEndpoint: string(0x7f),
+		RegistrationEndpoint: &registrationEndpoint,
 		TokenEndpoint:        "",
 	})
 	step := NewClientRetrieve("responseCtxKey", "openIdConfigCtxKey", "clientKey", &http.Client{})

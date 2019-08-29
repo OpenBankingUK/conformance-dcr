@@ -3,17 +3,26 @@ package openid
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/pkg/errors"
 )
 
 type Configuration struct {
-	RegistrationEndpoint              string   `json:"registration_endpoint"`
+	RegistrationEndpoint              *string  `json:"registration_endpoint"`
 	TokenEndpoint                     string   `json:"token_endpoint"`
 	Issuer                            string   `json:"issuer"`
 	ObjectSignAlgSupported            []string `json:"request_object_signing_alg_values_supported"`
 	TokenEndpointAuthMethodsSupported []string `json:"token_endpoint_auth_methods_supported"`
+}
+
+func (c Configuration) RegistrationEndpointAsString() string {
+	if c.RegistrationEndpoint == nil {
+		return ""
+	}
+
+	return *c.RegistrationEndpoint
 }
 
 func Get(url string, client *http.Client) (Configuration, error) {
