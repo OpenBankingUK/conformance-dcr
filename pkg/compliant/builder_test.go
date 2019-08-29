@@ -20,12 +20,21 @@ func TestNewBuilder(t *testing.T) {
 }
 
 func TestNewTestCaseBuilder(t *testing.T) {
+	authoriser := auth.NewAuthoriser(
+		openid.Configuration{},
+		"ssa",
+		"kid",
+		"clientId",
+		[]string{},
+		&rsa.PrivateKey{},
+	)
+
 	tc := NewTestCaseBuilder("test case").
 		WithHttpClient(&http.Client{}).
 		Get("www.google.com").
 		AssertStatusCodeOk().
 		AssertContextTypeApplicationHtml().
-		GenerateSignedClaims(auth.NewAuthoriser(openid.Configuration{}, &rsa.PrivateKey{}, "ssa")).
+		GenerateSignedClaims(authoriser).
 		PostClientRegister("http://registration_endpoint").
 		AssertStatusCodeCreated().
 		ParseClientRegisterResponse().

@@ -67,3 +67,14 @@ func TestGet_HandlesNotInvalidBody(t *testing.T) {
 		"invalid OpenIDConfiguration body content: invalid character 'N' looking for beginning of value",
 	)
 }
+
+func TestGet_HandlesErrorGet(t *testing.T) {
+	client := &http.Client{}
+	_, err := Get("-", client)
+
+	assert.EqualError(
+		t,
+		err,
+		"Failed to GET OpenIDConfiguration: url=-: Get -: unsupported protocol scheme \"\"",
+	)
+}

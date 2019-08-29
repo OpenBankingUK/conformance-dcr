@@ -12,9 +12,21 @@ type Authoriser interface {
 	ClientRegister(response []byte) (client.Client, error)
 }
 
-func NewAuthoriser(config openid.Configuration, privateKey *rsa.PrivateKey, ssa string) Authoriser {
+func NewAuthoriser(
+	config openid.Configuration,
+	ssa, kid, clientId string,
+	redirectURIs []string,
+	privateKey *rsa.PrivateKey,
+) Authoriser {
 	if sliceContains("client_secret_basic", config.TokenEndpointAuthMethodsSupported) {
-		return NewClientSecretBasic(config, privateKey, ssa)
+		return NewClientSecretBasic(
+			config.Issuer,
+			ssa,
+			kid,
+			clientId,
+			redirectURIs,
+			privateKey,
+		)
 	}
 	return none{}
 }

@@ -21,7 +21,7 @@ func TestNewAuther_ReturnsClientSecretBasic(t *testing.T) {
 		TokenEndpointAuthMethodsSupported: []string{"client_secret_basic"},
 	}
 
-	auther := NewAuthoriser(openIdConfig, &rsa.PrivateKey{}, "ssa")
+	auther := NewAuthoriser(openIdConfig, "ssa", "kid", "clientId", []string{}, &rsa.PrivateKey{})
 
 	assert.IsType(t, clientSecretBasic{}, auther)
 }
@@ -31,7 +31,7 @@ func TestNewAuther_ReturnsNoAuther(t *testing.T) {
 		TokenEndpointAuthMethodsSupported: []string{},
 	}
 
-	auther := NewAuthoriser(openIdConfig, &rsa.PrivateKey{}, "ssa")
+	auther := NewAuthoriser(openIdConfig, "ssa", "kid", "clientId", []string{}, &rsa.PrivateKey{})
 
 	assert.IsType(t, none{}, auther)
 }
