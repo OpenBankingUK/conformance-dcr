@@ -1,8 +1,9 @@
 package compliant
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"net/http"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 )
 
 func NewDCR32(
@@ -11,6 +12,13 @@ func NewDCR32(
 	authoriser auth.Authoriser,
 ) Scenarios {
 	return Scenarios{
+		NewBuilder("Validate OIDC Config").
+			TestCase(
+				NewTestCaseBuilder("Validate Registration URL").
+					ValidateRegistrationEndpoint(registrationEndpoint).
+					Build(),
+			).
+			Build(),
 		NewBuilder("Dynamically create a new software client").
 			TestCase(
 				NewTestCaseBuilder("Register software client").

@@ -1,10 +1,11 @@
 package compliant
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 	"net/http"
 	"time"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 )
 
 type Builder struct {
@@ -106,6 +107,12 @@ func (t *testCaseBuilder) ParseClientRegisterResponse() *testCaseBuilder {
 
 func (t *testCaseBuilder) ParseClientRetrieveResponse() *testCaseBuilder {
 	nextStep := step.NewClientRetrieveResponse(responseCtxKey, clientCtxKey)
+	t.steps = append(t.steps, nextStep)
+	return t
+}
+
+func (t *testCaseBuilder) ValidateRegistrationEndpoint(registrationEndpoint string) *testCaseBuilder {
+	nextStep := step.NewValidateRegistrationEndpoint(registrationEndpoint)
 	t.steps = append(t.steps, nextStep)
 	return t
 }
