@@ -20,8 +20,11 @@ func NewValidateRegistrationEndpoint(registrationEndpoint string) Step {
 func (v registrationEndpointValidate) Run(ctx Context) Result {
 	_, err := url.ParseRequestURI(v.registrationEndpoint)
 	if err != nil {
-		return NewFailResult(v.stepName, fmt.Sprintf("registration endpoint %s is invalid: err=%+v", v.registrationEndpoint, err))
+		return NewFailResult(
+			v.stepName,
+			fmt.Sprintf("registration endpoint %s is invalid: err=%+v", v.registrationEndpoint, err),
+		)
 	}
-	
+
 	return NewPassResult(v.stepName)
 }
