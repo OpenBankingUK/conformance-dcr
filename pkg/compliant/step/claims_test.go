@@ -12,8 +12,9 @@ import (
 
 func TestClaims_Run(t *testing.T) {
 	ctx := NewContext()
-	config := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{"client_secret_basic"}}
-	step := NewClaims("jwtClaimsCtxKey", auth.NewAuthoriser(config, generateKey(t), ""))
+	config := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{"client_secret_basic"}, Issuer: "issuer"}
+	authoriser := auth.NewAuthoriser(config, "ssa", "kid", "clientId", []string{}, generateKey(t))
+	step := NewClaims("jwtClaimsCtxKey", authoriser)
 
 	result := step.Run(ctx)
 
@@ -28,7 +29,8 @@ func TestClaims_Run(t *testing.T) {
 func TestClaims_Run_FailsOnClaimsError(t *testing.T) {
 	ctx := NewContext()
 	config := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{""}}
-	step := NewClaims("jwtClaimsCtxKey", auth.NewAuthoriser(config, nil, ""))
+	authoriser := auth.NewAuthoriser(config, "ssa", "kid", "clientId", []string{}, generateKey(t))
+	step := NewClaims("jwtClaimsCtxKey", authoriser)
 
 	result := step.Run(ctx)
 

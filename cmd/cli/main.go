@@ -39,7 +39,7 @@ func main() {
 		exitErr(err.Error())
 	}
 
-	authoriser := auth.NewAuthoriser(openIdConfig, privateKey, cfg.SSA)
+	authoriser := auth.NewAuthoriser(openIdConfig, cfg.SSA, cfg.Kid, cfg.ClientId, cfg.RedirectURIs, privateKey)
 
 	securedClient, err := http.NewBuilder().
 		WithRootCAs(cfg.TransportRootCAs).
@@ -86,6 +86,9 @@ func mustParseFlags() flags {
 type Config struct {
 	WellknownEndpoint string   `json:"wellknown_endpoint"`
 	SSA               string   `json:"ssa"`
+	Kid               string   `json:"kid"`
+	RedirectURIs      []string `json:"redirect_uris"`
+	ClientId          string   `json:"client_id"`
 	PrivateKey        string   `json:"private_key"`
 	TransportRootCAs  []string `json:"transport_root_cas"`
 	TransportCert     string   `json:"transport_cert"`

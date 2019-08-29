@@ -2,7 +2,6 @@ package auth
 
 import (
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"crypto/rsa"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
@@ -11,16 +10,26 @@ import (
 )
 
 type clientSecretBasic struct {
-	config     openid.Configuration
-	privateKey *rsa.PrivateKey
-	ssa        string
+	issuer       string
+	privateKey   *rsa.PrivateKey
+	ssa          string
+	kid          string
+	clientId     string
+	redirectURIs []string
 }
 
-func NewClientSecretBasic(config openid.Configuration, privateKey *rsa.PrivateKey, ssa string) Authoriser {
+func NewClientSecretBasic(
+	issuer, ssa, kid, clientId string,
+	redirectURIs []string,
+	privateKey *rsa.PrivateKey,
+) Authoriser {
 	return clientSecretBasic{
-		config:     config,
-		privateKey: privateKey,
-		ssa:        ssa,
+		issuer:       issuer,
+		privateKey:   privateKey,
+		ssa:          ssa,
+		kid:          kid,
+		clientId:     clientId,
+		redirectURIs: redirectURIs,
 	}
 }
 
@@ -29,10 +38,6 @@ func (c clientSecretBasic) ClientRegister(response []byte) (client.Client, error
 }
 
 func (c clientSecretBasic) Claims() (string, error) {
-	// @todo move up
-	clientId := "Qeyb9TC0IzLympA9mKoSQ0"
-	redirectURIs := []string{"https://0.0.0.0:8443/conformancesuite/callback"}
-
 	id, err := uuid.NewRandom()
 	if err != nil {
 		return "", errors.Wrap(err, "generating claims")
@@ -45,16 +50,16 @@ func (c clientSecretBasic) Claims() (string, error) {
 		signingMethod,
 		jwt.MapClaims{
 			// standard claims
-			"aud": c.config.Issuer,
+			"aud": c.issuer,
 			"exp": exp.Unix(),
 			"jti": id.String(),
 			"iat": iat.Unix(),
-			"iss": clientId,
+			"iss": c.clientId,
 			//"nbf": "",
 			//"sub": "",
 
 			// metadata
-			"kid":                             "YqL1S1MVsiknkoNpAMcXXui0VOQ",
+			"kid":                             c.kid,
 			"token_endpoint_auth_signing_alg": signingMethod.Alg(),
 			"grant_types": []string{
 				"authorization_code",
@@ -62,7 +67,7 @@ func (c clientSecretBasic) Claims() (string, error) {
 			},
 			"subject_type":               "public",
 			"application_type":           "web",
-			"redirect_uris":              redirectURIs,
+			"redirect_uris":              c.redirectURIs,
 			"token_endpoint_auth_method": "client_secret_basic",
 			"software_statement":         c.ssa,
 			"scope":                      "accounts openid",
