@@ -1,22 +1,32 @@
 package compliant
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"net/http"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 )
 
 func NewDCR32(
-	wellKnownEndpoint, registrationEndpoint string,
+	wellKnownEndpoint string,
+	openIDConfig openid.Configuration,
 	secureClient *http.Client,
 	authoriser auth.Authoriser,
 ) Scenarios {
 	return Scenarios{
+		NewBuilder("Validate OIDC Config Registration URL").
+			TestCase(
+				NewTestCaseBuilder("Validate Registration URL").
+					ValidateRegistrationEndpoint(openIDConfig.RegistrationEndpoint).
+					Build(),
+			).
+			Build(),
 		NewBuilder("Dynamically create a new software client").
 			TestCase(
 				NewTestCaseBuilder("Register software client").
 					WithHttpClient(secureClient).
 					GenerateSignedClaims(authoriser).
-					PostClientRegister(registrationEndpoint).
+					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeCreated().
 					ParseClientRegisterResponse().
 					Build(),
@@ -27,7 +37,7 @@ func NewDCR32(
 				NewTestCaseBuilder("Register software client").
 					WithHttpClient(secureClient).
 					GenerateSignedClaims(authoriser).
-					PostClientRegister(registrationEndpoint).
+					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeCreated().
 					ParseClientRegisterResponse().
 					Build(),
@@ -35,7 +45,7 @@ func NewDCR32(
 			TestCase(
 				NewTestCaseBuilder("Retrieve software client").
 					WithHttpClient(secureClient).
-					ClientRetrieve(registrationEndpoint).
+					ClientRetrieve(openIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeOk().
 					ParseClientRetrieveResponse().
 					Build(),

@@ -34,12 +34,12 @@ func main() {
 	}
 
 	client := &http2.Client{Timeout: time.Second * 2}
-	openIdConfig, err := openid.Get(cfg.WellknownEndpoint, client)
+	openIDConfig, err := openid.Get(cfg.WellknownEndpoint, client)
 	if err != nil {
 		exitErr(err.Error())
 	}
 
-	authoriser := auth.NewAuthoriser(openIdConfig, cfg.SSA, cfg.Kid, cfg.ClientId, cfg.RedirectURIs, privateKey)
+	authoriser := auth.NewAuthoriser(openIDConfig, cfg.SSA, cfg.Kid, cfg.ClientId, cfg.RedirectURIs, privateKey)
 
 	securedClient, err := http.NewBuilder().
 		WithRootCAs(cfg.TransportRootCAs).
@@ -49,7 +49,7 @@ func main() {
 		exitErr(err.Error())
 	}
 
-	scenarios := compliant.NewDCR32(cfg.WellknownEndpoint, openIdConfig.RegistrationEndpoint, securedClient, authoriser)
+	scenarios := compliant.NewDCR32(cfg.WellknownEndpoint, openIDConfig, securedClient, authoriser)
 	tester := compliant.NewTester(flags.filterExpression, flags.debug)
 
 	passes := tester.Compliant(scenarios)

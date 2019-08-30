@@ -25,8 +25,9 @@ func TestGetConfig(t *testing.T) {
 	config, err := Get(server.URL, server.Client())
 
 	assert.NoError(t, err)
+	registrationEndpoint := "http://registration_endpoint"
 	expected := Configuration{
-		RegistrationEndpoint:              "http://registration_endpoint",
+		RegistrationEndpoint:              &registrationEndpoint,
 		TokenEndpoint:                     "http://token_endpoint",
 		Issuer:                            "issuer",
 		ObjectSignAlgSupported:            []string{"alg1"},
