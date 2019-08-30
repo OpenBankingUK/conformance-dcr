@@ -14,7 +14,7 @@ func NewDCR32(
 	authoriser auth.Authoriser,
 ) Scenarios {
 	return Scenarios{
-		NewBuilder("Validate OIDC Config").
+		NewBuilder("Validate OIDC Config Registration URL").
 			TestCase(
 				NewTestCaseBuilder("Validate Registration URL").
 					ValidateRegistrationEndpoint(openIDConfig.RegistrationEndpoint).
