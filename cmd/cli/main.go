@@ -4,6 +4,7 @@ import (
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/version"
 	"bytes"
 	"encoding/json"
 	"flag"
@@ -13,9 +14,14 @@ import (
 	"io/ioutil"
 	http2 "net/http"
 	"os"
+	"strings"
 	"time"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant"
+)
+
+const (
+	bitbucketTagsEndpoint = "https://api.bitbucket.org/2.0/repositories/openbankingteam/conformance-dcr/refs/tags"
 )
 
 func main() {
@@ -27,6 +33,8 @@ func main() {
 	if err != nil {
 		exitErr(err.Error())
 	}
+
+	performUpdateCheck()
 
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(cfg.PrivateKey))
 	if err != nil {
@@ -115,4 +123,31 @@ func loadConfig(configFilePath string) (Config, error) {
 func exitErr(msg string) {
 	fmt.Println(msg)
 	os.Exit(1)
+}
+
+// performUpdateCheck will consider the current version of this application and compare to the latest version
+// available. The result of this function is some text printed out to the console. i.e. Either an update is available
+// or the tool is up to date (..or there was some error).
+func performUpdateCheck() {
+	vc := version.NewBitBucket(bitbucketTagsEndpoint)
+	var output strings.Builder
+	currentVersion := version.Version()
+	output.WriteString(fmt.Sprintf("Currently running version %s\n", currentVersion))
+	updMsg, update, err := vc.UpdateWarningVersion(currentVersion)
+	if err != nil {
+		output.WriteString("Error checking updates:\n")
+		output.WriteString(err.Error())
+		fmt.Println("*****************************************************************************************")
+	} else {
+		if update {
+			output.WriteString("An update to this application is available. Please consider updating.\n")
+			output.WriteString("Please see the following URL more information:\n")
+			output.WriteString("https://bitbucket.org/openbankingteam/conformance-dcr/src/develop/README.md\n")
+			output.WriteString(fmt.Sprintf("New version: %s\n", updMsg))
+			fmt.Println("*****************************************************************************************")
+		} else {
+			output.WriteString("You are running the latest version of this application.")
+		}
+	}
+	fmt.Println(output.String())
 }
