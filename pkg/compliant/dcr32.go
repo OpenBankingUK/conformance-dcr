@@ -50,6 +50,13 @@ func NewDCR32(
 					ParseClientRetrieveResponse().
 					Build(),
 			).
+			TestCase(
+				NewTestCaseBuilder("Delete software client").
+					WithHttpClient(secureClient).
+					ClientDelete(openIDConfig.RegistrationEndpointAsString()).
+					AssertStatusCodeOk().
+					Build(),
+			).
 			Build(),
 	}
 }

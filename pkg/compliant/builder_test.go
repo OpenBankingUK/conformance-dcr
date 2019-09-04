@@ -29,19 +29,21 @@ func TestNewTestCaseBuilder(t *testing.T) {
 		&rsa.PrivateKey{},
 	)
 
+	const registrationEndpoint = "http://registration_endpoint"
 	tc := NewTestCaseBuilder("test case").
 		WithHttpClient(&http.Client{}).
 		Get("www.google.com").
 		AssertStatusCodeOk().
 		AssertContextTypeApplicationHtml().
 		GenerateSignedClaims(authoriser).
-		PostClientRegister("http://registration_endpoint").
+		PostClientRegister(registrationEndpoint).
 		AssertStatusCodeCreated().
 		ParseClientRegisterResponse().
-		ClientRetrieve("http://registration_endpoint").
+		ClientRetrieve(registrationEndpoint).
+		ClientDelete(registrationEndpoint).
 		ParseClientRetrieveResponse().
 		Step(step.NewAlwaysPass())
 
 	assert.Equal(t, "test case", tc.name)
-	assert.Len(t, tc.steps, 10)
+	assert.Len(t, tc.steps, 11)
 }

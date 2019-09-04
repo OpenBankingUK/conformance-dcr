@@ -24,20 +24,14 @@ func main() {
 	flags := mustParseFlags()
 
 	cfg, err := loadConfig(flags.configFilePath)
-	if err != nil {
-		exitErr(err.Error())
-	}
+	exitOnError(err)
 
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(cfg.PrivateKey))
-	if err != nil {
-		exitErr(err.Error())
-	}
+	exitOnError(err)
 
 	client := &http2.Client{Timeout: time.Second * 2}
 	openIDConfig, err := openid.Get(cfg.WellknownEndpoint, client)
-	if err != nil {
-		exitErr(err.Error())
-	}
+	exitOnError(err)
 
 	authoriser := auth.NewAuthoriser(openIDConfig, cfg.SSA, cfg.Kid, cfg.ClientId, cfg.RedirectURIs, privateKey)
 
@@ -45,16 +39,17 @@ func main() {
 		WithRootCAs(cfg.TransportRootCAs).
 		WithTransportKeyPair(cfg.TransportCert, cfg.TransportKey).
 		Build()
-	if err != nil {
-		exitErr(err.Error())
-	}
+	exitOnError(err)
 
 	scenarios := compliant.NewDCR32(cfg.WellknownEndpoint, openIDConfig, securedClient, authoriser)
 	tester := compliant.NewTester(flags.filterExpression, flags.debug)
 
-	passes := tester.Compliant(scenarios)
+	passes, err := tester.Compliant(scenarios)
+	exitOnError(err)
+
 	if !passes {
-		exitErr("FAIL")
+		fmt.Println("FAIL")
+		os.Exit(1)
 	}
 	fmt.Println("PASS")
 }
@@ -112,7 +107,9 @@ func loadConfig(configFilePath string) (Config, error) {
 	return cfg, nil
 }
 
-func exitErr(msg string) {
-	fmt.Println(msg)
-	os.Exit(1)
+func exitOnError(err error) {
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
 }
