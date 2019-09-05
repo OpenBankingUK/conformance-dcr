@@ -1,8 +1,21 @@
-.DEFAULT_GOAL:=help
-SHELL:=/bin/bash
+.DEFAULT_GOAL		:= help
+SHELL				:= /bin/bash
+
+# Time the build was started:
+# => Fri Aug 30 09:44:14 UTC 2019
+BUILD_TIME			:= $(shell date -u)
+# Commit hash from git:
+# => 227cea43baed3e8be03f8adc8da33bef73cdb377
+# => 227cea4
+COMMIT_HASH			:= $(shell git rev-list -1 HEAD)
+COMMIT_HASH_SHORT	:= $(shell git rev-parse --short HEAD)
+
+# Go builds flags:
+# => "-X bitbucket.org/openbankingteam/conformance-dcr/pkg/version.version=0.0.1 -X bitbucket.org/openbankingteam/conformance-dcr/pkg/version.commitHash=227cea43baed3e8be03f8adc8da33bef73cdb377 -X 'bitbucket.org/openbankingteam/conformance-dcr/pkg/version.buildTime=Fri Aug 30 09:46:24 UTC 2019'"
+VERSION_PKG 		:= bitbucket.org/openbankingteam/conformance-dcr/pkg/version
+LD_FLAGS			:= "-X ${VERSION_PKG}.version=0.0.1 -X ${VERSION_PKG}.commitHash=${COMMIT_HASH} -X '${VERSION_PKG}.buildTime=${BUILD_TIME}'"
 
 .PHONY: all
-
 
 .PHONY: help
 help: ## Displays this help.
@@ -11,8 +24,9 @@ help: ## Displays this help.
 ##@ Building & Running:
 
 .PHONY: run
+run: build
 run: ## run binary directly without docker.
-	go run ./cmd/cli --config-path configs/config.json
+	./dcr -config-path configs/config.json
 
 .PHONY: run_image
 run_image: ## run the 'latest' docker image.
@@ -25,7 +39,7 @@ run_image: ## run the 'latest' docker image.
 .PHONY: build
 build: ## build the server binary directly.
 	@echo -e "\033[92m  ---> Building ... \033[0m"
-	go build -o dcr bitbucket.org/openbankingteam/conformance-dcr/cmd/cli
+	go build -ldflags ${LD_FLAGS} -o dcr bitbucket.org/openbankingteam/conformance-dcr/cmd/cli
 
 .PHONY: build_image
 build_image: ## build the docker image.
@@ -66,3 +80,9 @@ fmt: ## Run gofmt on all go files
 .PHONY: lint
 lint: ## Basic linting and vetting of code
 	golangci-lint run
+
+.PHONY: pre_commit
+pre_commit: fmt lint build
+pre_commit: ## pre-commit checks
+	@echo -e "\033[92m  ---> pre-commit ... \033[0m"
+	go test -cover -count=1 ./...

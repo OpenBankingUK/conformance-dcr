@@ -1,19 +1,22 @@
 package main
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/pkg/errors"
 	"io/ioutil"
 	http2 "net/http"
 	"os"
 	"time"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/version"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/pkg/errors"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant"
 )
@@ -62,15 +65,27 @@ type flags struct {
 
 func mustParseFlags() flags {
 	var configFilePath, filterExpression string
-	var debug bool
+	var debug, versionFlag bool
 	flag.StringVar(&configFilePath, "config-path", "", "Config file path")
 	flag.StringVar(&filterExpression, "filter", "", "Filter scenarios containing value")
 	flag.BoolVar(&debug, "debug", false, "Enable debug defaults to disabled")
+	flag.BoolVar(&versionFlag, "version", false, "Print the version details of conformance-dcr")
+
 	flag.Parse()
+
+	if versionFlag {
+		err := version.Print(bufio.NewWriter(os.Stdout))
+		if err != nil {
+			exitErr(err.Error())
+		}
+		os.Exit(0)
+	}
+
 	if configFilePath == "" {
 		flag.Usage()
 		os.Exit(1)
 	}
+
 	return flags{
 		configFilePath:   configFilePath,
 		filterExpression: filterExpression,

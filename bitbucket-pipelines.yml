@@ -25,3 +25,10 @@ pipelines:
               - make build
               - make test
               - make lint
+
+        # build docker image
+        - step:
+            name: docker-image-build
+            script:
+              - make build_image
+              - docker images
