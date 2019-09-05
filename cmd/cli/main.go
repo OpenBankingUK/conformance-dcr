@@ -75,9 +75,7 @@ func mustParseFlags() flags {
 
 	if versionFlag {
 		err := version.Print(bufio.NewWriter(os.Stdout))
-		if err != nil {
-			exitErr(err.Error())
-		}
+		exitOnError(err)
 		os.Exit(0)
 	}
 
