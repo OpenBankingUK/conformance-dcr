@@ -43,6 +43,12 @@ func NewDCR32(
 					Build(),
 			).
 			TestCase(
+				NewTestCaseBuilder("Retrieve client credentials grant").
+					WithHttpClient(secureClient).
+					GetClientCredentialsGrant(openIDConfig.TokenEndpoint).
+					Build(),
+			).
+			TestCase(
 				NewTestCaseBuilder("Retrieve software client").
 					WithHttpClient(secureClient).
 					ClientRetrieve(openIDConfig.RegistrationEndpointAsString()).
@@ -54,7 +60,6 @@ func NewDCR32(
 				NewTestCaseBuilder("Delete software client").
 					WithHttpClient(secureClient).
 					ClientDelete(openIDConfig.RegistrationEndpointAsString()).
-					AssertStatusCodeOk().
 					Build(),
 			).
 			Build(),

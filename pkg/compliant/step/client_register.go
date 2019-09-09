@@ -1,11 +1,11 @@
 package step
 
 import (
+	http2 "bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
 	"bytes"
 	"fmt"
 	"github.com/pkg/errors"
 	"net/http"
-	"net/http/httputil"
 )
 
 type clientRegister struct {
@@ -54,7 +54,7 @@ func (s clientRegister) doJwtPostRequest(endpoint, jwtClaims string) (*http.Resp
 	}
 	req.Header.Add("Content-Type", "application/jwt")
 	req.Header.Add("Accept", "application/json")
-	s.debugRequest(req)
+	s.debug.Log(http2.DebugRequest(req))
 
 	s.debug.Log("making request")
 	response, err := s.client.Do(req)
@@ -64,15 +64,6 @@ func (s clientRegister) doJwtPostRequest(endpoint, jwtClaims string) (*http.Resp
 	s.debug.Logf("request finished with response status code %d", response.StatusCode)
 
 	return response, nil
-}
-
-func (s clientRegister) debugRequest(req *http.Request) {
-	debug, err := httputil.DumpRequest(req, true)
-	if err != nil {
-		s.debug.Logf("cant debug request object: %s", err.Error())
-	} else {
-		s.debug.Logf("request built: %s", string(debug))
-	}
 }
 
 func (s clientRegister) failResult(msg string) Result {

@@ -48,9 +48,10 @@ func newDefaultHttpClient() *http.Client {
 }
 
 const (
-	responseCtxKey  = "response"
-	clientCtxKey    = "software_client"
-	jwtClaimsCtxKey = "jwt_claims"
+	responseCtxKey   = "response"
+	clientCtxKey     = "software_client"
+	jwtClaimsCtxKey  = "jwt_claims"
+	grantTokenCtxKey = "grant_token"
 )
 
 func (t *testCaseBuilder) WithHttpClient(client *http.Client) *testCaseBuilder {
@@ -94,13 +95,13 @@ func (t *testCaseBuilder) PostClientRegister(registrationEndpoint string) *testC
 }
 
 func (t *testCaseBuilder) ClientDelete(registrationEndpoint string) *testCaseBuilder {
-	nextStep := step.NewClientDelete(registrationEndpoint, jwtClaimsCtxKey, responseCtxKey, t.httpClient)
+	nextStep := step.NewClientDelete(registrationEndpoint, clientCtxKey, grantTokenCtxKey, t.httpClient)
 	t.steps = append(t.steps, nextStep)
 	return t
 }
 
 func (t *testCaseBuilder) ClientRetrieve(registrationEndpoint string) *testCaseBuilder {
-	nextStep := step.NewClientRetrieve(responseCtxKey, registrationEndpoint, clientCtxKey, t.httpClient)
+	nextStep := step.NewClientRetrieve(responseCtxKey, registrationEndpoint, clientCtxKey, grantTokenCtxKey, t.httpClient)
 	t.steps = append(t.steps, nextStep)
 	return t
 }
@@ -119,6 +120,12 @@ func (t *testCaseBuilder) ParseClientRetrieveResponse() *testCaseBuilder {
 
 func (t *testCaseBuilder) ValidateRegistrationEndpoint(registrationEndpoint *string) *testCaseBuilder {
 	nextStep := step.NewValidateRegistrationEndpoint(registrationEndpoint)
+	t.steps = append(t.steps, nextStep)
+	return t
+}
+
+func (t *testCaseBuilder) GetClientCredentialsGrant(tokenEndpoint string) *testCaseBuilder {
+	nextStep := step.NewClientCredentialsGrant(grantTokenCtxKey, clientCtxKey, tokenEndpoint, t.httpClient)
 	t.steps = append(t.steps, nextStep)
 	return t
 }

@@ -1,6 +1,7 @@
 package step
 
 import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	dcr "bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"errors"
@@ -18,6 +19,8 @@ type Context interface {
 	GetOpenIdConfig(key string) (openid.Configuration, error)
 	SetClient(key string, client dcr.Client)
 	GetClient(key string) (dcr.Client, error)
+	SetGrantToken(key string, token auth.GrantToken)
+	GetGrantToken(key string) (auth.GrantToken, error)
 }
 
 var ErrKeyNotFoundInContext = errors.New("key not found in context")
@@ -28,6 +31,7 @@ type context struct {
 	responses     map[string]*http.Response
 	openIdConfigs map[string]openid.Configuration
 	clients       map[string]dcr.Client
+	grantTokens   map[string]auth.GrantToken
 }
 
 func NewContext() Context {
@@ -37,6 +41,7 @@ func NewContext() Context {
 		responses:     map[string]*http.Response{},
 		openIdConfigs: map[string]openid.Configuration{},
 		clients:       map[string]dcr.Client{},
+		grantTokens:   map[string]auth.GrantToken{},
 	}
 }
 
@@ -96,6 +101,18 @@ func (c *context) GetClient(key string) (dcr.Client, error) {
 	value, ok := c.clients[key]
 	if !ok {
 		return dcr.Client{}, ErrKeyNotFoundInContext
+	}
+	return value, nil
+}
+
+func (c *context) SetGrantToken(key string, token auth.GrantToken) {
+	c.grantTokens[key] = token
+}
+
+func (c *context) GetGrantToken(key string) (auth.GrantToken, error) {
+	value, ok := c.grantTokens[key]
+	if !ok {
+		return auth.GrantToken{}, ErrKeyNotFoundInContext
 	}
 	return value, nil
 }
