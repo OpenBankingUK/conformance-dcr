@@ -9,7 +9,7 @@ import (
 // Double dispatch Signing method/Client abstract factory
 type Authoriser interface {
 	Claims() (string, error)
-	ClientRegister(response []byte) (client.Client, error)
+	Client(response []byte) (client.Client, error)
 }
 
 func NewAuthoriser(

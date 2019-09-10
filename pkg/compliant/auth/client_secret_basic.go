@@ -2,7 +2,9 @@ package auth
 
 import (
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
+	"bytes"
 	"crypto/rsa"
+	"encoding/json"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -33,8 +35,25 @@ func NewClientSecretBasic(
 	}
 }
 
-func (c clientSecretBasic) ClientRegister(response []byte) (client.Client, error) {
-	return client.Client{}, errors.New("not implemented")
+func (c clientSecretBasic) Client(response []byte) (client.Client, error) {
+	var registrationResponse OBClientRegistrationResponse
+	if err := json.NewDecoder(bytes.NewReader(response)).Decode(&registrationResponse); err != nil {
+		return client.NewNoClient(), errors.Wrap(err, "client secret basic client")
+	}
+
+	return NewClientBasicFromResponse(registrationResponse), nil
+}
+
+func NewClientBasicFromResponse(registrationResponse OBClientRegistrationResponse) client.Client {
+	return client.NewClientBasic(
+		registrationResponse.ClientID,
+		registrationResponse.ClientSecret,
+	)
+}
+
+type OBClientRegistrationResponse struct {
+	ClientID     string `json:"client_id"`
+	ClientSecret string `json:"client_secret,omitempty"`
 }
 
 func (c clientSecretBasic) Claims() (string, error) {

@@ -1,9 +1,9 @@
 package step
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
-	"encoding/json"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"fmt"
+	"io/ioutil"
 )
 
 type clientRegisterResponse struct {
@@ -11,14 +11,16 @@ type clientRegisterResponse struct {
 	responseCtxKey string
 	clientCtxKey   string
 	debug          *DebugMessages
+	authoriser     auth.Authoriser
 }
 
-func NewClientRegisterResponse(responseCtxKey, clientCtxKey string) Step {
+func NewClientRegisterResponse(responseCtxKey, clientCtxKey string, authoriser auth.Authoriser) Step {
 	return clientRegisterResponse{
 		stepName:       "Decode client register response",
 		responseCtxKey: responseCtxKey,
 		clientCtxKey:   clientCtxKey,
 		debug:          NewDebug(),
+		authoriser:     authoriser,
 	}
 }
 
@@ -29,14 +31,19 @@ func (s clientRegisterResponse) Run(ctx Context) Result {
 		return s.failResult(fmt.Sprintf("getting response object from context: %s", err.Error()))
 	}
 
-	s.debug.Log("decoding response body to OBClientRegistrationResponse object")
-	var registrationResponse OBClientRegistrationResponse
-	if err = json.NewDecoder(response.Body).Decode(&registrationResponse); err != nil {
-		return s.failResult("decoding response: " + err.Error())
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return s.failResult(fmt.Sprintf("client register: %s", err.Error()))
+	}
+
+	s.debug.Log("getting client")
+	client, err := s.authoriser.Client(body)
+	if err != nil {
+		return s.failResult(fmt.Sprintf("client register: %s", err.Error()))
 	}
 
 	s.debug.Logf("setting software client in context var: %s", s.clientCtxKey)
-	ctx.SetClient(s.clientCtxKey, mapToClient(registrationResponse))
+	ctx.SetClient(s.clientCtxKey, client)
 
 	return NewPassResultWithDebug(s.stepName, s.debug)
 }
@@ -47,16 +54,4 @@ func (s clientRegisterResponse) failResult(msg string) Result {
 		msg,
 		s.debug,
 	)
-}
-
-func mapToClient(registrationResponse OBClientRegistrationResponse) client.Client {
-	return client.NewClient(
-		registrationResponse.ClientID,
-		registrationResponse.ClientSecret,
-	)
-}
-
-type OBClientRegistrationResponse struct {
-	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret,omitempty"`
 }

@@ -38,7 +38,7 @@ func (s clientDelete) Run(ctx Context) Result {
 		return NewFailResult(s.stepName, msg)
 	}
 
-	url := fmt.Sprintf("%s/%s", s.registrationEndpoint, client.Id)
+	url := fmt.Sprintf("%s/%s", s.registrationEndpoint, client.Id())
 	req, err := http.NewRequest(http.MethodDelete, url, nil)
 	if err != nil {
 		return NewFailResult(s.stepName, fmt.Sprintf("unable to create request %s: %v", url, err))

@@ -118,8 +118,8 @@ func (t *testCaseBuilder) ClientRetrieveWithInvalidToken(registrationEndpoint st
 	return t
 }
 
-func (t *testCaseBuilder) ParseClientRegisterResponse() *testCaseBuilder {
-	nextStep := step.NewClientRegisterResponse(responseCtxKey, clientCtxKey)
+func (t *testCaseBuilder) ParseClientRegisterResponse(authoriser auth.Authoriser) *testCaseBuilder {
+	nextStep := step.NewClientRegisterResponse(responseCtxKey, clientCtxKey, authoriser)
 	t.steps = append(t.steps, nextStep)
 	return t
 }
