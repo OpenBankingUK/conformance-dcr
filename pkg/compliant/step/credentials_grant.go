@@ -44,7 +44,7 @@ func (a clientCredentialsGrant) Run(ctx Context) Result {
 		message := fmt.Sprintf("error making token request: %s", err.Error())
 		return NewFailResultWithDebug(a.stepName, message, debug)
 	}
-	r.Header.Set("Authorization", softwareClient.AuthHeader())
+	r.Header.Add("Authorization", softwareClient.Token())
 	r.Header.Set("Content-type", "application/x-www-form-urlencoded")
 	debug.Log(http2.DebugRequest(r))
 

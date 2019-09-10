@@ -35,7 +35,7 @@ func (s clientRetrieveWithInvalidToken) Run(ctx Context) Result {
 		return NewFailResult(s.stepName, fmt.Sprintf("unable to find client %s in context: %v", s.clientCtxKey, err))
 	}
 
-	endpoint := fmt.Sprintf("%s/%s", s.registrationEndpoint, client.Id)
+	endpoint := fmt.Sprintf("%s/%s", s.registrationEndpoint, client.Id())
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 	if err != nil {
 		return NewFailResult(s.stepName, fmt.Sprintf("unable to make request: %s", err.Error()))
