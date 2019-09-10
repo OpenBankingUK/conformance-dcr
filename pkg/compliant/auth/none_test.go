@@ -13,7 +13,7 @@ func TestNone_Claims(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, "", claims)
 
-	c, err := auther.ClientRegister([]byte{})
+	c, err := auther.Client([]byte{})
 	assert.Error(t, err)
-	assert.Equal(t, client.Client{}, c)
+	assert.Equal(t, client.NewNoClient(), c)
 }

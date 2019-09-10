@@ -100,7 +100,7 @@ func (c *context) SetClient(key string, client dcr.Client) {
 func (c *context) GetClient(key string) (dcr.Client, error) {
 	value, ok := c.clients[key]
 	if !ok {
-		return dcr.Client{}, ErrKeyNotFoundInContext
+		return nil, ErrKeyNotFoundInContext
 	}
 	return value, nil
 }

@@ -11,7 +11,7 @@ import (
 )
 
 func TestClientCredentialsGrant(t *testing.T) {
-	softClient := client.NewClient(clientID, clientSecret)
+	softClient := client.NewClientBasic(clientID, clientSecret)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, http.MethodPost, r.Method)
 		w.WriteHeader(http.StatusOK)

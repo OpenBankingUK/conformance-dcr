@@ -1,6 +1,7 @@
 package step
 
 import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"encoding/json"
 	"fmt"
 )
@@ -25,12 +26,12 @@ func (s clientRetrieveResponse) Run(ctx Context) Result {
 		return NewFailResult(s.stepName, fmt.Sprintf("getting response object from context: %s", err.Error()))
 	}
 
-	var registrationResponse OBClientRegistrationResponse
+	var registrationResponse auth.OBClientRegistrationResponse
 	if err = json.NewDecoder(response.Body).Decode(&registrationResponse); err != nil {
 		return NewFailResult(s.stepName, "decoding response: "+err.Error())
 	}
 
-	ctx.SetClient(s.clientCtxKey, mapToClient(registrationResponse))
+	ctx.SetClient(s.clientCtxKey, auth.NewClientBasicFromResponse(registrationResponse))
 
 	return NewPassResult(s.stepName)
 }

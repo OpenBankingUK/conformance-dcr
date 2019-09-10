@@ -18,12 +18,14 @@ func TestNewClientSecretBasicAuther_Claims(t *testing.T) {
 	assert.NotEmpty(t, claims)
 }
 
-func TestClientSecretBasicAuther_ClientRegister_ReturnsNotImplemented(t *testing.T) {
+func TestClientSecretBasicAuther_Client_ReturnsAClient(t *testing.T) {
 	privateKey, err := certs.ParseRsaPrivateKeyFromPemFile("testdata/private-sign.key")
 	require.NoError(t, err)
 	auther := NewClientSecretBasic("issuer", "ssa", "kid", "clientId", []string{}, privateKey)
 
-	_, err = auther.ClientRegister([]byte{})
+	client, err := auther.Client([]byte(`{"client_id": "12345", "client_secret": "54321"}`))
 
-	assert.EqualError(t, err, "not implemented")
+	require.NoError(t, err)
+	assert.Equal(t, "12345", client.Id())
+	assert.Equal(t, "Basic MTIzNDU6NTQzMjE=", client.Token())
 }

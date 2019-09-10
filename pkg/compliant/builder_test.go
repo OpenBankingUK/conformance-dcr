@@ -38,7 +38,7 @@ func TestNewTestCaseBuilder(t *testing.T) {
 		GenerateSignedClaims(authoriser).
 		PostClientRegister(registrationEndpoint).
 		AssertStatusCodeCreated().
-		ParseClientRegisterResponse().
+		ParseClientRegisterResponse(authoriser).
 		ClientRetrieve(registrationEndpoint).
 		ClientDelete(registrationEndpoint).
 		ParseClientRetrieveResponse().
