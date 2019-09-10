@@ -31,8 +31,51 @@ func NewDCR32(
 					ParseClientRegisterResponse().
 					Build(),
 			).
+			TestCase(
+				NewTestCaseBuilder("Retrieve client credentials grant").
+					WithHttpClient(secureClient).
+					GetClientCredentialsGrant(openIDConfig.TokenEndpoint).
+					Build(),
+			).
+			TestCase(
+				NewTestCaseBuilder("Delete software client").
+					WithHttpClient(secureClient).
+					ClientDelete(openIDConfig.RegistrationEndpointAsString()).
+					Build(),
+			).
 			Build(),
 		NewBuilder("Dynamically retrieve a new software client").
+			TestCase(
+				NewTestCaseBuilder("Register software client").
+					WithHttpClient(secureClient).
+					GenerateSignedClaims(authoriser).
+					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
+					AssertStatusCodeCreated().
+					ParseClientRegisterResponse().
+					Build(),
+			).
+			TestCase(
+				NewTestCaseBuilder("Retrieve client credentials grant").
+					WithHttpClient(secureClient).
+					GetClientCredentialsGrant(openIDConfig.TokenEndpoint).
+					Build(),
+			).
+			TestCase(
+				NewTestCaseBuilder("Retrieve software client").
+					WithHttpClient(secureClient).
+					ClientRetrieve(openIDConfig.RegistrationEndpointAsString()).
+					AssertStatusCodeOk().
+					ParseClientRetrieveResponse().
+					Build(),
+			).
+			TestCase(
+				NewTestCaseBuilder("Delete software client").
+					WithHttpClient(secureClient).
+					ClientDelete(openIDConfig.RegistrationEndpointAsString()).
+					Build(),
+			).
+			Build(),
+		NewBuilder("I should not be able to retrieve a registered software if I send invalid credentials").
 			TestCase(
 				NewTestCaseBuilder("Register software client").
 					WithHttpClient(secureClient).
@@ -53,14 +96,6 @@ func NewDCR32(
 				NewTestCaseBuilder("Retrieve client credentials grant").
 					WithHttpClient(secureClient).
 					GetClientCredentialsGrant(openIDConfig.TokenEndpoint).
-					Build(),
-			).
-			TestCase(
-				NewTestCaseBuilder("Retrieve software client").
-					WithHttpClient(secureClient).
-					ClientRetrieve(openIDConfig.RegistrationEndpointAsString()).
-					AssertStatusCodeOk().
-					ParseClientRetrieveResponse().
 					Build(),
 			).
 			TestCase(
