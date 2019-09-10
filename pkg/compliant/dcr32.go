@@ -82,7 +82,7 @@ func NewDCR32(
 					GenerateSignedClaims(authoriser).
 					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeCreated().
-					ParseClientRegisterResponse().
+					ParseClientRegisterResponse(authoriser).
 					Build(),
 			).
 			TestCase(
