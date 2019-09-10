@@ -43,6 +43,13 @@ func NewDCR32(
 					Build(),
 			).
 			TestCase(
+				NewTestCaseBuilder("Retrieve software client with invalid credentials should not succeed").
+					WithHttpClient(secureClient).
+					ClientRetrieveWithInvalidToken(openIDConfig.RegistrationEndpointAsString()).
+					AssertStatusCodeUnauthorized().
+					Build(),
+			).
+			TestCase(
 				NewTestCaseBuilder("Retrieve client credentials grant").
 					WithHttpClient(secureClient).
 					GetClientCredentialsGrant(openIDConfig.TokenEndpoint).

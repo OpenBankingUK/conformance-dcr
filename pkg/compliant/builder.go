@@ -70,6 +70,12 @@ func (t *testCaseBuilder) AssertStatusCodeOk() *testCaseBuilder {
 	return t
 }
 
+func (t *testCaseBuilder) AssertStatusCodeUnauthorized() *testCaseBuilder {
+	nextStep := step.NewAssertStatus(http.StatusUnauthorized, responseCtxKey)
+	t.steps = append(t.steps, nextStep)
+	return t
+}
+
 func (t *testCaseBuilder) AssertStatusCodeCreated() *testCaseBuilder {
 	nextStep := step.NewAssertStatus(http.StatusCreated, responseCtxKey)
 	t.steps = append(t.steps, nextStep)
@@ -102,6 +108,12 @@ func (t *testCaseBuilder) ClientDelete(registrationEndpoint string) *testCaseBui
 
 func (t *testCaseBuilder) ClientRetrieve(registrationEndpoint string) *testCaseBuilder {
 	nextStep := step.NewClientRetrieve(responseCtxKey, registrationEndpoint, clientCtxKey, grantTokenCtxKey, t.httpClient)
+	t.steps = append(t.steps, nextStep)
+	return t
+}
+
+func (t *testCaseBuilder) ClientRetrieveWithInvalidToken(registrationEndpoint string) *testCaseBuilder {
+	nextStep := step.NewClientRetrieveWithInvalidToken(responseCtxKey, registrationEndpoint, clientCtxKey, t.httpClient)
 	t.steps = append(t.steps, nextStep)
 	return t
 }
