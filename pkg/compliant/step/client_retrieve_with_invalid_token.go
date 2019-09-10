@@ -3,6 +3,8 @@ package step
 import (
 	"fmt"
 	"net/http"
+
+	http2 "bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
 )
 
 type clientRetrieveWithInvalidToken struct {
@@ -27,6 +29,7 @@ func NewClientRetrieveWithInvalidToken(
 }
 
 func (s clientRetrieveWithInvalidToken) Run(ctx Context) Result {
+	debug := NewDebug()
 	client, err := ctx.GetClient(s.clientCtxKey)
 	if err != nil {
 		return NewFailResult(s.stepName, fmt.Sprintf("unable to find client %s in context: %v", s.clientCtxKey, err))
@@ -38,11 +41,12 @@ func (s clientRetrieveWithInvalidToken) Run(ctx Context) Result {
 		return NewFailResult(s.stepName, fmt.Sprintf("unable to make request: %s", err.Error()))
 	}
 	req.Header.Set("Authorization", "Bearer foobar")
-
+	debug.Log(http2.DebugRequest(req))
 	res, err := s.client.Do(req)
 	if err != nil {
 		return NewFailResult(s.stepName, fmt.Sprintf("unable to call endpoint %s: %v", endpoint, err))
 	}
+	debug.Log(http2.DebugResponse(res))
 
 	ctx.SetResponse(s.responseCtxKey, res)
 	return NewPassResult(s.stepName)
