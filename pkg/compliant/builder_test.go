@@ -30,6 +30,7 @@ func TestNewTestCaseBuilder(t *testing.T) {
 	)
 
 	const registrationEndpoint = "http://registration_endpoint"
+	const tokenEndpoint = "http://token_endpoint"
 	tc := NewTestCaseBuilder("test case").
 		WithHttpClient(&http.Client{}).
 		Get("www.google.com").
@@ -41,7 +42,7 @@ func TestNewTestCaseBuilder(t *testing.T) {
 		ParseClientRegisterResponse(authoriser).
 		ClientRetrieve(registrationEndpoint).
 		ClientDelete(registrationEndpoint).
-		ParseClientRetrieveResponse().
+		ParseClientRetrieveResponse(tokenEndpoint).
 		Step(step.NewAlwaysPass())
 
 	assert.Equal(t, "test case", tc.name)

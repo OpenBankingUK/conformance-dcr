@@ -27,10 +27,10 @@ func TestNewClientRegisterResponse(t *testing.T) {
 	assert.Equal(t, "Decode client register response", result.Name)
 	client, err := ctx.GetClient("clientCtxKey")
 	require.NoError(t, err)
-	tk, err := client.Token()
+	r, err := client.CredentialsGrantRequest()
 	require.NoError(t, err)
 	assert.Equal(t, "12345", client.Id())
-	assert.Equal(t, "Basic MTIzNDU6NTQzMjE=", tk)
+	assert.Equal(t, "Basic MTIzNDU6", r.Header.Get("Authorization"))
 }
 
 func TestNewClientRegisterResponse_FailsIfResponseNotFoundInContext(t *testing.T) {

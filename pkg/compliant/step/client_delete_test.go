@@ -1,23 +1,23 @@
 package step
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
 	"github.com/stretchr/testify/assert"
 )
 
 const (
-	clientID     = "foo"
-	clientSecret = "bar"
+	clientID      = "foo"
+	clientSecret  = "bar"
 )
 
 func TestNewClientDelete(t *testing.T) {
-	softClient := client.NewClientBasic(clientID, clientSecret)
 	// creating a stub server that expects a JWT body posted
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, http.MethodDelete, r.Method)
@@ -26,6 +26,7 @@ func TestNewClientDelete(t *testing.T) {
 	}))
 	defer server.Close()
 
+	softClient := client.NewClientBasic(clientID, server.URL, clientSecret)
 	ctx := NewContext()
 	ctx.SetClient("clientKey", softClient)
 	ctx.SetGrantToken("clientGrantKey", auth.GrantToken{})
@@ -39,7 +40,6 @@ func TestNewClientDelete(t *testing.T) {
 }
 
 func TestNewClientDelete_Expects204(t *testing.T) {
-	softClient := client.NewClientBasic(clientID, clientSecret)
 	// creating a stub server that expects a JWT body posted
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, http.MethodDelete, r.Method)
@@ -48,6 +48,7 @@ func TestNewClientDelete_Expects204(t *testing.T) {
 	}))
 	defer server.Close()
 
+	softClient := client.NewClientBasic(clientID, server.URL, clientSecret)
 	ctx := NewContext()
 	ctx.SetClient("clientKey", softClient)
 	ctx.SetGrantToken("clientGrantKey", auth.GrantToken{})
@@ -60,7 +61,7 @@ func TestNewClientDelete_Expects204(t *testing.T) {
 }
 
 func TestNewClientDelete_HandlesCreateRequestError(t *testing.T) {
-	softClient := client.NewClientBasic(clientID, clientSecret)
+	softClient := client.NewClientBasic(clientID, "", clientSecret)
 	ctx := NewContext()
 	ctx.SetClient("clientKey", softClient)
 	ctx.SetGrantToken("clientGrantKey", auth.GrantToken{})
@@ -77,7 +78,7 @@ func TestNewClientDelete_HandlesCreateRequestError(t *testing.T) {
 }
 
 func TestNewClientDelete_HandlesExecuteRequestError(t *testing.T) {
-	softClient := client.NewClientBasic(clientID, clientSecret)
+	softClient := client.NewClientBasic(clientID, "", clientSecret)
 	ctx := NewContext()
 	ctx.SetClient("clientKey", softClient)
 	ctx.SetGrantToken("clientGrantKey", auth.GrantToken{})
@@ -109,7 +110,7 @@ func TestNewClientDelete_HandlesErrorForClientNotFound(t *testing.T) {
 }
 
 func TestNewClientDelete_HandlesErrorForGrantNotFound(t *testing.T) {
-	softClient := client.NewClientBasic(clientID, clientSecret)
+	softClient := client.NewClientBasic(clientID, "", clientSecret)
 	ctx := NewContext()
 	ctx.SetClient("clientKey", softClient)
 	step := NewClientDelete("localhost", "clientKey", "clientGrantKey", &http.Client{})
