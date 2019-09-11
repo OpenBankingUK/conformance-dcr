@@ -25,7 +25,8 @@ func TestClientSecretBasicAuther_Client_ReturnsAClient(t *testing.T) {
 
 	client, err := auther.Client([]byte(`{"client_id": "12345", "client_secret": "54321"}`))
 
+	tk, _:= client.Token()
 	require.NoError(t, err)
 	assert.Equal(t, "12345", client.Id())
-	assert.Equal(t, "Basic MTIzNDU6NTQzMjE=", client.Token())
+	assert.Equal(t, "Basic MTIzNDU6NTQzMjE=", tk)
 }
