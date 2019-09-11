@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	clientID      = "foo"
-	clientSecret  = "bar"
+	clientID     = "foo"
+	clientSecret = "bar"
 )
 
 func TestNewClientDelete(t *testing.T) {
