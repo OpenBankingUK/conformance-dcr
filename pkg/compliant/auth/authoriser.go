@@ -1,9 +1,10 @@
 package auth
 
 import (
+	"crypto/rsa"
+
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
-	"crypto/rsa"
 )
 
 // Double dispatch Signing method/Client abstract factory
@@ -18,6 +19,17 @@ func NewAuthoriser(
 	redirectURIs []string,
 	privateKey *rsa.PrivateKey,
 ) Authoriser {
+	if sliceContains("private_key_jwt", config.TokenEndpointAuthMethodsSupported) {
+		return NewClientPrivateKeyJwt(
+			config.Issuer,
+			config.TokenEndpoint,
+			ssa,
+			kid,
+			clientId,
+			redirectURIs,
+			privateKey,
+		)
+	}
 	if sliceContains("client_secret_basic", config.TokenEndpointAuthMethodsSupported) {
 		return NewClientSecretBasic(
 			config.Issuer,
