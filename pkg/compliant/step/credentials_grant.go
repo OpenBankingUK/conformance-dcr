@@ -3,15 +3,10 @@ package step
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"net/url"
-	"strings"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
 	http2 "bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
-	"github.com/pkg/errors"
 )
 
 type clientCredentialsGrant struct {
@@ -40,7 +35,7 @@ func (a clientCredentialsGrant) Run(ctx Context) Result {
 		msg := fmt.Sprintf("getting software client object from context: %s", err.Error())
 		return NewFailResultWithDebug(a.stepName, msg, debug)
 	}
-	r, err := a.requestForClient(softwareClient)
+	r, err := softwareClient.CredentialsGrantRequest()
 	if err != nil {
 		msg := fmt.Sprintf("unable to build request object: %s", err.Error())
 		return NewFailResultWithDebug(a.stepName, msg, debug)
@@ -72,47 +67,4 @@ func (a clientCredentialsGrant) Run(ctx Context) Result {
 	ctx.SetGrantToken(a.grantTokenCtxKey, token)
 
 	return NewPassResultWithDebug(a.stepName, debug)
-}
-
-func credentialsGrantRequestReader() io.Reader {
-	data := url.Values{}
-	data.Set("grant_type", "client_credentials")
-	data.Set("scope", "accounts openid")
-	return strings.NewReader(data.Encode())
-}
-
-func (a clientCredentialsGrant) requestForClient(softwareClient client.Client) (*http.Request, error) {
-	switch softwareClient.Type() {
-	case client.AuthTypeClientSecretBasic:
-		r, err := http.NewRequest(http.MethodPost, a.tokenEndpoint, credentialsGrantRequestReader())
-		if err != nil {
-			return nil, errors.Wrapf(err, "error making token request for client_secret_basic: %s", err.Error())
-		}
-		token, err := softwareClient.Token()
-		if err != nil {
-			return nil, errors.Wrapf(err, "error generating token for client_secret_basic: %s", err.Error())
-		}
-		r.Header.Add("Authorization", token)
-		return r, nil
-	case client.AuthTypePrivateKeyJwt:
-		token, err := softwareClient.Token()
-		if err != nil {
-			return nil, errors.Wrapf(err, "error generating token for private_key_jwt: %s", err.Error())
-		}
-		r, err := http.NewRequest(http.MethodPost, a.tokenEndpoint, credentialGrantPrivateKeyJwtRequestReader(token))
-		if err != nil {
-			return nil, errors.Wrapf(err, "error making token request for private_key_jwt: %s", err.Error())
-		}
-		return r, nil
-	}
-	return nil, fmt.Errorf("auth method %s not supported", softwareClient.Type())
-}
-
-func credentialGrantPrivateKeyJwtRequestReader(token string) io.Reader {
-	data := url.Values{}
-	data.Set("grant_type", "client_credentials")
-	data.Set("scope", "accounts openid")
-	data.Set("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
-	data.Set("client_assertion", token)
-	return strings.NewReader(data.Encode())
 }

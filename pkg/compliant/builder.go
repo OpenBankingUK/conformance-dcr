@@ -124,8 +124,8 @@ func (t *testCaseBuilder) ParseClientRegisterResponse(authoriser auth.Authoriser
 	return t
 }
 
-func (t *testCaseBuilder) ParseClientRetrieveResponse() *testCaseBuilder {
-	nextStep := step.NewClientRetrieveResponse(responseCtxKey, clientCtxKey)
+func (t *testCaseBuilder) ParseClientRetrieveResponse(openIDConfigTokenEndpoint string) *testCaseBuilder {
+	nextStep := step.NewClientRetrieveResponse(responseCtxKey, clientCtxKey, openIDConfigTokenEndpoint)
 	t.steps = append(t.steps, nextStep)
 	return t
 }

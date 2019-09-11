@@ -33,6 +33,7 @@ func NewAuthoriser(
 	if sliceContains("client_secret_basic", config.TokenEndpointAuthMethodsSupported) {
 		return NewClientSecretBasic(
 			config.Issuer,
+			config.TokenEndpoint,
 			ssa,
 			kid,
 			clientId,

@@ -65,7 +65,7 @@ func NewDCR32(
 					WithHttpClient(secureClient).
 					ClientRetrieve(openIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeOk().
-					ParseClientRetrieveResponse().
+					ParseClientRetrieveResponse(openIDConfig.TokenEndpoint).
 					Build(),
 			).
 			TestCase(

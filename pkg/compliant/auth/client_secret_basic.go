@@ -13,26 +13,28 @@ import (
 )
 
 type clientSecretBasic struct {
-	issuer       string
-	privateKey   *rsa.PrivateKey
-	ssa          string
-	kid          string
-	clientId     string
-	redirectURIs []string
+	issuer        string
+	tokenEndpoint string
+	privateKey    *rsa.PrivateKey
+	ssa           string
+	kid           string
+	clientId      string
+	redirectURIs  []string
 }
 
 func NewClientSecretBasic(
-	issuer, ssa, kid, clientId string,
+	issuer, tokenEndpoint, ssa, kid, clientId string,
 	redirectURIs []string,
 	privateKey *rsa.PrivateKey,
 ) Authoriser {
 	return clientSecretBasic{
-		issuer:       issuer,
-		privateKey:   privateKey,
-		ssa:          ssa,
-		kid:          kid,
-		clientId:     clientId,
-		redirectURIs: redirectURIs,
+		issuer:        issuer,
+		tokenEndpoint: tokenEndpoint,
+		privateKey:    privateKey,
+		ssa:           ssa,
+		kid:           kid,
+		clientId:      clientId,
+		redirectURIs:  redirectURIs,
 	}
 }
 
@@ -42,14 +44,11 @@ func (c clientSecretBasic) Client(response []byte) (client.Client, error) {
 		return client.NewNoClient(), errors.Wrap(err, "client secret basic client")
 	}
 
-	return NewClientBasicFromResponse(registrationResponse), nil
-}
-
-func NewClientBasicFromResponse(registrationResponse OBClientRegistrationResponse) client.Client {
 	return client.NewClientBasic(
 		registrationResponse.ClientID,
 		registrationResponse.ClientSecret,
-	)
+		c.tokenEndpoint,
+	), nil
 }
 
 type OBClientRegistrationResponse struct {
