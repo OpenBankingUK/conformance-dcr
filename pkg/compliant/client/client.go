@@ -24,7 +24,6 @@ type Client interface {
 type clientPrivateKeyJwt struct {
 	id            string
 	tokenEndpoint string
-	kid           string
 	privateKey    *rsa.PrivateKey
 }
 

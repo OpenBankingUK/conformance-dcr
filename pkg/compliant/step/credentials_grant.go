@@ -41,6 +41,10 @@ func (a clientCredentialsGrant) Run(ctx Context) Result {
 		return NewFailResultWithDebug(a.stepName, msg, debug)
 	}
 	r, err := a.requestForClient(softwareClient)
+	if err != nil {
+		msg := fmt.Sprintf("unable to build request object: %s", err.Error())
+		return NewFailResultWithDebug(a.stepName, msg, debug)
+	}
 
 	r.Header.Set("Content-type", "application/x-www-form-urlencoded")
 	debug.Log(http2.DebugRequest(r))

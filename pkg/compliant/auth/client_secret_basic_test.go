@@ -24,8 +24,8 @@ func TestClientSecretBasicAuther_Client_ReturnsAClient(t *testing.T) {
 	auther := NewClientSecretBasic("issuer", "ssa", "kid", "clientId", []string{}, privateKey)
 
 	client, err := auther.Client([]byte(`{"client_id": "12345", "client_secret": "54321"}`))
-
-	tk, _:= client.Token()
+	require.NoError(t, err)
+	tk, err := client.Token()
 	require.NoError(t, err)
 	assert.Equal(t, "12345", client.Id())
 	assert.Equal(t, "Basic MTIzNDU6NTQzMjE=", tk)
