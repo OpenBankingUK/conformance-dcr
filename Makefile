@@ -26,7 +26,7 @@ help: ## Displays this help.
 .PHONY: run
 run: build
 run: ## run binary directly without docker.
-	./dcr -debug=true -config-path configs/config.json
+	./dcr -config-path configs/config.json
 
 .PHONY: run_image
 run_image: ## run the 'latest' docker image.
