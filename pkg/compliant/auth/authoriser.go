@@ -30,7 +30,7 @@ func NewAuthoriser(
 			redirectURIs,
 			privateKey,
 			NewJwtSigner(
-				jwt.SigningMethodRS256.Alg(),
+				jwt.SigningMethodPS256.Alg(),
 				ssa,
 				clientId,
 				config.Issuer,
@@ -51,7 +51,7 @@ func NewAuthoriser(
 			redirectURIs,
 			privateKey,
 			NewJwtSigner(
-				jwt.SigningMethodRS256.Alg(),
+				jwt.SigningMethodPS256.Alg(),
 				ssa,
 				clientId,
 				config.Issuer,
