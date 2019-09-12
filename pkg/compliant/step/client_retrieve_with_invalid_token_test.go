@@ -24,7 +24,7 @@ func TestNewClientRetrieveWithInvalidToken(t *testing.T) {
 	defer server.Close()
 
 	ctx := NewContext()
-	ctx.SetClient("clientKey", client.NewClientBasic(clientID, clientSecret))
+	ctx.SetClient("clientKey", client.NewClientBasic(clientID, server.URL, clientSecret))
 	step := NewClientRetrieveWithInvalidToken("responseCtxKey", server.URL, "clientKey", server.Client())
 
 	result := step.Run(ctx)
@@ -40,7 +40,7 @@ func TestNewClientRetrieveWithInvalidToken(t *testing.T) {
 
 func TestNewClientRetrieveWithInvalidToken_HandlesMakeRequestError(t *testing.T) {
 	ctx := NewContext()
-	ctx.SetClient("clientKey", client.NewClientBasic(clientID, clientSecret))
+	ctx.SetClient("clientKey", client.NewClientBasic(clientID, "", clientSecret))
 	step := NewClientRetrieveWithInvalidToken("responseCtxKey", string(0x7f), "clientKey", &http.Client{})
 
 	result := step.Run(ctx)
@@ -55,7 +55,7 @@ func TestNewClientRetrieveWithInvalidToken_HandlesMakeRequestError(t *testing.T)
 
 func TestNewClientRegisterWithInvalidToken_HandlesExecuteRequestError(t *testing.T) {
 	ctx := NewContext()
-	ctx.SetClient("clientKey", client.NewClientBasic(clientID, clientSecret))
+	ctx.SetClient("clientKey", client.NewClientBasic(clientID, "", clientSecret))
 	step := NewClientRetrieveWithInvalidToken("responseCtxKey", "localhost", "clientKey", &http.Client{})
 
 	result := step.Run(ctx)

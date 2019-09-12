@@ -11,7 +11,6 @@ import (
 )
 
 func TestClientCredentialsGrant(t *testing.T) {
-	softClient := client.NewClientBasic(clientID, clientSecret)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, http.MethodPost, r.Method)
 		w.WriteHeader(http.StatusOK)
@@ -20,6 +19,7 @@ func TestClientCredentialsGrant(t *testing.T) {
 	}))
 	defer server.Close()
 
+	softClient := client.NewClientBasic(clientID, server.URL, clientSecret)
 	ctx := NewContext()
 	ctx.SetClient("clientKey", softClient)
 	ctx.SetGrantToken("clientGrantKey", auth.GrantToken{})

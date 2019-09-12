@@ -1,11 +1,12 @@
 package step
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
@@ -23,7 +24,7 @@ func TestNewClientRetrieve(t *testing.T) {
 	defer server.Close()
 
 	ctx := NewContext()
-	ctx.SetClient("clientKey", client.NewClientBasic(clientID, clientSecret))
+	ctx.SetClient("clientKey", client.NewClientBasic(clientID, server.URL, clientSecret))
 	ctx.SetGrantToken("grantTokenKey", auth.GrantToken{})
 	step := NewClientRetrieve("responseCtxKey", server.URL, "clientKey", "grantTokenKey", server.Client())
 
@@ -40,7 +41,7 @@ func TestNewClientRetrieve(t *testing.T) {
 
 func TestNewClientRegister_HandlesMakeRequestError(t *testing.T) {
 	ctx := NewContext()
-	ctx.SetClient("clientKey", client.NewClientBasic(clientID, clientSecret))
+	ctx.SetClient("clientKey", client.NewClientBasic(clientID, "", clientSecret))
 	ctx.SetGrantToken("grantTokenKey", auth.GrantToken{})
 	step := NewClientRetrieve("responseCtxKey", string(0x7f), "clientKey", "grantTokenKey", &http.Client{})
 
@@ -56,7 +57,7 @@ func TestNewClientRegister_HandlesMakeRequestError(t *testing.T) {
 
 func TestNewClientRegister_HandlesExecuteRequestError(t *testing.T) {
 	ctx := NewContext()
-	ctx.SetClient("clientKey", client.NewClientBasic(clientID, clientSecret))
+	ctx.SetClient("clientKey", client.NewClientBasic(clientID, "", clientSecret))
 	ctx.SetGrantToken("grantTokenKey", auth.GrantToken{})
 	step := NewClientRetrieve("responseCtxKey", "localhost", "clientKey", "grantTokenKey", &http.Client{})
 
@@ -91,7 +92,7 @@ func TestNewClientRegister_HandlesErrorForClientNotFound(t *testing.T) {
 
 func TestNewClientRegister_HandlesErrorForGrantTokenNotFound(t *testing.T) {
 	ctx := NewContext()
-	ctx.SetClient("clientKey", client.NewClientBasic(clientID, clientSecret))
+	ctx.SetClient("clientKey", client.NewClientBasic(clientID, "", clientSecret))
 	step := NewClientRetrieve("responseCtxKey", "localhost", "clientKey", "grantTokenKey", &http.Client{})
 
 	result := step.Run(ctx)

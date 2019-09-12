@@ -1,9 +1,10 @@
 package step
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"fmt"
 	"io/ioutil"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 )
 
 type clientRegisterResponse struct {
@@ -37,6 +38,7 @@ func (s clientRegisterResponse) Run(ctx Context) Result {
 	}
 
 	s.debug.Log("getting client")
+	s.debug.Logf("register res: %+v", string(body))
 	client, err := s.authoriser.Client(body)
 	if err != nil {
 		return s.failResult(fmt.Sprintf("client register: %s", err.Error()))

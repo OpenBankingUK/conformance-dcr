@@ -1,14 +1,12 @@
 package step
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
-	http2 "bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"net/url"
-	"strings"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
+	http2 "bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
 )
 
 type clientCredentialsGrant struct {
@@ -37,14 +35,12 @@ func (a clientCredentialsGrant) Run(ctx Context) Result {
 		msg := fmt.Sprintf("getting software client object from context: %s", err.Error())
 		return NewFailResultWithDebug(a.stepName, msg, debug)
 	}
-
-	r, err := http.NewRequest(http.MethodPost, a.tokenEndpoint, credentialsGrantRequestReader())
+	r, err := softwareClient.CredentialsGrantRequest()
 	if err != nil {
-		debug.Log(http2.DebugRequest(r))
-		message := fmt.Sprintf("error making token request: %s", err.Error())
-		return NewFailResultWithDebug(a.stepName, message, debug)
+		msg := fmt.Sprintf("unable to build request object: %s", err.Error())
+		return NewFailResultWithDebug(a.stepName, msg, debug)
 	}
-	r.Header.Add("Authorization", softwareClient.Token())
+
 	r.Header.Set("Content-type", "application/x-www-form-urlencoded")
 	debug.Log(http2.DebugRequest(r))
 
@@ -71,11 +67,4 @@ func (a clientCredentialsGrant) Run(ctx Context) Result {
 	ctx.SetGrantToken(a.grantTokenCtxKey, token)
 
 	return NewPassResultWithDebug(a.stepName, debug)
-}
-
-func credentialsGrantRequestReader() io.Reader {
-	data := url.Values{}
-	data.Set("grant_type", "client_credentials")
-	data.Set("scope", "accounts openid")
-	return strings.NewReader(data.Encode())
 }

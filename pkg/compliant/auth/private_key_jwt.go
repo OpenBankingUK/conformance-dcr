@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-type clientSecretBasic struct {
+type clientPrivateKeyJwt struct {
 	issuer        string
 	tokenEndpoint string
 	privateKey    *rsa.PrivateKey
@@ -20,13 +20,13 @@ type clientSecretBasic struct {
 	jwtSigner     JwtSigner
 }
 
-func NewClientSecretBasic(
+func NewClientPrivateKeyJwt(
 	issuer, tokenEndpoint, ssa, kid, clientId string,
 	redirectURIs []string,
 	privateKey *rsa.PrivateKey,
 	jwtSigner JwtSigner,
 ) Authoriser {
-	return clientSecretBasic{
+	return clientPrivateKeyJwt{
 		issuer:        issuer,
 		tokenEndpoint: tokenEndpoint,
 		privateKey:    privateKey,
@@ -38,24 +38,19 @@ func NewClientSecretBasic(
 	}
 }
 
-func (c clientSecretBasic) Client(response []byte) (client.Client, error) {
+func (c clientPrivateKeyJwt) Client(response []byte) (client.Client, error) {
 	var registrationResponse OBClientRegistrationResponse
 	if err := json.NewDecoder(bytes.NewReader(response)).Decode(&registrationResponse); err != nil {
-		return client.NewNoClient(), errors.Wrap(err, "client secret basic client")
+		return client.NewNoClient(), errors.Wrap(err, "private key jwt client")
 	}
 
-	return client.NewClientBasic(
+	return client.NewClientPrivateKeyJwt(
 		registrationResponse.ClientID,
-		registrationResponse.ClientSecret,
 		c.tokenEndpoint,
+		c.privateKey,
 	), nil
 }
 
-type OBClientRegistrationResponse struct {
-	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret,omitempty"`
-}
-
-func (c clientSecretBasic) Claims() (string, error) {
+func (c clientPrivateKeyJwt) Claims() (string, error) {
 	return c.jwtSigner.Claims()
 }
