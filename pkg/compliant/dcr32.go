@@ -8,7 +8,6 @@ import (
 )
 
 func NewDCR32(
-	wellKnownEndpoint string,
 	openIDConfig openid.Configuration,
 	secureClient *http.Client,
 	authoriser auth.Authoriser,
@@ -28,7 +27,19 @@ func NewDCR32(
 					GenerateSignedClaims(authoriser).
 					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeCreated().
-					ParseClientRegisterResponse().
+					ParseClientRegisterResponse(authoriser).
+					Build(),
+			).
+			TestCase(
+				NewTestCaseBuilder("Retrieve client credentials grant").
+					WithHttpClient(secureClient).
+					GetClientCredentialsGrant(openIDConfig.TokenEndpoint).
+					Build(),
+			).
+			TestCase(
+				NewTestCaseBuilder("Delete software client").
+					WithHttpClient(secureClient).
+					ClientDelete(openIDConfig.RegistrationEndpointAsString()).
 					Build(),
 			).
 			Build(),
@@ -39,7 +50,13 @@ func NewDCR32(
 					GenerateSignedClaims(authoriser).
 					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeCreated().
-					ParseClientRegisterResponse().
+					ParseClientRegisterResponse(authoriser).
+					Build(),
+			).
+			TestCase(
+				NewTestCaseBuilder("Retrieve client credentials grant").
+					WithHttpClient(secureClient).
+					GetClientCredentialsGrant(openIDConfig.TokenEndpoint).
 					Build(),
 			).
 			TestCase(
@@ -47,7 +64,44 @@ func NewDCR32(
 					WithHttpClient(secureClient).
 					ClientRetrieve(openIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeOk().
-					ParseClientRetrieveResponse().
+					ParseClientRetrieveResponse(openIDConfig.TokenEndpoint).
+					Build(),
+			).
+			TestCase(
+				NewTestCaseBuilder("Delete software client").
+					WithHttpClient(secureClient).
+					ClientDelete(openIDConfig.RegistrationEndpointAsString()).
+					Build(),
+			).
+			Build(),
+		NewBuilder("I should not be able to retrieve a registered software if I send invalid credentials").
+			TestCase(
+				NewTestCaseBuilder("Register software client").
+					WithHttpClient(secureClient).
+					GenerateSignedClaims(authoriser).
+					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
+					AssertStatusCodeCreated().
+					ParseClientRegisterResponse(authoriser).
+					Build(),
+			).
+			TestCase(
+				NewTestCaseBuilder("Retrieve software client with invalid credentials should not succeed").
+					WithHttpClient(secureClient).
+					SetInvalidGrantToken().
+					ClientRetrieve(openIDConfig.RegistrationEndpointAsString()).
+					AssertStatusCodeUnauthorized().
+					Build(),
+			).
+			TestCase(
+				NewTestCaseBuilder("Retrieve client credentials grant").
+					WithHttpClient(secureClient).
+					GetClientCredentialsGrant(openIDConfig.TokenEndpoint).
+					Build(),
+			).
+			TestCase(
+				NewTestCaseBuilder("Delete software client").
+					WithHttpClient(secureClient).
+					ClientDelete(openIDConfig.RegistrationEndpointAsString()).
 					Build(),
 			).
 			Build(),

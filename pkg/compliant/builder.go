@@ -48,9 +48,10 @@ func newDefaultHttpClient() *http.Client {
 }
 
 const (
-	responseCtxKey  = "response"
-	clientCtxKey    = "software_client"
-	jwtClaimsCtxKey = "jwt_claims"
+	responseCtxKey   = "response"
+	clientCtxKey     = "software_client"
+	jwtClaimsCtxKey  = "jwt_claims"
+	grantTokenCtxKey = "grant_token"
 )
 
 func (t *testCaseBuilder) WithHttpClient(client *http.Client) *testCaseBuilder {
@@ -65,6 +66,12 @@ func (t *testCaseBuilder) Get(url string) *testCaseBuilder {
 
 func (t *testCaseBuilder) AssertStatusCodeOk() *testCaseBuilder {
 	nextStep := step.NewAssertStatus(http.StatusOK, responseCtxKey)
+	t.steps = append(t.steps, nextStep)
+	return t
+}
+
+func (t *testCaseBuilder) AssertStatusCodeUnauthorized() *testCaseBuilder {
+	nextStep := step.NewAssertStatus(http.StatusUnauthorized, responseCtxKey)
 	t.steps = append(t.steps, nextStep)
 	return t
 }
@@ -93,26 +100,44 @@ func (t *testCaseBuilder) PostClientRegister(registrationEndpoint string) *testC
 	return t
 }
 
+func (t *testCaseBuilder) ClientDelete(registrationEndpoint string) *testCaseBuilder {
+	nextStep := step.NewClientDelete(registrationEndpoint, clientCtxKey, grantTokenCtxKey, t.httpClient)
+	t.steps = append(t.steps, nextStep)
+	return t
+}
+
 func (t *testCaseBuilder) ClientRetrieve(registrationEndpoint string) *testCaseBuilder {
-	nextStep := step.NewClientRetrieve(responseCtxKey, registrationEndpoint, clientCtxKey, t.httpClient)
+	nextStep := step.NewClientRetrieve(responseCtxKey, registrationEndpoint, clientCtxKey, grantTokenCtxKey, t.httpClient)
 	t.steps = append(t.steps, nextStep)
 	return t
 }
 
-func (t *testCaseBuilder) ParseClientRegisterResponse() *testCaseBuilder {
-	nextStep := step.NewClientRegisterResponse(responseCtxKey, clientCtxKey)
+func (t *testCaseBuilder) SetInvalidGrantToken() *testCaseBuilder {
+	nextStep := step.NewSetInvalidGrantToken(grantTokenCtxKey)
 	t.steps = append(t.steps, nextStep)
 	return t
 }
 
-func (t *testCaseBuilder) ParseClientRetrieveResponse() *testCaseBuilder {
-	nextStep := step.NewClientRetrieveResponse(responseCtxKey, clientCtxKey)
+func (t *testCaseBuilder) ParseClientRegisterResponse(authoriser auth.Authoriser) *testCaseBuilder {
+	nextStep := step.NewClientRegisterResponse(responseCtxKey, clientCtxKey, authoriser)
+	t.steps = append(t.steps, nextStep)
+	return t
+}
+
+func (t *testCaseBuilder) ParseClientRetrieveResponse(openIDConfigTokenEndpoint string) *testCaseBuilder {
+	nextStep := step.NewClientRetrieveResponse(responseCtxKey, clientCtxKey, openIDConfigTokenEndpoint)
 	t.steps = append(t.steps, nextStep)
 	return t
 }
 
 func (t *testCaseBuilder) ValidateRegistrationEndpoint(registrationEndpoint *string) *testCaseBuilder {
 	nextStep := step.NewValidateRegistrationEndpoint(registrationEndpoint)
+	t.steps = append(t.steps, nextStep)
+	return t
+}
+
+func (t *testCaseBuilder) GetClientCredentialsGrant(tokenEndpoint string) *testCaseBuilder {
+	nextStep := step.NewClientCredentialsGrant(grantTokenCtxKey, clientCtxKey, tokenEndpoint, t.httpClient)
 	t.steps = append(t.steps, nextStep)
 	return t
 }

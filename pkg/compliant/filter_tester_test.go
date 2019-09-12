@@ -11,7 +11,7 @@ func TestFilteredTester_FilterTheRightScenario(t *testing.T) {
 		NewScenario("One", nil),
 		NewScenario("Two", nil),
 	}
-	tester := filteredTester{expression: "Two"}
+	tester := filteredTester{expression: "two"}
 
 	filteredScenarios := tester.filter(scenarios)
 
@@ -39,8 +39,9 @@ func TestFilteredTester_ShouldRunOnlyOneScenario(t *testing.T) {
 	mockDownstreamTester := &mockTester{count: 1}
 	tester := NewFilteredTester("TWO", mockDownstreamTester)
 
-	tester.Compliant(scenarios)
+	_, err := tester.Compliant(scenarios)
 
+	assert.NoError(t, err)
 	assert.Equal(t, 1, mockDownstreamTester.count)
 }
 
@@ -50,7 +51,18 @@ type mockTester struct {
 
 func (m *mockTester) Name() string { return "mock tester" }
 
-func (m *mockTester) Compliant(scenarios Scenarios) bool {
+func (m *mockTester) Compliant(scenarios Scenarios) (bool, error) {
 	m.count = len(scenarios)
-	return true
+	return true, nil
+}
+
+func TestFilteredTester_ReturnsErrorIfNoTestsFilterTheRightScenario(t *testing.T) {
+	scenarios := Scenarios{}
+
+	mockDownstreamTester := &mockTester{count: 0}
+	tester := NewFilteredTester("TWO", mockDownstreamTester)
+
+	_, err := tester.Compliant(scenarios)
+
+	assert.EqualError(t, err, "no tests found to run")
 }

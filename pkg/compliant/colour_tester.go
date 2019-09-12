@@ -16,7 +16,7 @@ type colourTester struct {
 	debug bool
 }
 
-func (t colourTester) Compliant(scenarios Scenarios) bool {
+func (t colourTester) Compliant(scenarios Scenarios) (bool, error) {
 	ok := true
 	for _, scenario := range scenarios {
 		scenarioResult := scenario.Run()
@@ -29,7 +29,7 @@ func (t colourTester) Compliant(scenarios Scenarios) bool {
 		}
 		ok = ok && !scenarioResult.Fail()
 	}
-	return ok
+	return ok, nil
 }
 
 func (t colourTester) printColourTestResult(result step.Result) {

@@ -18,7 +18,8 @@ func TestVerboseTester_Compliant(t *testing.T) {
 	}
 	tester := NewColourTester(false)
 
-	isCompliant := tester.Compliant(scenarios)
+	isCompliant, err := tester.Compliant(scenarios)
 
+	assert.NoError(t, err)
 	assert.False(t, isCompliant)
 }

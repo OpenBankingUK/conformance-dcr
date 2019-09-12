@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
+
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"github.com/stretchr/testify/assert"
@@ -13,8 +15,6 @@ import (
 )
 
 func TestNewClientRetrieve(t *testing.T) {
-	clientID := "foo"
-	clientSecret := "bar"
 	// creating a stub server that expects a JWT body posted
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, fmt.Sprintf("/%s", clientID), r.URL.EscapedPath())
@@ -24,8 +24,9 @@ func TestNewClientRetrieve(t *testing.T) {
 	defer server.Close()
 
 	ctx := NewContext()
-	ctx.SetClient("clientKey", client.NewClient(clientID, clientSecret))
-	step := NewClientRetrieve("responseCtxKey", server.URL, "clientKey", server.Client())
+	ctx.SetClient("clientKey", client.NewClientBasic(clientID, server.URL, clientSecret))
+	ctx.SetGrantToken("grantTokenKey", auth.GrantToken{})
+	step := NewClientRetrieve("responseCtxKey", server.URL, "clientKey", "grantTokenKey", server.Client())
 
 	result := step.Run(ctx)
 
@@ -38,19 +39,34 @@ func TestNewClientRetrieve(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestNewClientRegister_HandlesError(t *testing.T) {
-	clientID := "foo"
-	clientSecret := "bar"
+func TestNewClientRegister_HandlesMakeRequestError(t *testing.T) {
 	ctx := NewContext()
-	ctx.SetClient("clientKey", client.NewClient(clientID, clientSecret))
-	step := NewClientRetrieve("responseCtxKey", string(0x7f), "clientKey", &http.Client{})
+	ctx.SetClient("clientKey", client.NewClientBasic(clientID, "", clientSecret))
+	ctx.SetGrantToken("grantTokenKey", auth.GrantToken{})
+	step := NewClientRetrieve("responseCtxKey", string(0x7f), "clientKey", "grantTokenKey", &http.Client{})
 
 	result := step.Run(ctx)
 
 	assert.False(t, result.Pass)
 	assert.Equal(
 		t,
-		"unable to call endpoint \u007f/foo: parse \u007f/foo: net/url: invalid control character in URL",
+		"unable to make request: parse \u007f/foo: net/url: invalid control character in URL",
+		result.FailReason,
+	)
+}
+
+func TestNewClientRegister_HandlesExecuteRequestError(t *testing.T) {
+	ctx := NewContext()
+	ctx.SetClient("clientKey", client.NewClientBasic(clientID, "", clientSecret))
+	ctx.SetGrantToken("grantTokenKey", auth.GrantToken{})
+	step := NewClientRetrieve("responseCtxKey", "localhost", "clientKey", "grantTokenKey", &http.Client{})
+
+	result := step.Run(ctx)
+
+	assert.False(t, result.Pass)
+	assert.Equal(
+		t,
+		"unable to call endpoint localhost/foo: Get localhost/foo: unsupported protocol scheme \"\"",
 		result.FailReason,
 	)
 }
@@ -62,7 +78,7 @@ func TestNewClientRegister_HandlesErrorForClientNotFound(t *testing.T) {
 		RegistrationEndpoint: &registrationEndpoint,
 		TokenEndpoint:        "",
 	})
-	step := NewClientRetrieve("responseCtxKey", "openIdConfigCtxKey", "clientKey", &http.Client{})
+	step := NewClientRetrieve("responseCtxKey", "localhost", "clientKey", "grantTokenKey", &http.Client{})
 
 	result := step.Run(ctx)
 
@@ -70,6 +86,21 @@ func TestNewClientRegister_HandlesErrorForClientNotFound(t *testing.T) {
 	assert.Equal(
 		t,
 		"unable to find client clientKey in context: key not found in context",
+		result.FailReason,
+	)
+}
+
+func TestNewClientRegister_HandlesErrorForGrantTokenNotFound(t *testing.T) {
+	ctx := NewContext()
+	ctx.SetClient("clientKey", client.NewClientBasic(clientID, "", clientSecret))
+	step := NewClientRetrieve("responseCtxKey", "localhost", "clientKey", "grantTokenKey", &http.Client{})
+
+	result := step.Run(ctx)
+
+	assert.False(t, result.Pass)
+	assert.Equal(
+		t,
+		"unable to find grant token grantTokenKey in context: key not found in context",
 		result.FailReason,
 	)
 }

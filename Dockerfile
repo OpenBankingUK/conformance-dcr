@@ -10,13 +10,15 @@ WORKDIR /app
 COPY . .
 RUN make build
 
+# Print version information
+RUN /app/dcr -version
+
 # Final image to run the binary
 FROM scratch
 LABEL MAINTAINER Open Banking Ltd
 
 WORKDIR /app
 
-COPY manifests/* /manifests
 COPY --from=gobuilder /app/dcr /app/
 
 CMD ["/app/dcr"]

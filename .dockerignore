@@ -12,3 +12,7 @@
 !manifests/*.json
 !pkg
 !cmd
+
+# .git/ is required because we add versioning information at compile-time
+!.git
+!.gitignore

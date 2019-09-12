@@ -1,9 +1,9 @@
 package step
 
 import (
+	http2 "bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
 	"fmt"
 	"net/http"
-	"net/http/httputil"
 )
 
 type getRequest struct {
@@ -30,18 +30,10 @@ func (s getRequest) Run(ctx Context) Result {
 	if err != nil {
 		return NewFailResultWithDebug(s.stepName, err.Error(), debug)
 	}
-	debug.Logf("Response: %s", s.debugMessage(r))
+	debug.Logf("Response: %s", http2.DebugResponse(r))
 
 	debug.Logf("setting response object in ctx var: %s", s.responseCtxKey)
 	ctx.SetResponse(s.responseCtxKey, r)
 
 	return NewPassResultWithDebug(s.stepName, debug)
-}
-
-func (s getRequest) debugMessage(r *http.Response) string {
-	debug, err := httputil.DumpResponse(r, true)
-	if err != nil {
-		return fmt.Sprintf("could not dump response object: %s", err.Error())
-	}
-	return string(debug)
 }
