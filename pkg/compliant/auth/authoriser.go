@@ -5,6 +5,7 @@ import (
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
+	"github.com/dgrijalva/jwt-go"
 )
 
 // Double dispatch Signing method/Client abstract factory
@@ -28,6 +29,16 @@ func NewAuthoriser(
 			clientId,
 			redirectURIs,
 			privateKey,
+			NewJwtSigner(
+				jwt.SigningMethodRS256.Alg(),
+				ssa,
+				clientId,
+				config.Issuer,
+				kid,
+				"private_key_jwt",
+				redirectURIs,
+				privateKey,
+			),
 		)
 	}
 	if sliceContains("client_secret_basic", config.TokenEndpointAuthMethodsSupported) {
@@ -39,6 +50,16 @@ func NewAuthoriser(
 			clientId,
 			redirectURIs,
 			privateKey,
+			NewJwtSigner(
+				jwt.SigningMethodRS256.Alg(),
+				ssa,
+				clientId,
+				config.Issuer,
+				kid,
+				"client_secret_basic",
+				redirectURIs,
+				privateKey,
+			),
 		)
 	}
 	return none{}

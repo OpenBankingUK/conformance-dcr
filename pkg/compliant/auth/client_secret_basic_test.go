@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/certs"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -11,7 +12,25 @@ import (
 func TestNewClientSecretBasicAuther_Claims(t *testing.T) {
 	privateKey, err := certs.ParseRsaPrivateKeyFromPemFile("testdata/private-sign.key")
 	require.NoError(t, err)
-	auther := NewClientSecretBasic("issuer", "tokenEndpoint", "ssa", "kid", "clientId", []string{}, privateKey)
+	auther := NewClientSecretBasic(
+		"issuer",
+		"tokenEndpoint",
+		"ssa",
+		"kid",
+		"clientId",
+		[]string{},
+		privateKey,
+		NewJwtSigner(
+			jwt.SigningMethodRS256.Alg(),
+			"ssa",
+			"clientId",
+			"issuer",
+			"kid",
+			"private_key_jwt",
+			[]string{},
+			privateKey,
+		),
+	)
 
 	claims, err := auther.Claims()
 
@@ -22,7 +41,25 @@ func TestNewClientSecretBasicAuther_Claims(t *testing.T) {
 func TestClientSecretBasicAuther_Client_ReturnsAClient(t *testing.T) {
 	privateKey, err := certs.ParseRsaPrivateKeyFromPemFile("testdata/private-sign.key")
 	require.NoError(t, err)
-	auther := NewClientSecretBasic("issuer", "tokenEndpoint", "ssa", "kid", "clientId", []string{}, privateKey)
+	auther := NewClientSecretBasic(
+		"issuer",
+		"tokenEndpoint",
+		"ssa",
+		"kid",
+		"clientId",
+		[]string{},
+		privateKey,
+		NewJwtSigner(
+			jwt.SigningMethodRS256.Alg(),
+			"ssa",
+			"clientId",
+			"issuer",
+			"kid",
+			"private_key_jwt",
+			[]string{},
+			privateKey,
+		),
+	)
 
 	client, err := auther.Client([]byte(`{"client_id": "12345", "client_secret": "54321"}`))
 	require.NoError(t, err)
