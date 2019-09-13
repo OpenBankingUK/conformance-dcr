@@ -44,17 +44,15 @@ func main() {
 		Build()
 	exitOnError(err)
 
-	scenarios := compliant.NewDCR32(cfg.WellknownEndpoint, openIDConfig, securedClient, authoriser)
+	scenarios := compliant.NewDCR32(openIDConfig, securedClient, authoriser)
 	tester := compliant.NewTester(flags.filterExpression, flags.debug)
 
 	passes, err := tester.Compliant(scenarios)
 	exitOnError(err)
 
 	if !passes {
-		fmt.Println("FAIL")
 		os.Exit(1)
 	}
-	fmt.Println("PASS")
 }
 
 type flags struct {

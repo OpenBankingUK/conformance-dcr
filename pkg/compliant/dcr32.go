@@ -8,7 +8,6 @@ import (
 )
 
 func NewDCR32(
-	wellKnownEndpoint string,
 	openIDConfig openid.Configuration,
 	secureClient *http.Client,
 	authoriser auth.Authoriser,
