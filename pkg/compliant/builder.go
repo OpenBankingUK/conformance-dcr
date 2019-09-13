@@ -112,8 +112,8 @@ func (t *testCaseBuilder) ClientRetrieve(registrationEndpoint string) *testCaseB
 	return t
 }
 
-func (t *testCaseBuilder) ClientRetrieveWithInvalidToken(registrationEndpoint string) *testCaseBuilder {
-	nextStep := step.NewClientRetrieveWithInvalidToken(responseCtxKey, registrationEndpoint, clientCtxKey, t.httpClient)
+func (t *testCaseBuilder) SetInvalidGrantToken() *testCaseBuilder {
+	nextStep := step.NewSetInvalidGrantToken(grantTokenCtxKey)
 	t.steps = append(t.steps, nextStep)
 	return t
 }
