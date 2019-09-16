@@ -1,10 +1,12 @@
 package auth
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"crypto/rsa"
-	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestIsValueIn(t *testing.T) {
@@ -21,7 +23,7 @@ func TestNewAuther_ReturnsClientSecretBasic(t *testing.T) {
 		TokenEndpointAuthMethodsSupported: []string{"client_secret_basic"},
 	}
 
-	auther := NewAuthoriser(openIdConfig, "ssa", "kid", "clientId", []string{}, &rsa.PrivateKey{})
+	auther := NewAuthoriser(openIdConfig, "ssa", "kid", "clientId", []string{}, &rsa.PrivateKey{}, time.Hour)
 
 	assert.IsType(t, clientSecretBasic{}, auther)
 }
@@ -31,7 +33,7 @@ func TestNewAuther_ReturnsNoAuther(t *testing.T) {
 		TokenEndpointAuthMethodsSupported: []string{},
 	}
 
-	auther := NewAuthoriser(openIdConfig, "ssa", "kid", "clientId", []string{}, &rsa.PrivateKey{})
+	auther := NewAuthoriser(openIdConfig, "ssa", "kid", "clientId", []string{}, &rsa.PrivateKey{}, time.Hour)
 
 	assert.IsType(t, none{}, auther)
 }

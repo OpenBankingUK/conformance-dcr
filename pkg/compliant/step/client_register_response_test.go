@@ -1,20 +1,22 @@
 package step
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"crypto/rsa"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"testing"
+	"time"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewClientRegisterResponse(t *testing.T) {
 	openIdConfig := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{"client_secret_basic"}}
-	auther := auth.NewAuthoriser(openIdConfig, "ssa", "kid", "clientId", []string{}, &rsa.PrivateKey{})
+	auther := auth.NewAuthoriser(openIdConfig, "ssa", "kid", "clientId", []string{}, &rsa.PrivateKey{}, time.Hour)
 
 	ctx := NewContext()
 	body := ioutil.NopCloser(strings.NewReader(`{"client_id": "12345", "client_secret": "54321"}`))
@@ -35,7 +37,7 @@ func TestNewClientRegisterResponse(t *testing.T) {
 
 func TestNewClientRegisterResponse_FailsIfResponseNotFoundInContext(t *testing.T) {
 	openIdConfig := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{"client_secret_basic"}}
-	auther := auth.NewAuthoriser(openIdConfig, "ssa", "kid", "clientId", []string{}, &rsa.PrivateKey{})
+	auther := auth.NewAuthoriser(openIdConfig, "ssa", "kid", "clientId", []string{}, &rsa.PrivateKey{}, time.Hour)
 	ctx := NewContext()
 	step := NewClientRegisterResponse("response", "clientCtxKey", auther)
 
@@ -47,7 +49,7 @@ func TestNewClientRegisterResponse_FailsIfResponseNotFoundInContext(t *testing.T
 
 func TestNewClientRegisterResponse_HandlesParsingResponseObject(t *testing.T) {
 	openIdConfig := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{"client_secret_basic"}}
-	auther := auth.NewAuthoriser(openIdConfig, "ssa", "kid", "clientId", []string{}, &rsa.PrivateKey{})
+	auther := auth.NewAuthoriser(openIdConfig, "ssa", "kid", "clientId", []string{}, &rsa.PrivateKey{}, time.Hour)
 	ctx := NewContext()
 	body := ioutil.NopCloser(strings.NewReader(`invalid json`))
 	ctx.SetResponse("response", &http.Response{Body: body})

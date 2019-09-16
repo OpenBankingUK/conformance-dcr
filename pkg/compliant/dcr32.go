@@ -11,6 +11,7 @@ func NewDCR32(
 	openIDConfig openid.Configuration,
 	secureClient *http.Client,
 	authoriser auth.Authoriser,
+	invalidAuthoriser auth.Authoriser,
 ) Scenarios {
 	return Scenarios{
 		NewBuilder("Validate OIDC Config Registration URL").
@@ -40,6 +41,16 @@ func NewDCR32(
 				NewTestCaseBuilder("Delete software client").
 					WithHttpClient(secureClient).
 					ClientDelete(openIDConfig.RegistrationEndpointAsString()).
+					Build(),
+			).
+			Build(),
+		NewBuilder("Dynamically create a new software client will fail on invalid registration request").
+			TestCase(
+				NewTestCaseBuilder("Register software client").
+					WithHttpClient(secureClient).
+					GenerateSignedClaims(invalidAuthoriser).
+					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
+					AssertStatusCodeBadRequest().
 					Build(),
 			).
 			Build(),

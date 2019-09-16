@@ -76,6 +76,12 @@ func (t *testCaseBuilder) AssertStatusCodeUnauthorized() *testCaseBuilder {
 	return t
 }
 
+func (t *testCaseBuilder) AssertStatusCodeBadRequest() *testCaseBuilder {
+	nextStep := step.NewAssertStatus(http.StatusBadRequest, responseCtxKey)
+	t.steps = append(t.steps, nextStep)
+	return t
+}
+
 func (t *testCaseBuilder) AssertStatusCodeCreated() *testCaseBuilder {
 	nextStep := step.NewAssertStatus(http.StatusCreated, responseCtxKey)
 	t.steps = append(t.steps, nextStep)

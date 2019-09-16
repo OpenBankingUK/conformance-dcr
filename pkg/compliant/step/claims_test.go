@@ -1,19 +1,21 @@
 package step
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"crypto/rand"
 	"crypto/rsa"
+	"testing"
+	"time"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestClaims_Run(t *testing.T) {
 	ctx := NewContext()
 	config := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{"client_secret_basic"}, Issuer: "issuer"}
-	authoriser := auth.NewAuthoriser(config, "ssa", "kid", "clientId", []string{}, generateKey(t))
+	authoriser := auth.NewAuthoriser(config, "ssa", "kid", "clientId", []string{}, generateKey(t), time.Hour)
 	step := NewClaims("jwtClaimsCtxKey", authoriser)
 
 	result := step.Run(ctx)
@@ -29,7 +31,7 @@ func TestClaims_Run(t *testing.T) {
 func TestClaims_Run_FailsOnClaimsError(t *testing.T) {
 	ctx := NewContext()
 	config := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{""}}
-	authoriser := auth.NewAuthoriser(config, "ssa", "kid", "clientId", []string{}, generateKey(t))
+	authoriser := auth.NewAuthoriser(config, "ssa", "kid", "clientId", []string{}, generateKey(t), time.Hour)
 	step := NewClaims("jwtClaimsCtxKey", authoriser)
 
 	result := step.Run(ctx)
