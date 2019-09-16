@@ -138,22 +138,20 @@ func exitOnError(err error) {
 func performUpdateCheck() {
 	vc := version.NewBitBucket(bitbucketTagsEndpoint)
 	var output strings.Builder
-	currentVersion := version.Version()
-	output.WriteString(fmt.Sprintf("Currently running version %s\n", currentVersion))
-	updMsg, update, err := vc.UpdateWarningVersion(currentVersion)
+	version.Print(bufio.NewWriter(os.Stdout))
+	updMsg, update, err := vc.UpdateCheck()
 	if err != nil {
-		output.WriteString("Error checking updates:\n")
+		output.WriteString("Error checking for updates:\n")
 		output.WriteString(err.Error())
-		fmt.Println("*****************************************************************************************")
 	} else {
 		if update {
 			output.WriteString("An update to this application is available. Please consider updating.\n")
+			output.WriteString(fmt.Sprintf("%s\n", updMsg))
 			output.WriteString("Please see the following URL more information:\n")
 			output.WriteString("https://bitbucket.org/openbankingteam/conformance-dcr/src/develop/README.md\n")
-			output.WriteString(fmt.Sprintf("New version: %s\n", updMsg))
-			fmt.Println("*****************************************************************************************")
+
 		} else {
-			output.WriteString("You are running the latest version of this application.")
+			output.WriteString(updMsg)
 		}
 	}
 	fmt.Println(output.String())
