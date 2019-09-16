@@ -91,69 +91,77 @@ func (v BitBucket) UpdateCheck() (string, bool, error) {
 		return errorMessageUI, false, fmt.Errorf("no version found")
 	}
 
+	tags, err := v.getTags()
+	if err != nil {
+		return errorMessageUI, false, errors.Wrapf(err, "get tags")
+	}
+
+	// Convert the list of tags to tags and sort
+	sort.Sort(tags)
+
+	// Get latest tag
+	latestTag := tags[len(tags)-1].Name
+
+	// Format version string to compare.
+	versionLocal, err := goversion.NewVersion(version)
+	if err != nil {
+		return errorMessageUI, false, errors.Wrap(err, "parse version")
+	}
+	versionRemote, err := goversion.NewVersion(latestTag)
+	if err != nil {
+		return errorMessageUI, false, errors.Wrap(err, "parse version latestTag")
+	}
+
+	if versionLocal.LessThan(versionRemote) {
+		errorMessageUI = fmt.Sprintf("Version %s of the this tool is out of date, please update to %s",
+			versionLocal, versionRemote)
+		return errorMessageUI, true, nil
+	}
+	// If local and remote version match or is higher then return false update flag.
+	if versionLocal.GreaterThanOrEqual(versionRemote) {
+		errorMessageUI = fmt.Sprintf("This tool is running the latest version %s", versionLocal)
+		return errorMessageUI, false, nil
+	}
+
+	return errorMessageUI, false, nil
+}
+
+func (v *BitBucket) getTags() (tagList, error) {
 	client := http.Client{
-		Timeout: time.Duration(time.Second * 30),
+		Timeout: time.Second * 30,
 	}
 
 	// Try to get the latest tag using the BitBucket API.
 	resp, err := client.Get(v.bitBucketAPIRepository)
 	if err != nil {
 		// If network error then return message, flag to NOT update and actual error.
-		return errorMessageUI, false, errors.Wrap(err, "HTTP on GET to BitBucket API")
+		return nil, errors.Wrap(err, "HTTP on GET to BitBucket API")
 	}
 
-	if resp.StatusCode == http.StatusOK {
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return errorMessageUI, false, errors.Wrap(err, "cannot read body API error.")
-		}
-
-		err = resp.Body.Close()
-		if err != nil {
-			return errorMessageUI, false, errors.Wrap(err, "close http response body")
-		}
-
-		s, err := getTags(body)
-		if err != nil {
-			return errorMessageUI, false, errors.Wrap(err, "getTags")
-		}
-
-		if len(s.TagList) == 0 {
-			return errorMessageUI, false, errors.New("no Tags found")
-		}
-
-		// Convert the list of tags to tagList and sort
-		tags := convertSortTags(s)
-
-		// Get latest tag
-		latestTag := tags[len(tags)-1].Name
-
-		// Format version string to compare.
-		versionLocal, err := goversion.NewVersion(version)
-		versionRemote, err := goversion.NewVersion(latestTag)
-
-		if versionLocal.LessThan(versionRemote) {
-			errorMessageUI = fmt.Sprintf("Version %s of the this tool is out of date, please update to %s", versionLocal, versionRemote)
-			return errorMessageUI, true, nil
-		}
-		// If local and remote version match or is higher then return false update flag.
-		if versionLocal.GreaterThanOrEqual(versionRemote) {
-			errorMessageUI = fmt.Sprintf("This tool is running the latest version %s", versionLocal)
-			return errorMessageUI, false, nil
-		}
-	} else {
+	if resp.StatusCode != http.StatusOK {
 		// handle anything else other than 200 OK.
-		return "", false, fmt.Errorf("HTTP status %d received", resp.StatusCode)
+		return nil, fmt.Errorf("HTTP status %d received", resp.StatusCode)
 	}
 
-	return errorMessageUI, false, nil
-}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot read body API error.")
+	}
 
-func convertSortTags(tar *TagsAPIResponse) tagList {
+	err = resp.Body.Close()
+	if err != nil {
+		return nil, errors.Wrap(err, "close http response body")
+	}
+
+	s, err := getTags(body)
+	if err != nil {
+		return nil, errors.Wrap(err, "getTags")
+	}
+
 	tags := tagList{}
-	for _, v := range tar.TagList {
+	for _, v := range s.TagList {
 		tags = append(tags, v)
 	}
-	sort.Sort(tags)
-	return tags
+
+	return tags, nil
 }
