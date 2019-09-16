@@ -46,7 +46,7 @@ func NewDCR32(
 			Build(),
 		NewBuilder("Dynamically create a new software client will fail on invalid registration request").
 			TestCase(
-				NewTestCaseBuilder("Register software client").
+				NewTestCaseBuilder("Register software client fails on expired claims").
 					WithHttpClient(secureClient).
 					GenerateSignedClaims(invalidAuthoriser).
 					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
