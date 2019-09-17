@@ -2,16 +2,18 @@ package compliant
 
 import (
 	"net/http"
+	"time"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/config"
 )
 
 func NewDCR32(
 	openIDConfig openid.Configuration,
 	secureClient *http.Client,
-	authoriser auth.Authoriser,
-	invalidAuthoriser auth.Authoriser,
+	authoriserBuilder auth.AuthoriserBuilder,
+	cfg config.Config,
 ) Scenarios {
 	return Scenarios{
 		NewBuilder("Validate OIDC Config Registration URL").
@@ -25,10 +27,30 @@ func NewDCR32(
 			TestCase(
 				NewTestCaseBuilder("Register software client").
 					WithHttpClient(secureClient).
-					GenerateSignedClaims(authoriser).
+					GenerateSignedClaims(
+						authoriserBuilder.
+							WithOpenIDConfig(openIDConfig).
+							WithSSA(cfg.SSA).
+							WithKID(cfg.Kid).
+							WithClientID(cfg.ClientId).
+							WithRedirectURIs(cfg.RedirectURIs).
+							WithPrivateKey(cfg.PrivateKeyBytes).
+							WithJwtExpiration(time.Hour).
+							Build(),
+					).
 					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeCreated().
-					ParseClientRegisterResponse(authoriser).
+					ParseClientRegisterResponse(
+						authoriserBuilder.
+							WithOpenIDConfig(openIDConfig).
+							WithSSA(cfg.SSA).
+							WithKID(cfg.Kid).
+							WithClientID(cfg.ClientId).
+							WithRedirectURIs(cfg.RedirectURIs).
+							WithPrivateKey(cfg.PrivateKeyBytes).
+							WithJwtExpiration(time.Hour).
+							Build(),
+					).
 					Build(),
 			).
 			TestCase(
@@ -48,7 +70,17 @@ func NewDCR32(
 			TestCase(
 				NewTestCaseBuilder("Register software client fails on expired claims").
 					WithHttpClient(secureClient).
-					GenerateSignedClaims(invalidAuthoriser).
+					GenerateSignedClaims(
+						authoriserBuilder.
+							WithOpenIDConfig(openIDConfig).
+							WithSSA(cfg.SSA).
+							WithKID(cfg.Kid).
+							WithClientID(cfg.ClientId).
+							WithRedirectURIs(cfg.RedirectURIs).
+							WithPrivateKey(cfg.PrivateKeyBytes).
+							WithJwtExpiration(-time.Hour).
+							Build(),
+					).
 					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeBadRequest().
 					Build(),
@@ -58,10 +90,30 @@ func NewDCR32(
 			TestCase(
 				NewTestCaseBuilder("Register software client").
 					WithHttpClient(secureClient).
-					GenerateSignedClaims(authoriser).
+					GenerateSignedClaims(
+						authoriserBuilder.
+							WithOpenIDConfig(openIDConfig).
+							WithSSA(cfg.SSA).
+							WithKID(cfg.Kid).
+							WithClientID(cfg.ClientId).
+							WithRedirectURIs(cfg.RedirectURIs).
+							WithPrivateKey(cfg.PrivateKeyBytes).
+							WithJwtExpiration(time.Hour).
+							Build(),
+					).
 					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeCreated().
-					ParseClientRegisterResponse(authoriser).
+					ParseClientRegisterResponse(
+						authoriserBuilder.
+							WithOpenIDConfig(openIDConfig).
+							WithSSA(cfg.SSA).
+							WithKID(cfg.Kid).
+							WithClientID(cfg.ClientId).
+							WithRedirectURIs(cfg.RedirectURIs).
+							WithPrivateKey(cfg.PrivateKeyBytes).
+							WithJwtExpiration(time.Hour).
+							Build(),
+					).
 					Build(),
 			).
 			TestCase(
@@ -89,10 +141,30 @@ func NewDCR32(
 			TestCase(
 				NewTestCaseBuilder("Register software client").
 					WithHttpClient(secureClient).
-					GenerateSignedClaims(authoriser).
+					GenerateSignedClaims(
+						authoriserBuilder.
+							WithOpenIDConfig(openIDConfig).
+							WithSSA(cfg.SSA).
+							WithKID(cfg.Kid).
+							WithClientID(cfg.ClientId).
+							WithRedirectURIs(cfg.RedirectURIs).
+							WithPrivateKey(cfg.PrivateKeyBytes).
+							WithJwtExpiration(time.Hour).
+							Build(),
+					).
 					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeCreated().
-					ParseClientRegisterResponse(authoriser).
+					ParseClientRegisterResponse(
+						authoriserBuilder.
+							WithOpenIDConfig(openIDConfig).
+							WithSSA(cfg.SSA).
+							WithKID(cfg.Kid).
+							WithClientID(cfg.ClientId).
+							WithRedirectURIs(cfg.RedirectURIs).
+							WithPrivateKey(cfg.PrivateKeyBytes).
+							WithJwtExpiration(time.Hour).
+							Build(),
+					).
 					Build(),
 			).
 			TestCase(
