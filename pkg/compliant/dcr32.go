@@ -29,26 +29,12 @@ func NewDCR32(
 					WithHttpClient(secureClient).
 					GenerateSignedClaims(
 						authoriserBuilder.
-							WithOpenIDConfig(openIDConfig).
-							WithSSA(cfg.SSA).
-							WithKID(cfg.Kid).
-							WithClientID(cfg.ClientId).
-							WithRedirectURIs(cfg.RedirectURIs).
-							WithPrivateKey(cfg.PrivateKeyBytes).
-							WithJwtExpiration(time.Hour).
 							Build(),
 					).
 					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeCreated().
 					ParseClientRegisterResponse(
 						authoriserBuilder.
-							WithOpenIDConfig(openIDConfig).
-							WithSSA(cfg.SSA).
-							WithKID(cfg.Kid).
-							WithClientID(cfg.ClientId).
-							WithRedirectURIs(cfg.RedirectURIs).
-							WithPrivateKey(cfg.PrivateKeyBytes).
-							WithJwtExpiration(time.Hour).
 							Build(),
 					).
 					Build(),
@@ -72,12 +58,6 @@ func NewDCR32(
 					WithHttpClient(secureClient).
 					GenerateSignedClaims(
 						authoriserBuilder.
-							WithOpenIDConfig(openIDConfig).
-							WithSSA(cfg.SSA).
-							WithKID(cfg.Kid).
-							WithClientID(cfg.ClientId).
-							WithRedirectURIs(cfg.RedirectURIs).
-							WithPrivateKey(cfg.PrivateKeyBytes).
 							WithJwtExpiration(-time.Hour).
 							Build(),
 					).
@@ -99,12 +79,6 @@ func NewDCR32(
 									TokenEndpointAuthMethodsSupported: openIDConfig.TokenEndpointAuthMethodsSupported,
 								},
 							).
-							WithSSA(cfg.SSA).
-							WithKID(cfg.Kid).
-							WithClientID(cfg.ClientId).
-							WithRedirectURIs(cfg.RedirectURIs).
-							WithPrivateKey(cfg.PrivateKeyBytes).
-							WithJwtExpiration(-time.Hour).
 							Build(),
 					).
 					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
@@ -118,26 +92,12 @@ func NewDCR32(
 					WithHttpClient(secureClient).
 					GenerateSignedClaims(
 						authoriserBuilder.
-							WithOpenIDConfig(openIDConfig).
-							WithSSA(cfg.SSA).
-							WithKID(cfg.Kid).
-							WithClientID(cfg.ClientId).
-							WithRedirectURIs(cfg.RedirectURIs).
-							WithPrivateKey(cfg.PrivateKeyBytes).
-							WithJwtExpiration(time.Hour).
 							Build(),
 					).
 					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeCreated().
 					ParseClientRegisterResponse(
 						authoriserBuilder.
-							WithOpenIDConfig(openIDConfig).
-							WithSSA(cfg.SSA).
-							WithKID(cfg.Kid).
-							WithClientID(cfg.ClientId).
-							WithRedirectURIs(cfg.RedirectURIs).
-							WithPrivateKey(cfg.PrivateKeyBytes).
-							WithJwtExpiration(time.Hour).
 							Build(),
 					).
 					Build(),
@@ -169,26 +129,12 @@ func NewDCR32(
 					WithHttpClient(secureClient).
 					GenerateSignedClaims(
 						authoriserBuilder.
-							WithOpenIDConfig(openIDConfig).
-							WithSSA(cfg.SSA).
-							WithKID(cfg.Kid).
-							WithClientID(cfg.ClientId).
-							WithRedirectURIs(cfg.RedirectURIs).
-							WithPrivateKey(cfg.PrivateKeyBytes).
-							WithJwtExpiration(time.Hour).
 							Build(),
 					).
 					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeCreated().
 					ParseClientRegisterResponse(
 						authoriserBuilder.
-							WithOpenIDConfig(openIDConfig).
-							WithSSA(cfg.SSA).
-							WithKID(cfg.Kid).
-							WithClientID(cfg.ClientId).
-							WithRedirectURIs(cfg.RedirectURIs).
-							WithPrivateKey(cfg.PrivateKeyBytes).
-							WithJwtExpiration(time.Hour).
 							Build(),
 					).
 					Build(),

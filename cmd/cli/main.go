@@ -49,7 +49,14 @@ func runCmd(flags flags) {
 	openIDConfig, err := openid.Get(cfg.WellknownEndpoint, client)
 	exitOnError(err)
 
-	authoriserBuilder := auth.NewAuthoriserBuilder()
+	authoriserBuilder := auth.NewAuthoriserBuilder().
+		WithOpenIDConfig(openIDConfig).
+		WithSSA(cfg.SSA).
+		WithKID(cfg.Kid).
+		WithClientID(cfg.ClientId).
+		WithRedirectURIs(cfg.RedirectURIs).
+		WithPrivateKey(cfg.PrivateKeyBytes).
+		WithJwtExpiration(time.Hour)
 	securedClient, err := http.NewBuilder().
 		WithRootCAs(cfg.TransportRootCAs).
 		WithTransportKeyPair(cfg.TransportCert, cfg.TransportKey).
