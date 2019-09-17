@@ -13,13 +13,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Checker defines functionality to reason about the current version of the software and if updates are available
-type Checker interface {
-	GetHumanVersion() string
-	VersionFormatter(version string) (string, error)
-	UpdateWarningVersion(version string) (string, bool, error)
-}
-
 // BitBucket helper with capability to get release versions from source control repository
 type BitBucket struct {
 	// bitBucketAPIRepository full URL of the TAG API 2.0 for the Conformance Suite.
@@ -82,18 +75,21 @@ func getTags(body []byte) (*TagsAPIResponse, error) {
 // latest tag version on Bitbucket, if a newer version is found it
 // returns a message and bool value that can be used to inform a user
 // a newer version is available for download.
-func (v BitBucket) UpdateCheck() (string, bool, error) {
-	// A default message that can be presented to an end user.
-	errorMessageUI := "Version check is unavailable at this time."
-
+func (v BitBucket) UpdateCheck() (bool, error) {
 	// Some basic validation, check we have a version,
 	if len(version) == 0 {
-		return errorMessageUI, false, fmt.Errorf("no version found")
+		return false, errors.New("version not set")
+	}
+
+	// Format version string to compare.
+	versionLocal, err := goversion.NewVersion(version)
+	if err != nil {
+		return false, errors.Wrap(err, "parse version")
 	}
 
 	tags, err := v.getTags()
 	if err != nil {
-		return errorMessageUI, false, errors.Wrapf(err, "get tags")
+		return false, errors.Wrap(err, "get tags from upstream repo")
 	}
 
 	// Convert the list of tags to tags and sort
@@ -102,28 +98,20 @@ func (v BitBucket) UpdateCheck() (string, bool, error) {
 	// Get latest tag
 	latestTag := tags[len(tags)-1].Name
 
-	// Format version string to compare.
-	versionLocal, err := goversion.NewVersion(version)
-	if err != nil {
-		return errorMessageUI, false, errors.Wrap(err, "parse version")
-	}
 	versionRemote, err := goversion.NewVersion(latestTag)
 	if err != nil {
-		return errorMessageUI, false, errors.Wrap(err, "parse version latestTag")
+		return false, errors.Wrap(err, "parse latest tag")
 	}
 
 	if versionLocal.LessThan(versionRemote) {
-		errorMessageUI = fmt.Sprintf("Version %s of the this tool is out of date, please update to %s",
-			versionLocal, versionRemote)
-		return errorMessageUI, true, nil
+		return true, nil
 	}
 	// If local and remote version match or is higher then return false update flag.
 	if versionLocal.GreaterThanOrEqual(versionRemote) {
-		errorMessageUI = fmt.Sprintf("This tool is running the latest version %s", versionLocal)
-		return errorMessageUI, false, nil
+		return false, nil
 	}
 
-	return errorMessageUI, false, nil
+	return false, nil
 }
 
 func (v *BitBucket) getTags() (tagList, error) {

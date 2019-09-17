@@ -30,3 +30,7 @@ func Print(output *bufio.Writer) error {
 
 	return nil
 }
+
+func Version() string {
+	return version
+}

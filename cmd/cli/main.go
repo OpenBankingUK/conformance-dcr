@@ -22,10 +22,6 @@ import (
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant"
 )
 
-const (
-	bitbucketTagsEndpoint = "https://api.bitbucket.org/2.0/repositories/openbankingteam/conformance-dcr/refs/tags"
-)
-
 func main() {
 	fmt.Println("Dynamic Client Registration Conformance Tool cli")
 
@@ -34,7 +30,9 @@ func main() {
 	cfg, err := loadConfig(flags.configFilePath)
 	exitOnError(err)
 
-	performUpdateCheck()
+	// Check for updates and print message
+	bitbucketTagsEndpoint := "https://api.bitbucket.org/2.0/repositories/openbankingteam/conformance-dcr/refs/tags"
+	fmt.Println(getUpdateMessage(bitbucketTagsEndpoint))
 
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(cfg.PrivateKey))
 	exitOnError(err)
@@ -132,27 +130,22 @@ func exitOnError(err error) {
 	}
 }
 
-// performUpdateCheck will consider the current version of this application and compare to the latest version
-// available. The result of this function is some text printed out to the console. i.e. Either an update is available
-// or the tool is up to date (..or there was some error).
-func performUpdateCheck() {
+// getUpdateMessage checks if there is an update available to the current software. An appropriate message is returned
+// in both cases of either update being available or not.
+func getUpdateMessage(bitbucketTagsEndpoint string) string {
 	vc := version.NewBitBucket(bitbucketTagsEndpoint)
-	var output strings.Builder
-	version.Print(bufio.NewWriter(os.Stdout))
-	updMsg, update, err := vc.UpdateCheck()
+	update, err := vc.UpdateCheck()
 	if err != nil {
-		output.WriteString("Error checking for updates:\n")
-		output.WriteString(err.Error())
-	} else {
-		if update {
-			output.WriteString("An update to this application is available. Please consider updating.\n")
-			output.WriteString(fmt.Sprintf("%s\n", updMsg))
-			output.WriteString("Please see the following URL more information:\n")
-			output.WriteString("https://bitbucket.org/openbankingteam/conformance-dcr/src/develop/README.md\n")
-
-		} else {
-			output.WriteString(updMsg)
-		}
+		return fmt.Sprintf("Error checking for updates: %s", err.Error())
 	}
-	fmt.Println(output.String())
+	if update {
+		sb := strings.Builder{}
+		updMsg := fmt.Sprintf("Version %s of the this tool is out of date. Please consider updating.\n", version.Version())
+		sb.WriteString(updMsg)
+		sb.WriteString("Please see the following URL more information:\n")
+		sb.WriteString("https://bitbucket.org/openbankingteam/conformance-dcr/src/develop/README.md")
+		return sb.String()
+	}
+
+	return fmt.Sprintf("this software is up to date - no updates available")
 }

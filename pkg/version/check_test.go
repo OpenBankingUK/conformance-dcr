@@ -43,11 +43,9 @@ func TestUpdateCheck_OutdatedVersionUpdateAvailable(t *testing.T) {
 	}
 	version = "0.0.2"
 
-	msg, upd, err := bb.UpdateCheck()
+	upd, err := bb.UpdateCheck()
 	assert.NoError(t, err)
 	assert.True(t, upd)
-	expMsg := "Version 0.0.2 of the this tool is out of date, please update to 1.3.0"
-	assert.Equal(t, expMsg, msg)
 }
 
 func TestUpdateCheck_UpToDateVersionNoUpdateAvailable(t *testing.T) {
@@ -85,26 +83,30 @@ func TestUpdateCheck_UpToDateVersionNoUpdateAvailable(t *testing.T) {
 	}
 	version = "1.3.0"
 
-	msg, upd, err := bb.UpdateCheck()
+	upd, err := bb.UpdateCheck()
 	assert.NoError(t, err)
 	assert.False(t, upd)
-	expMsg := "This tool is running the latest version 1.3.0"
-	assert.Equal(t, expMsg, msg)
 }
 
 func TestUpdateCheck_NoLocalVersionSet(t *testing.T) {
 	bb := BitBucket{}
 	version = ""
 
-	msg, update, err := bb.UpdateCheck()
-	expMessage := "Version check is unavailable at this time."
-	assert.Equal(t, expMessage, msg)
-	assert.Equal(t, false, update)
-	expError := "no version found"
+	update, err := bb.UpdateCheck()
+	expError := "version not set"
 	assert.Equal(t, expError, err.Error())
+	assert.False(t, update)
 }
 
-func TestUpdateCheck_LocalVersionInvalid(t *testing.T) {}
+func TestUpdateCheck_LocalVersionInvalid(t *testing.T) {
+	bb := BitBucket{}
+	version = "foobar"
+
+	update, err := bb.UpdateCheck()
+	expError := "parse version: Malformed version: foobar"
+	assert.Equal(t, expError, err.Error())
+	assert.False(t, update)
+}
 
 func TestSortTags(t *testing.T) {
 	actualTagList := tagList{
