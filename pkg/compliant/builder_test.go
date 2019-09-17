@@ -1,13 +1,15 @@
 package compliant
 
 import (
+	"crypto/rsa"
+	"net/http"
+	"testing"
+	"time"
+
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
-	"crypto/rsa"
 	"github.com/stretchr/testify/assert"
-	"net/http"
-	"testing"
 )
 
 func TestNewBuilder(t *testing.T) {
@@ -27,6 +29,7 @@ func TestNewTestCaseBuilder(t *testing.T) {
 		"clientId",
 		[]string{},
 		&rsa.PrivateKey{},
+		time.Hour,
 	)
 
 	const sampleEndpoint = "http://host/path"

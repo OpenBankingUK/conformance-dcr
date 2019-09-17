@@ -2,6 +2,7 @@ package auth
 
 import (
 	"crypto/rsa"
+	"time"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
@@ -19,6 +20,7 @@ func NewAuthoriser(
 	ssa, kid, clientId string,
 	redirectURIs []string,
 	privateKey *rsa.PrivateKey,
+	jwtExpiration time.Duration,
 ) Authoriser {
 	if sliceContains("private_key_jwt", config.TokenEndpointAuthMethodsSupported) {
 		return NewClientPrivateKeyJwt(
@@ -38,6 +40,7 @@ func NewAuthoriser(
 				"private_key_jwt",
 				redirectURIs,
 				privateKey,
+				jwtExpiration,
 			),
 		)
 	}
@@ -59,6 +62,7 @@ func NewAuthoriser(
 				"client_secret_basic",
 				redirectURIs,
 				privateKey,
+				jwtExpiration,
 			),
 		)
 	}

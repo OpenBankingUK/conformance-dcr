@@ -36,7 +36,24 @@ func main() {
 	openIDConfig, err := openid.Get(cfg.WellknownEndpoint, client)
 	exitOnError(err)
 
-	authoriser := auth.NewAuthoriser(openIDConfig, cfg.SSA, cfg.Kid, cfg.ClientId, cfg.RedirectURIs, privateKey)
+	authoriser := auth.NewAuthoriser(
+		openIDConfig,
+		cfg.SSA,
+		cfg.Kid,
+		cfg.ClientId,
+		cfg.RedirectURIs,
+		privateKey,
+		time.Hour,
+	)
+	invalidAuthoriser := auth.NewAuthoriser(
+		openIDConfig,
+		cfg.SSA,
+		cfg.Kid,
+		cfg.ClientId,
+		cfg.RedirectURIs,
+		privateKey,
+		-time.Hour,
+	)
 
 	securedClient, err := http.NewBuilder().
 		WithRootCAs(cfg.TransportRootCAs).
@@ -44,7 +61,7 @@ func main() {
 		Build()
 	exitOnError(err)
 
-	scenarios := compliant.NewDCR32(openIDConfig, securedClient, authoriser)
+	scenarios := compliant.NewDCR32(openIDConfig, securedClient, authoriser, invalidAuthoriser)
 	tester := compliant.NewTester(flags.filterExpression, flags.debug)
 
 	passes, err := tester.Compliant(scenarios)

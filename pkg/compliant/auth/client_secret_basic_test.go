@@ -2,6 +2,7 @@ package auth
 
 import (
 	"testing"
+	"time"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/certs"
 	"github.com/dgrijalva/jwt-go"
@@ -29,6 +30,7 @@ func TestNewClientSecretBasicAuther_Claims(t *testing.T) {
 			"private_key_jwt",
 			[]string{},
 			privateKey,
+			time.Hour,
 		),
 	)
 
@@ -58,6 +60,7 @@ func TestClientSecretBasicAuther_Client_ReturnsAClient(t *testing.T) {
 			"private_key_jwt",
 			[]string{},
 			privateKey,
+			time.Hour,
 		),
 	)
 
