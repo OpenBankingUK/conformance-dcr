@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/rsa"
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"os"
 
@@ -25,17 +26,21 @@ type Config struct {
 }
 
 func LoadConfig(configFilePath string) (Config, error) {
-	var cfg Config
 	f, err := os.Open(configFilePath)
 	if err != nil {
-		return cfg, errors.Wrapf(err, "unable to open config file %s", configFilePath)
+		return Config{}, errors.Wrapf(err, "unable to open config file %s", configFilePath)
 	}
 	defer f.Close()
+	return parseConfig(f)
+}
+
+func parseConfig(f io.Reader) (Config, error) {
+	var cfg Config
 	rawCfg, err := ioutil.ReadAll(f)
 	if err != nil {
 		return cfg, errors.Wrap(err, "unable to read config file contents")
 	}
-	if err := json.NewDecoder(bytes.NewBuffer(rawCfg)).Decode(&cfg); err != nil {
+	if err = json.NewDecoder(bytes.NewBuffer(rawCfg)).Decode(&cfg); err != nil {
 		return cfg, errors.Wrapf(err, "unable to json decode file contents")
 	}
 	privateKeyBytes, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(cfg.PrivateKey))

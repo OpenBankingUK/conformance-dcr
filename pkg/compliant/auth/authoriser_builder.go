@@ -65,5 +65,3 @@ func (b AuthoriserBuilder) Build() Authoriser {
 		b.jwtExpiration,
 	)
 }
-
-
