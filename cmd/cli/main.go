@@ -8,11 +8,12 @@ import (
 	"os"
 	"time"
 
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/config"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/version"
+
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/config"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/version"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant"
 )
@@ -21,6 +22,25 @@ func main() {
 	fmt.Println("Dynamic Client Registration Conformance Tool cli")
 
 	flags := mustParseFlags()
+
+	if flags.versionCmd {
+		versionCmd()
+	}
+
+	runCmd(flags)
+}
+
+func versionCmd() {
+	err := version.Print(bufio.NewWriter(os.Stdout))
+	exitOnError(err)
+	os.Exit(0)
+}
+
+func runCmd(flags flags) {
+	if flags.configFilePath == "" {
+		flag.Usage()
+		os.Exit(1)
+	}
 
 	cfg, err := config.LoadConfig(flags.configFilePath)
 	exitOnError(err)
@@ -48,6 +68,7 @@ func main() {
 }
 
 type flags struct {
+	versionCmd       bool
 	configFilePath   string
 	filterExpression string
 	debug            bool
@@ -60,24 +81,13 @@ func mustParseFlags() flags {
 	flag.StringVar(&filterExpression, "filter", "", "Filter scenarios containing value")
 	flag.BoolVar(&debug, "debug", false, "Enable debug defaults to disabled")
 	flag.BoolVar(&versionFlag, "version", false, "Print the version details of conformance-dcr")
-
 	flag.Parse()
-
-	if versionFlag {
-		err := version.Print(bufio.NewWriter(os.Stdout))
-		exitOnError(err)
-		os.Exit(0)
-	}
-
-	if configFilePath == "" {
-		flag.Usage()
-		os.Exit(1)
-	}
 
 	return flags{
 		configFilePath:   configFilePath,
 		filterExpression: filterExpression,
 		debug:            debug,
+		versionCmd:       versionFlag,
 	}
 }
 
