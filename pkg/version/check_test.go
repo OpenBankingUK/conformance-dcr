@@ -118,7 +118,7 @@ func TestSortTags(t *testing.T) {
 
 	sort.Sort(actualTagList)
 
-	expectedSorted := tagList([]Tag{
+	expectedSorted := tagList([]tag{
 		{Name: "0.0.4-dev"},
 		{Name: "0.1.8"},
 		{Name: "0.5.0"},

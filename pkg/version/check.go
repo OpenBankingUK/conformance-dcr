@@ -26,19 +26,19 @@ func NewBitBucket(bitBucketAPIRepository string) BitBucket {
 	}
 }
 
-// Tag structure used map response of tags.
-type Tag struct {
+// tag structure used map response of tags.
+type tag struct {
 	Name          string `json:"name"`
 	Date          string `json:"date"`
 	CommitMessage string `json:"message"`
 }
 
-// TagsAPIResponse structure to map response.
-type TagsAPIResponse struct {
-	TagList []Tag `json:"values"`
+// tagsAPIResponse structure to map response.
+type tagsAPIResponse struct {
+	TagList []tag `json:"values"`
 }
 
-func (t Tag) LessThan(subject string) bool {
+func (t tag) LessThan(subject string) bool {
 	tv, err := goversion.NewVersion(t.Name)
 	if err != nil {
 		return false
@@ -51,7 +51,7 @@ func (t Tag) LessThan(subject string) bool {
 	return tv.LessThan(sv)
 }
 
-type tagList []Tag
+type tagList []tag
 
 func (t tagList) Len() int {
 	return len(t)
@@ -65,16 +65,15 @@ func (t tagList) Swap(i, j int) {
 	t[i], t[j] = t[j], t[i]
 }
 
-func getTags(body []byte) (*TagsAPIResponse, error) {
-	var s = new(TagsAPIResponse)
+func getTags(body []byte) (*tagsAPIResponse, error) {
+	var s = new(tagsAPIResponse)
 	err := json.Unmarshal(body, &s)
 	return s, err
 }
 
 // UpdateCheck checks the current version against the
-// latest tag version on Bitbucket, if a newer version is found it
-// returns a message and bool value that can be used to inform a user
-// a newer version is available for download.
+// latest tag version on Bitbucket, if a newer version is found true is returned,
+// for all other cases, false is returned.
 func (v BitBucket) UpdateCheck() (bool, error) {
 	// Some basic validation, check we have a version,
 	if len(version) == 0 {
