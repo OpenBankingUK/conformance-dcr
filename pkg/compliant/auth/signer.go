@@ -18,6 +18,7 @@ type JwtSigner struct {
 	tokenEndpointAuthMethod string
 	redirectURIs            []string
 	privateKey              *rsa.PrivateKey
+	jwtExpiration           time.Duration
 }
 
 func NewJwtSigner(
@@ -29,6 +30,7 @@ func NewJwtSigner(
 	tokenEndpointAuthMethod string,
 	redirectURIs []string,
 	privateKey *rsa.PrivateKey,
+	jwtExpiration time.Duration,
 ) JwtSigner {
 	return JwtSigner{
 		signingAlgorithm:        signingAlgorithm,
@@ -39,6 +41,7 @@ func NewJwtSigner(
 		tokenEndpointAuthMethod: tokenEndpointAuthMethod,
 		redirectURIs:            redirectURIs,
 		privateKey:              privateKey,
+		jwtExpiration:           jwtExpiration,
 	}
 }
 
@@ -49,7 +52,7 @@ func (s JwtSigner) Claims() (string, error) {
 	}
 
 	iat := time.Now().UTC()
-	exp := iat.Add(time.Hour)
+	exp := iat.Add(s.jwtExpiration)
 	signingMethod := jwt.SigningMethodRS256
 	token := jwt.NewWithClaims(
 		signingMethod,

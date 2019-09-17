@@ -27,21 +27,44 @@ func main() {
 
 	flags := mustParseFlags()
 
-	cfg, err := loadConfig(flags.configFilePath)
-	exitOnError(err)
-
-	v := VersionInfo{
-		version: version,
+	vInfo := VersionInfo{
+		version:    version,
+		buildTime:  buildTime,
 		commitHash: commitHash,
-		buildTime: buildTime,
 	}
 
+	if flags.versionCmd {
+		versionCmd(vInfo)
+	}
+
+	updateCmd(vInfo)
+
+	runCmd(flags)
+}
+
+func versionCmd(v VersionInfo) {
+	err := v.Print(bufio.NewWriter(os.Stdout))
+	exitOnError(err)
+	os.Exit(0)
+}
+
+func updateCmd(v VersionInfo) {
 	// Check for updates and print message
 	bitbucketTagsEndpoint := "https://api.bitbucket.org/2.0/repositories/openbankingteam/conformance-dcr/refs/tags"
 	updMessage := getUpdateMessage(v, bitbucketTagsEndpoint)
 	if updMessage != "" {
 		fmt.Println(updMessage)
 	}
+}
+
+func runCmd(flags flags) {
+	if flags.configFilePath == "" {
+		flag.Usage()
+		os.Exit(1)
+	}
+
+	cfg, err := loadConfig(flags.configFilePath)
+	exitOnError(err)
 
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(cfg.PrivateKey))
 	exitOnError(err)
@@ -50,7 +73,24 @@ func main() {
 	openIDConfig, err := openid.Get(cfg.WellknownEndpoint, client)
 	exitOnError(err)
 
-	authoriser := auth.NewAuthoriser(openIDConfig, cfg.SSA, cfg.Kid, cfg.ClientId, cfg.RedirectURIs, privateKey)
+	authoriser := auth.NewAuthoriser(
+		openIDConfig,
+		cfg.SSA,
+		cfg.Kid,
+		cfg.ClientId,
+		cfg.RedirectURIs,
+		privateKey,
+		time.Hour,
+	)
+	invalidAuthoriser := auth.NewAuthoriser(
+		openIDConfig,
+		cfg.SSA,
+		cfg.Kid,
+		cfg.ClientId,
+		cfg.RedirectURIs,
+		privateKey,
+		-time.Hour,
+	)
 
 	securedClient, err := http.NewBuilder().
 		WithRootCAs(cfg.TransportRootCAs).
@@ -58,7 +98,7 @@ func main() {
 		Build()
 	exitOnError(err)
 
-	scenarios := compliant.NewDCR32(openIDConfig, securedClient, authoriser)
+	scenarios := compliant.NewDCR32(openIDConfig, securedClient, authoriser, invalidAuthoriser)
 	tester := compliant.NewTester(flags.filterExpression, flags.debug)
 
 	passes, err := tester.Compliant(scenarios)
@@ -70,6 +110,7 @@ func main() {
 }
 
 type flags struct {
+	versionCmd       bool
 	configFilePath   string
 	filterExpression string
 	debug            bool
@@ -82,24 +123,13 @@ func mustParseFlags() flags {
 	flag.StringVar(&filterExpression, "filter", "", "Filter scenarios containing value")
 	flag.BoolVar(&debug, "debug", false, "Enable debug defaults to disabled")
 	flag.BoolVar(&versionFlag, "version", false, "Print the version details of conformance-dcr")
-
 	flag.Parse()
-
-	if versionFlag {
-		err := Print(bufio.NewWriter(os.Stdout))
-		exitOnError(err)
-		os.Exit(0)
-	}
-
-	if configFilePath == "" {
-		flag.Usage()
-		os.Exit(1)
-	}
 
 	return flags{
 		configFilePath:   configFilePath,
 		filterExpression: filterExpression,
 		debug:            debug,
+		versionCmd:       versionFlag,
 	}
 }
 
@@ -149,7 +179,7 @@ func getUpdateMessage(v VersionInfo, bitbucketTagsEndpoint string) string {
 	}
 	if update {
 		sb := strings.Builder{}
-		updMsg := fmt.Sprintf("Version %s of the this tool is out of date. Please consider updating.\n", version.Version())
+		updMsg := fmt.Sprintf("Version %s of the this tool is out of date. Please consider updating.\n", v.version)
 		sb.WriteString(updMsg)
 		sb.WriteString("Please see the following URL more information:\n")
 		sb.WriteString("https://bitbucket.org/openbankingteam/conformance-dcr/src/develop/README.md")

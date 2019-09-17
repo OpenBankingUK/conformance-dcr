@@ -125,12 +125,10 @@ func (v *bitBucket) getTags() (tagList, error) {
 	// Try to get the latest tag using the BitBucket API.
 	resp, err := client.Get(v.bitBucketAPIRepository)
 	if err != nil {
-		// If network error then return message, flag to NOT update and actual error.
 		return nil, errors.Wrap(err, "HTTP on GET to BitBucket API")
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		// handle anything else other than 200 OK.
 		return nil, fmt.Errorf("HTTP status %d received", resp.StatusCode)
 	}
 

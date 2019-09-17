@@ -41,7 +41,7 @@ func TestUpdateCheck_OutdatedVersionUpdateAvailable(t *testing.T) {
 	bb := bitBucket{
 		bitBucketAPIRepository: ts.URL,
 	}
-	version = "0.0.2"
+	version := "0.0.2"
 
 	upd, err := bb.UpdateAvailable(version)
 	assert.NoError(t, err)
@@ -81,7 +81,7 @@ func TestUpdateCheck_UpToDateVersionNoUpdateAvailable(t *testing.T) {
 	bb := bitBucket{
 		bitBucketAPIRepository: ts.URL,
 	}
-	version = "1.3.0"
+	version := "1.3.0"
 
 	upd, err := bb.UpdateAvailable(version)
 	assert.NoError(t, err)
@@ -90,7 +90,7 @@ func TestUpdateCheck_UpToDateVersionNoUpdateAvailable(t *testing.T) {
 
 func TestUpdateCheck_NoLocalVersionSet(t *testing.T) {
 	bb := bitBucket{}
-	version = ""
+	version := ""
 
 	update, err := bb.UpdateAvailable(version)
 	expError := "version not set"
@@ -100,7 +100,7 @@ func TestUpdateCheck_NoLocalVersionSet(t *testing.T) {
 
 func TestUpdateCheck_LocalVersionInvalid(t *testing.T) {
 	bb := bitBucket{}
-	version = "foobar"
+	version := "foobar"
 
 	update, err := bb.UpdateAvailable(version)
 	expError := "parse version: Malformed version: foobar"
