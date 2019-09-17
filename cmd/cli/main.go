@@ -32,7 +32,10 @@ func main() {
 
 	// Check for updates and print message
 	bitbucketTagsEndpoint := "https://api.bitbucket.org/2.0/repositories/openbankingteam/conformance-dcr/refs/tags"
-	fmt.Println(getUpdateMessage(bitbucketTagsEndpoint))
+	updMessage := getUpdateMessage(bitbucketTagsEndpoint)
+	if updMessage != "" {
+		fmt.Println(updMessage)
+	}
 
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(cfg.PrivateKey))
 	exitOnError(err)
@@ -147,5 +150,5 @@ func getUpdateMessage(bitbucketTagsEndpoint string) string {
 		return sb.String()
 	}
 
-	return fmt.Sprintf("this software is up to date - no updates available")
+	return ""
 }
