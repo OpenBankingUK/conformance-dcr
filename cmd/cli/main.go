@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/config"
+	"bitbucket.org/openbankingteam/conformance-dcr/cmd/config"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/version"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
@@ -63,7 +63,15 @@ func runCmd(flags flags) {
 		Build()
 	exitOnError(err)
 
-	scenarios := compliant.NewDCR32(openIDConfig, securedClient, authoriserBuilder, cfg)
+	dcr32Cfg := compliant.NewDCR32Config(
+		openIDConfig,
+		cfg.SSA,
+		cfg.Kid,
+		cfg.ClientId,
+		cfg.RedirectURIs,
+		cfg.PrivateKeyBytes,
+	)
+	scenarios := compliant.NewDCR32(dcr32Cfg, securedClient, authoriserBuilder)
 	tester := compliant.NewTester(flags.filterExpression, flags.debug)
 
 	passes, err := tester.Compliant(scenarios)

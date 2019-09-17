@@ -6,20 +6,18 @@ import (
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/config"
 )
 
 func NewDCR32(
-	openIDConfig openid.Configuration,
+	cfg DCR32Config,
 	secureClient *http.Client,
 	authoriserBuilder auth.AuthoriserBuilder,
-	cfg config.Config,
 ) Scenarios {
 	return Scenarios{
 		NewBuilder("Validate OIDC Config Registration URL").
 			TestCase(
 				NewTestCaseBuilder("Validate Registration URL").
-					ValidateRegistrationEndpoint(openIDConfig.RegistrationEndpoint).
+					ValidateRegistrationEndpoint(cfg.OpenIDConfig.RegistrationEndpoint).
 					Build(),
 			).
 			Build(),
@@ -31,7 +29,7 @@ func NewDCR32(
 						authoriserBuilder.
 							Build(),
 					).
-					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
+					PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeCreated().
 					ParseClientRegisterResponse(
 						authoriserBuilder.
@@ -42,13 +40,13 @@ func NewDCR32(
 			TestCase(
 				NewTestCaseBuilder("Retrieve client credentials grant").
 					WithHttpClient(secureClient).
-					GetClientCredentialsGrant(openIDConfig.TokenEndpoint).
+					GetClientCredentialsGrant(cfg.OpenIDConfig.TokenEndpoint).
 					Build(),
 			).
 			TestCase(
 				NewTestCaseBuilder("Delete software client").
 					WithHttpClient(secureClient).
-					ClientDelete(openIDConfig.RegistrationEndpointAsString()).
+					ClientDelete(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 					Build(),
 			).
 			Build(),
@@ -61,7 +59,7 @@ func NewDCR32(
 							WithJwtExpiration(-time.Hour).
 							Build(),
 					).
-					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
+					PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeBadRequest().
 					Build(),
 			).
@@ -72,16 +70,16 @@ func NewDCR32(
 						authoriserBuilder.
 							WithOpenIDConfig(
 								openid.Configuration{
-									RegistrationEndpoint:              openIDConfig.RegistrationEndpoint,
-									TokenEndpoint:                     openIDConfig.TokenEndpoint,
+									RegistrationEndpoint:              cfg.OpenIDConfig.RegistrationEndpoint,
+									TokenEndpoint:                     cfg.OpenIDConfig.TokenEndpoint,
 									Issuer:                            "foo.is/invalid",
-									ObjectSignAlgSupported:            openIDConfig.ObjectSignAlgSupported,
-									TokenEndpointAuthMethodsSupported: openIDConfig.TokenEndpointAuthMethodsSupported,
+									ObjectSignAlgSupported:            cfg.OpenIDConfig.ObjectSignAlgSupported,
+									TokenEndpointAuthMethodsSupported: cfg.OpenIDConfig.TokenEndpointAuthMethodsSupported,
 								},
 							).
 							Build(),
 					).
-					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
+					PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeBadRequest().
 					Build(),
 			).
@@ -94,7 +92,7 @@ func NewDCR32(
 						authoriserBuilder.
 							Build(),
 					).
-					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
+					PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeCreated().
 					ParseClientRegisterResponse(
 						authoriserBuilder.
@@ -105,21 +103,21 @@ func NewDCR32(
 			TestCase(
 				NewTestCaseBuilder("Retrieve client credentials grant").
 					WithHttpClient(secureClient).
-					GetClientCredentialsGrant(openIDConfig.TokenEndpoint).
+					GetClientCredentialsGrant(cfg.OpenIDConfig.TokenEndpoint).
 					Build(),
 			).
 			TestCase(
 				NewTestCaseBuilder("Retrieve software client").
 					WithHttpClient(secureClient).
-					ClientRetrieve(openIDConfig.RegistrationEndpointAsString()).
+					ClientRetrieve(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeOk().
-					ParseClientRetrieveResponse(openIDConfig.TokenEndpoint).
+					ParseClientRetrieveResponse(cfg.OpenIDConfig.TokenEndpoint).
 					Build(),
 			).
 			TestCase(
 				NewTestCaseBuilder("Delete software client").
 					WithHttpClient(secureClient).
-					ClientDelete(openIDConfig.RegistrationEndpointAsString()).
+					ClientDelete(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 					Build(),
 			).
 			Build(),
@@ -131,7 +129,7 @@ func NewDCR32(
 						authoriserBuilder.
 							Build(),
 					).
-					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
+					PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeCreated().
 					ParseClientRegisterResponse(
 						authoriserBuilder.
@@ -143,20 +141,20 @@ func NewDCR32(
 				NewTestCaseBuilder("Retrieve software client with invalid credentials should not succeed").
 					WithHttpClient(secureClient).
 					SetInvalidGrantToken().
-					ClientRetrieve(openIDConfig.RegistrationEndpointAsString()).
+					ClientRetrieve(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeUnauthorized().
 					Build(),
 			).
 			TestCase(
 				NewTestCaseBuilder("Retrieve client credentials grant").
 					WithHttpClient(secureClient).
-					GetClientCredentialsGrant(openIDConfig.TokenEndpoint).
+					GetClientCredentialsGrant(cfg.OpenIDConfig.TokenEndpoint).
 					Build(),
 			).
 			TestCase(
 				NewTestCaseBuilder("Delete software client").
 					WithHttpClient(secureClient).
-					ClientDelete(openIDConfig.RegistrationEndpointAsString()).
+					ClientDelete(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 					Build(),
 			).
 			Build(),
