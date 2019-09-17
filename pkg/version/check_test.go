@@ -2,13 +2,89 @@ package version
 
 import (
 	"github.com/stretchr/testify/assert"
+	"net/http"
+	"net/http/httptest"
 	"sort"
 	"testing"
 )
 
-func TestUpdateCheck_OutdatedVersionUpdateAvailable(t *testing.T) {}
+func TestUpdateCheck_OutdatedVersionUpdateAvailable(t *testing.T) {
+	ts := httptest.NewServer(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte(`{
+	"values": [{
+			"name": "0.0.1"
+		},
+		{
+			"name": "0.0.0-dev"
+		},
+		{
+			"name": "0.1.2-rc"
+		},
+		{
+			"name": "0.0.4"
+		},
+		{
+			"name": "1.3.0"
+		},
+		{
+			"name": "0.0.2"
+		}
+	]
+}`))
+		}))
+	defer ts.Close()
 
-func TestUpdateCheck_UpToDateVersionNoUpdateAvailable(t *testing.T) {}
+	bb := BitBucket{
+		bitBucketAPIRepository:ts.URL,
+	}
+	version = "0.0.2"
+
+	msg, upd, err := bb.UpdateCheck()
+	assert.NoError(t, err)
+	assert.True(t, upd)
+	expMsg := "Version 0.0.2 of the this tool is out of date, please update to 1.3.0"
+	assert.Equal(t, expMsg, msg)
+}
+
+func TestUpdateCheck_UpToDateVersionNoUpdateAvailable(t *testing.T) {
+	ts := httptest.NewServer(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte(`{
+	"values": [{
+			"name": "0.0.1"
+		},
+		{
+			"name": "0.0.0-dev"
+		},
+		{
+			"name": "0.1.2-rc"
+		},
+		{
+			"name": "0.0.4"
+		},
+		{
+			"name": "1.3.0"
+		},
+		{
+			"name": "0.0.2"
+		}
+	]
+}`))
+		}))
+	defer ts.Close()
+
+	bb := BitBucket{
+		bitBucketAPIRepository:ts.URL,
+	}
+	version = "1.3.0"
+
+	msg, upd, err := bb.UpdateCheck()
+	assert.NoError(t, err)
+	assert.False(t, upd)
+	expMsg := "This tool is running the latest version 1.3.0"
+	assert.Equal(t, expMsg, msg)
+}
 
 func TestUpdateCheck_NoLocalVersionSet(t *testing.T) {
 	bb := BitBucket{}
