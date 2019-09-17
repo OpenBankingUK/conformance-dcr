@@ -70,7 +70,7 @@ clean: ## run the clean up
 
 .PHONY: test
 test: ## Run the test suite
-	go test -cover ./...
+	go test -count=1 -cover ./...
 
 .PHONY: fmt
 fmt: ## Run gofmt on all go files
