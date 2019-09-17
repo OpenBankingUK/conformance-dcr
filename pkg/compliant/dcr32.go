@@ -85,6 +85,32 @@ func NewDCR32(
 					AssertStatusCodeBadRequest().
 					Build(),
 			).
+			TestCase(
+				NewTestCaseBuilder("Register software client fails on invalid issuer").
+					WithHttpClient(secureClient).
+					GenerateSignedClaims(
+						authoriserBuilder.
+							WithOpenIDConfig(
+								openid.Configuration{
+									RegistrationEndpoint:              openIDConfig.RegistrationEndpoint,
+									TokenEndpoint:                     openIDConfig.TokenEndpoint,
+									Issuer:                            "foo.is/invalid",
+									ObjectSignAlgSupported:            openIDConfig.ObjectSignAlgSupported,
+									TokenEndpointAuthMethodsSupported: openIDConfig.TokenEndpointAuthMethodsSupported,
+								},
+							).
+							WithSSA(cfg.SSA).
+							WithKID(cfg.Kid).
+							WithClientID(cfg.ClientId).
+							WithRedirectURIs(cfg.RedirectURIs).
+							WithPrivateKey(cfg.PrivateKeyBytes).
+							WithJwtExpiration(-time.Hour).
+							Build(),
+					).
+					PostClientRegister(openIDConfig.RegistrationEndpointAsString()).
+					AssertStatusCodeBadRequest().
+					Build(),
+			).
 			Build(),
 		NewBuilder("Dynamically retrieve a new software client").
 			TestCase(
