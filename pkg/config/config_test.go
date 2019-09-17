@@ -56,10 +56,18 @@ func Test_ParseConfig_Fails_WithInvalidPrivateKey(t *testing.T) {
 		"redirect_uris": ["https://0.0.0.0:8443/conformancesuite/callback"],
 		"private_key": "foobar"
 	}`)))
-	assert.Equal(t, "unable to parse private key bytes: Invalid Key: Key must be PEM encoded PKCS1 or PKCS8 private key", err.Error())
+	assert.Equal(
+		t,
+		"unable to parse private key bytes: Invalid Key: Key must be PEM encoded PKCS1 or PKCS8 private key",
+		err.Error(),
+	)
 }
 
 func Test_ParseConfig_Fails_WithInvalidConfig(t *testing.T) {
 	_, err := parseConfig(bytes.NewReader([]byte(`foobar`)))
-	assert.Equal(t, "unable to json decode file contents: invalid character 'o' in literal false (expecting 'a')", err.Error())
+	assert.Equal(
+		t,
+		"unable to json decode file contents: invalid character 'o' in literal false (expecting 'a')",
+		err.Error(),
+	)
 }
