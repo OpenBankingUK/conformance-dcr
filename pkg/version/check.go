@@ -13,15 +13,19 @@ import (
 	"github.com/pkg/errors"
 )
 
-// BitBucket helper with capability to get release versions from source control repository
-type BitBucket struct {
+type Checker interface {
+	UpdateCheck() (bool, error)
+}
+
+// bitBucket helper with capability to get release versions from source control repository
+type bitBucket struct {
 	// bitBucketAPIRepository full URL of the TAG API 2.0 for the Conformance Suite.
 	bitBucketAPIRepository string
 }
 
 // NewBitBucket returns a new instance of Checker.
-func NewBitBucket(bitBucketAPIRepository string) BitBucket {
-	return BitBucket{
+func NewBitBucket(bitBucketAPIRepository string) Checker {
+	return bitBucket{
 		bitBucketAPIRepository: bitBucketAPIRepository,
 	}
 }
@@ -74,7 +78,7 @@ func getTags(body []byte) (*tagsAPIResponse, error) {
 // UpdateCheck checks the current version against the
 // latest tag version on Bitbucket, if a newer version is found true is returned,
 // for all other cases, false is returned.
-func (v BitBucket) UpdateCheck() (bool, error) {
+func (v bitBucket) UpdateCheck() (bool, error) {
 	// Some basic validation, check we have a version,
 	if len(version) == 0 {
 		return false, errors.New("version not set")
@@ -113,7 +117,7 @@ func (v BitBucket) UpdateCheck() (bool, error) {
 	return false, nil
 }
 
-func (v *BitBucket) getTags() (tagList, error) {
+func (v *bitBucket) getTags() (tagList, error) {
 	client := http.Client{
 		Timeout: time.Second * 30,
 	}

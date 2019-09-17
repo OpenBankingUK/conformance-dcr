@@ -38,7 +38,7 @@ func TestUpdateCheck_OutdatedVersionUpdateAvailable(t *testing.T) {
 		}))
 	defer ts.Close()
 
-	bb := BitBucket{
+	bb := bitBucket{
 		bitBucketAPIRepository: ts.URL,
 	}
 	version = "0.0.2"
@@ -78,7 +78,7 @@ func TestUpdateCheck_UpToDateVersionNoUpdateAvailable(t *testing.T) {
 		}))
 	defer ts.Close()
 
-	bb := BitBucket{
+	bb := bitBucket{
 		bitBucketAPIRepository: ts.URL,
 	}
 	version = "1.3.0"
@@ -89,7 +89,7 @@ func TestUpdateCheck_UpToDateVersionNoUpdateAvailable(t *testing.T) {
 }
 
 func TestUpdateCheck_NoLocalVersionSet(t *testing.T) {
-	bb := BitBucket{}
+	bb := bitBucket{}
 	version = ""
 
 	update, err := bb.UpdateCheck()
@@ -99,7 +99,7 @@ func TestUpdateCheck_NoLocalVersionSet(t *testing.T) {
 }
 
 func TestUpdateCheck_LocalVersionInvalid(t *testing.T) {
-	bb := BitBucket{}
+	bb := bitBucket{}
 	version = "foobar"
 
 	update, err := bb.UpdateCheck()
