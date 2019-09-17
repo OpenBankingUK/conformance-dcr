@@ -137,7 +137,7 @@ func exitOnError(err error) {
 // in both cases of either update being available or not.
 func getUpdateMessage(bitbucketTagsEndpoint string) string {
 	vc := version.NewBitBucket(bitbucketTagsEndpoint)
-	update, err := vc.UpdateCheck()
+	update, err := vc.UpdateAvailable()
 	if err != nil {
 		return fmt.Sprintf("Error checking for updates: %s", err.Error())
 	}
