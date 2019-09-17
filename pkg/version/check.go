@@ -14,7 +14,7 @@ import (
 )
 
 type Checker interface {
-	UpdateAvailable() (bool, error)
+	UpdateAvailable(currentVersion string) (bool, error)
 }
 
 // bitBucket helper with capability to get release versions from source control repository
@@ -78,14 +78,14 @@ func getTags(body []byte) (*tagsAPIResponse, error) {
 // UpdateAvailable checks the current version against the
 // latest tag version on Bitbucket, if a newer version is found true is returned,
 // for all other cases, false is returned.
-func (v bitBucket) UpdateAvailable() (bool, error) {
+func (v bitBucket) UpdateAvailable(currentVersion string) (bool, error) {
 	// Some basic validation, check we have a version,
-	if len(version) == 0 {
+	if len(currentVersion) == 0 {
 		return false, errors.New("version not set")
 	}
 
 	// Format version string to compare.
-	versionLocal, err := goversion.NewVersion(version)
+	versionLocal, err := goversion.NewVersion(currentVersion)
 	if err != nil {
 		return false, errors.Wrap(err, "parse version")
 	}
