@@ -15,11 +15,11 @@ import (
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/version"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant"
+	ver "bitbucket.org/openbankingteam/conformance-dcr/pkg/version"
 )
 
 func main() {
@@ -30,9 +30,15 @@ func main() {
 	cfg, err := loadConfig(flags.configFilePath)
 	exitOnError(err)
 
+	v := VersionInfo{
+		version: version,
+		commitHash: commitHash,
+		buildTime: buildTime,
+	}
+
 	// Check for updates and print message
 	bitbucketTagsEndpoint := "https://api.bitbucket.org/2.0/repositories/openbankingteam/conformance-dcr/refs/tags"
-	updMessage := getUpdateMessage(bitbucketTagsEndpoint)
+	updMessage := getUpdateMessage(v, bitbucketTagsEndpoint)
 	if updMessage != "" {
 		fmt.Println(updMessage)
 	}
@@ -80,7 +86,7 @@ func mustParseFlags() flags {
 	flag.Parse()
 
 	if versionFlag {
-		err := version.Print(bufio.NewWriter(os.Stdout))
+		err := Print(bufio.NewWriter(os.Stdout))
 		exitOnError(err)
 		os.Exit(0)
 	}
@@ -135,9 +141,9 @@ func exitOnError(err error) {
 
 // getUpdateMessage checks if there is an update available to the current software. An appropriate message is returned
 // in both cases of either update being available or not.
-func getUpdateMessage(bitbucketTagsEndpoint string) string {
-	vc := version.NewBitBucket(bitbucketTagsEndpoint)
-	update, err := vc.UpdateAvailable(version.Version())
+func getUpdateMessage(v VersionInfo, bitbucketTagsEndpoint string) string {
+	vc := ver.NewBitBucket(bitbucketTagsEndpoint)
+	update, err := vc.UpdateAvailable(v.version)
 	if err != nil {
 		return fmt.Sprintf("Error checking for updates: %s", err.Error())
 	}
