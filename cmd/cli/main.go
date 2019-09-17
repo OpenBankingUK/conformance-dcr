@@ -9,13 +9,11 @@ import (
 	"time"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/cmd/config"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/version"
-
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
-
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/version"
 )
 
 func main() {
