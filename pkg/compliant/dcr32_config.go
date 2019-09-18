@@ -9,7 +9,7 @@ import (
 type DCR32Config struct {
 	OpenIDConfig openid.Configuration
 	SSA          string
-	Kid          string
+	KID          string
 	RedirectURIs []string
 	ClientID     string
 	PrivateKey   *rsa.PrivateKey
@@ -24,7 +24,7 @@ func NewDCR32Config(
 	return DCR32Config{
 		OpenIDConfig: openIDConfig,
 		SSA:          ssa,
-		Kid:          kid,
+		KID:          kid,
 		RedirectURIs: redirectURIs,
 		ClientID:     clientID,
 		PrivateKey:   privateKey,
