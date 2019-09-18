@@ -5,16 +5,16 @@ import (
 )
 
 type claims struct {
-	stepName        string
-	jwtClaimsCtxKey string
-	authoriser      auth.Authoriser
+	stepName          string
+	jwtClaimsCtxKey   string
+	authoriserBuilder auth.AuthoriserBuilder
 }
 
-func NewClaims(jwtClaimsCtxKey string, authoriser auth.Authoriser) Step {
+func NewClaims(jwtClaimsCtxKey string, authoriserBuilder auth.AuthoriserBuilder) Step {
 	return claims{
-		stepName:        "Generate signed software client claims",
-		jwtClaimsCtxKey: jwtClaimsCtxKey,
-		authoriser:      authoriser,
+		stepName:          "Generate signed software client claims",
+		jwtClaimsCtxKey:   jwtClaimsCtxKey,
+		authoriserBuilder: authoriserBuilder,
 	}
 }
 
@@ -22,7 +22,11 @@ func (c claims) Run(ctx Context) Result {
 	debug := NewDebug()
 
 	debug.Log("getting claims from authoriser")
-	signedClaims, err := c.authoriser.Claims()
+	authoriser, err := c.authoriserBuilder.Build()
+	if err != nil {
+		return NewFailResultWithDebug(c.stepName, err.Error(), debug)
+	}
+	signedClaims, err := authoriser.Claims()
 	if err != nil {
 		return NewFailResultWithDebug(c.stepName, err.Error(), debug)
 	}

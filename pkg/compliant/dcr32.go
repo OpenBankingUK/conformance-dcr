@@ -25,16 +25,10 @@ func NewDCR32(
 			TestCase(
 				NewTestCaseBuilder("Register software client").
 					WithHttpClient(secureClient).
-					GenerateSignedClaims(
-						authoriserBuilder.
-							Build(),
-					).
+					GenerateSignedClaims(authoriserBuilder).
 					PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeCreated().
-					ParseClientRegisterResponse(
-						authoriserBuilder.
-							Build(),
-					).
+					ParseClientRegisterResponse(authoriserBuilder).
 					Build(),
 			).
 			TestCase(
@@ -56,8 +50,7 @@ func NewDCR32(
 					WithHttpClient(secureClient).
 					GenerateSignedClaims(
 						authoriserBuilder.
-							WithJwtExpiration(-time.Hour).
-							Build(),
+							WithJwtExpiration(-time.Hour),
 					).
 					PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeBadRequest().
@@ -76,8 +69,7 @@ func NewDCR32(
 									ObjectSignAlgSupported:            cfg.OpenIDConfig.ObjectSignAlgSupported,
 									TokenEndpointAuthMethodsSupported: cfg.OpenIDConfig.TokenEndpointAuthMethodsSupported,
 								},
-							).
-							Build(),
+							),
 					).
 					PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeBadRequest().
@@ -96,8 +88,7 @@ func NewDCR32(
 									ObjectSignAlgSupported:            cfg.OpenIDConfig.ObjectSignAlgSupported,
 									TokenEndpointAuthMethodsSupported: cfg.OpenIDConfig.TokenEndpointAuthMethodsSupported,
 								},
-							).
-							Build(),
+							),
 					).
 					PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeBadRequest().
@@ -116,8 +107,7 @@ func NewDCR32(
 									ObjectSignAlgSupported:            cfg.OpenIDConfig.ObjectSignAlgSupported,
 									TokenEndpointAuthMethodsSupported: cfg.OpenIDConfig.TokenEndpointAuthMethodsSupported,
 								},
-							).
-							Build(),
+							),
 					).
 					PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeBadRequest().
@@ -128,16 +118,10 @@ func NewDCR32(
 			TestCase(
 				NewTestCaseBuilder("Register software client").
 					WithHttpClient(secureClient).
-					GenerateSignedClaims(
-						authoriserBuilder.
-							Build(),
-					).
+					GenerateSignedClaims(authoriserBuilder).
 					PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeCreated().
-					ParseClientRegisterResponse(
-						authoriserBuilder.
-							Build(),
-					).
+					ParseClientRegisterResponse(authoriserBuilder).
 					Build(),
 			).
 			TestCase(
@@ -165,16 +149,10 @@ func NewDCR32(
 			TestCase(
 				NewTestCaseBuilder("Register software client").
 					WithHttpClient(secureClient).
-					GenerateSignedClaims(
-						authoriserBuilder.
-							Build(),
-					).
+					GenerateSignedClaims(authoriserBuilder).
 					PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeCreated().
-					ParseClientRegisterResponse(
-						authoriserBuilder.
-							Build(),
-					).
+					ParseClientRegisterResponse(authoriserBuilder).
 					Build(),
 			).
 			TestCase(

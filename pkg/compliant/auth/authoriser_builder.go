@@ -2,6 +2,7 @@ package auth
 
 import (
 	"crypto/rsa"
+	"errors"
 	"time"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
@@ -54,7 +55,19 @@ func (b AuthoriserBuilder) WithJwtExpiration(jwtExpiration time.Duration) Author
 	return b
 }
 
-func (b AuthoriserBuilder) Build() Authoriser {
+func (b AuthoriserBuilder) Build() (Authoriser, error) {
+	if b.ssa == "" {
+		return none{}, errors.New("missing ssa from authoriser")
+	}
+	if b.kID == "" {
+		return none{}, errors.New("missing kid from authoriser")
+	}
+	if b.clientID == "" {
+		return none{}, errors.New("missing clientID from authoriser")
+	}
+	if b.privateKey == nil {
+		return none{}, errors.New("missing privateKey from authoriser")
+	}
 	return NewAuthoriser(
 		b.config,
 		b.ssa,
@@ -63,5 +76,5 @@ func (b AuthoriserBuilder) Build() Authoriser {
 		b.redirectURIs,
 		b.privateKey,
 		b.jwtExpiration,
-	)
+	), nil
 }
