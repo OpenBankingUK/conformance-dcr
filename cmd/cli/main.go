@@ -37,7 +37,7 @@ func main() {
 		versionCmd(vInfo)
 	}
 
-	updateCmd(vInfo)
+	updateCheckCmd(vInfo)
 
 	runCmd(flags)
 }
@@ -48,7 +48,7 @@ func versionCmd(v VersionInfo) {
 	os.Exit(0)
 }
 
-func updateCmd(v VersionInfo) {
+func updateCheckCmd(v VersionInfo) {
 	// Check for updates and print message
 	bitbucketTagsEndpoint := "https://api.bitbucket.org/2.0/repositories/openbankingteam/conformance-dcr/refs/tags"
 	updMessage := getUpdateMessage(v, bitbucketTagsEndpoint)
