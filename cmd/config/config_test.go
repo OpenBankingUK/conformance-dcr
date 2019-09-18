@@ -38,14 +38,23 @@ func Test_ParseConfig_Succeeds_WithValidConfig(t *testing.T) {
     	"transport_cert": "-----BEGIN CERTIFICATE-----\n\n-----END CERTIFICATE-----",
 		"transport_key": "-----BEGIN CERTIFICATE-----\n\n-----END CERTIFICATE-----"}`, pkeyJson)
 	cfg, err := parseConfig(bytes.NewReader([]byte(json)))
+	expectedCfg := Config{
+		WellknownEndpoint: "https://ob19-auth1-ui.o3bank.co.uk/.well-known/openid-configuration",
+		SSA: "ssa",
+		Kid: "kid",
+		RedirectURIs: []string{"https://0.0.0.0:8443/conformancesuite/callback"},
+		ClientId: "clientid",
+		PrivateKeyPEM: string(keyPem),
+		PrivateKey: key,
+		TransportRootCAs: []string{
+			"-----BEGIN CERTIFICATE-----\ntransportroot1-----END CERTIFICATE-----\n",
+			"-----BEGIN CERTIFICATE-----\ntransportroot2-----END CERTIFICATE-----\n",
+		},
+		TransportCert: "-----BEGIN CERTIFICATE-----\n\n-----END CERTIFICATE-----",
+		TransportKey: "-----BEGIN CERTIFICATE-----\n\n-----END CERTIFICATE-----",
+	}
 	assert.NoError(t, err)
-	assert.Equal(t, "https://ob19-auth1-ui.o3bank.co.uk/.well-known/openid-configuration", cfg.WellknownEndpoint)
-	assert.Equal(t, []string{"https://0.0.0.0:8443/conformancesuite/callback"}, cfg.RedirectURIs)
-	assert.Equal(t, "ssa", cfg.SSA)
-	assert.Equal(t, "kid", cfg.Kid)
-	assert.Equal(t, "clientid", cfg.ClientId)
-	assert.Equal(t, "-----BEGIN CERTIFICATE-----\n\n-----END CERTIFICATE-----", cfg.TransportCert)
-	assert.Equal(t, "-----BEGIN CERTIFICATE-----\n\n-----END CERTIFICATE-----", cfg.TransportKey)
+	assert.Equal(t, expectedCfg, cfg)
 }
 
 func Test_ParseConfig_Fails_WithInvalidPrivateKey(t *testing.T) {
@@ -56,18 +65,18 @@ func Test_ParseConfig_Fails_WithInvalidPrivateKey(t *testing.T) {
 		"redirect_uris": ["https://0.0.0.0:8443/conformancesuite/callback"],
 		"private_key": "foobar"
 	}`)))
-	assert.Equal(
+	assert.EqualError(
 		t,
+		err,
 		"unable to parse private key bytes: Invalid Key: Key must be PEM encoded PKCS1 or PKCS8 private key",
-		err.Error(),
 	)
 }
 
 func Test_ParseConfig_Fails_WithInvalidConfig(t *testing.T) {
 	_, err := parseConfig(bytes.NewReader([]byte(`foobar`)))
-	assert.Equal(
+	assert.EqualError(
 		t,
+		err,
 		"unable to json decode file contents: invalid character 'o' in literal false (expecting 'a')",
-		err.Error(),
 	)
 }

@@ -53,7 +53,7 @@ func runCmd(flags flags) {
 		WithKID(cfg.Kid).
 		WithClientID(cfg.ClientId).
 		WithRedirectURIs(cfg.RedirectURIs).
-		WithPrivateKey(cfg.PrivateKeyBytes).
+		WithPrivateKey(cfg.PrivateKey).
 		WithJwtExpiration(time.Hour)
 	securedClient, err := http.NewBuilder().
 		WithRootCAs(cfg.TransportRootCAs).
@@ -67,7 +67,7 @@ func runCmd(flags flags) {
 		cfg.Kid,
 		cfg.ClientId,
 		cfg.RedirectURIs,
-		cfg.PrivateKeyBytes,
+		cfg.PrivateKey,
 	)
 	scenarios := compliant.NewDCR32(dcr32Cfg, securedClient, authoriserBuilder)
 	tester := compliant.NewTester(flags.filterExpression, flags.debug)

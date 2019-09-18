@@ -83,6 +83,46 @@ func NewDCR32(
 					AssertStatusCodeBadRequest().
 					Build(),
 			).
+			TestCase(
+				NewTestCaseBuilder("Register software client fails on invalid issuer too short").
+					WithHttpClient(secureClient).
+					GenerateSignedClaims(
+						authoriserBuilder.
+							WithOpenIDConfig(
+								openid.Configuration{
+									RegistrationEndpoint:              cfg.OpenIDConfig.RegistrationEndpoint,
+									TokenEndpoint:                     cfg.OpenIDConfig.TokenEndpoint,
+									Issuer:                            "",
+									ObjectSignAlgSupported:            cfg.OpenIDConfig.ObjectSignAlgSupported,
+									TokenEndpointAuthMethodsSupported: cfg.OpenIDConfig.TokenEndpointAuthMethodsSupported,
+								},
+							).
+							Build(),
+					).
+					PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
+					AssertStatusCodeBadRequest().
+					Build(),
+			).
+			TestCase(
+				NewTestCaseBuilder("Register software client fails on invalid issuer too long").
+					WithHttpClient(secureClient).
+					GenerateSignedClaims(
+						authoriserBuilder.
+							WithOpenIDConfig(
+								openid.Configuration{
+									RegistrationEndpoint:              cfg.OpenIDConfig.RegistrationEndpoint,
+									TokenEndpoint:                     cfg.OpenIDConfig.TokenEndpoint,
+									Issuer:                            "123456789012345678901234567890",
+									ObjectSignAlgSupported:            cfg.OpenIDConfig.ObjectSignAlgSupported,
+									TokenEndpointAuthMethodsSupported: cfg.OpenIDConfig.TokenEndpointAuthMethodsSupported,
+								},
+							).
+							Build(),
+					).
+					PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
+					AssertStatusCodeBadRequest().
+					Build(),
+			).
 			Build(),
 		NewBuilder("Dynamically retrieve a new software client").
 			TestCase(

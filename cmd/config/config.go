@@ -18,8 +18,8 @@ type Config struct {
 	Kid               string          `json:"kid"`
 	RedirectURIs      []string        `json:"redirect_uris"`
 	ClientId          string          `json:"client_id"`
-	PrivateKey        string          `json:"private_key"`
-	PrivateKeyBytes   *rsa.PrivateKey `json:"-"`
+	PrivateKeyPEM     string          `json:"private_key"`
+	PrivateKey        *rsa.PrivateKey `json:"-"`
 	TransportRootCAs  []string        `json:"transport_root_cas"`
 	TransportCert     string          `json:"transport_cert"`
 	TransportKey      string          `json:"transport_key"`
@@ -41,12 +41,12 @@ func parseConfig(f io.Reader) (Config, error) {
 		return cfg, errors.Wrap(err, "unable to read config file contents")
 	}
 	if err = json.NewDecoder(bytes.NewBuffer(rawCfg)).Decode(&cfg); err != nil {
-		return cfg, errors.Wrapf(err, "unable to json decode file contents")
+		return cfg, errors.Wrap(err, "unable to json decode file contents")
 	}
-	privateKeyBytes, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(cfg.PrivateKey))
+	privateKeyBytes, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(cfg.PrivateKeyPEM))
 	if err != nil {
-		return cfg, errors.Wrapf(err, "unable to parse private key bytes")
+		return cfg, errors.Wrap(err, "unable to parse private key bytes")
 	}
-	cfg.PrivateKeyBytes = privateKeyBytes
+	cfg.PrivateKey = privateKeyBytes
 	return cfg, nil
 }
