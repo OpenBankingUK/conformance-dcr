@@ -6,6 +6,7 @@ import (
 	"fmt"
 	http2 "net/http"
 	"os"
+	"strings"
 	"time"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/cmd/config"
@@ -13,7 +14,8 @@ import (
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/version"
+
+	ver "bitbucket.org/openbankingteam/conformance-dcr/pkg/version"
 )
 
 func main() {
@@ -21,17 +23,34 @@ func main() {
 
 	flags := mustParseFlags()
 
-	if flags.versionCmd {
-		versionCmd()
+	vInfo := VersionInfo{
+		version:    version,
+		buildTime:  buildTime,
+		commitHash: commitHash,
 	}
+
+	if flags.versionCmd {
+		versionCmd(vInfo)
+	}
+
+	updateCheckCmd(vInfo)
 
 	runCmd(flags)
 }
 
-func versionCmd() {
-	err := version.Print(bufio.NewWriter(os.Stdout))
+func versionCmd(v VersionInfo) {
+	err := v.Print(bufio.NewWriter(os.Stdout))
 	exitOnError(err)
 	os.Exit(0)
+}
+
+func updateCheckCmd(v VersionInfo) {
+	// Check for updates and print message
+	bitbucketTagsEndpoint := "https://api.bitbucket.org/2.0/repositories/openbankingteam/conformance-dcr/refs/tags"
+	updMessage := getUpdateMessage(v, bitbucketTagsEndpoint)
+	if updMessage != "" {
+		fmt.Println(updMessage)
+	}
 }
 
 func runCmd(flags flags) {
@@ -109,4 +128,24 @@ func exitOnError(err error) {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
+}
+
+// getUpdateMessage checks if there is an update available to the current software. An appropriate message is returned
+// in both cases of either update being available or not.
+func getUpdateMessage(v VersionInfo, bitbucketTagsEndpoint string) string {
+	vc := ver.NewBitBucket(bitbucketTagsEndpoint)
+	update, err := vc.UpdateAvailable(v.version)
+	if err != nil {
+		return fmt.Sprintf("Error checking for updates: %s", err.Error())
+	}
+	if update {
+		sb := strings.Builder{}
+		updMsg := fmt.Sprintf("Version %s of the this tool is out of date. Please consider updating.\n", v.version)
+		sb.WriteString(updMsg)
+		sb.WriteString("Please see the following URL more information:\n")
+		sb.WriteString("https://bitbucket.org/openbankingteam/conformance-dcr/src/develop/README.md")
+		return sb.String()
+	}
+
+	return ""
 }
