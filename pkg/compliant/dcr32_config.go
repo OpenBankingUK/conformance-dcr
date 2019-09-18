@@ -8,11 +8,11 @@ import (
 
 type DCR32Config struct {
 	OpenIDConfig openid.Configuration
-	SSA          string          `json:"ssa"`
-	Kid          string          `json:"kid"`
-	RedirectURIs []string        `json:"redirect_uris"`
-	ClientID     string          `json:"client_id"`
-	PrivateKey   *rsa.PrivateKey `json:"-"`
+	SSA          string
+	Kid          string
+	RedirectURIs []string
+	ClientID     string
+	PrivateKey   *rsa.PrivateKey
 }
 
 func NewDCR32Config(
