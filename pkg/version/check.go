@@ -95,6 +95,10 @@ func (v bitBucket) UpdateAvailable(currentVersion string) (bool, error) {
 		return false, errors.Wrap(err, "get tags from upstream repo")
 	}
 
+	if len(tags) == 0 {
+		return false, nil
+	}
+
 	// Convert the list of tags to tags and sort
 	sort.Sort(tags)
 
@@ -108,10 +112,6 @@ func (v bitBucket) UpdateAvailable(currentVersion string) (bool, error) {
 
 	if versionLocal.LessThan(versionRemote) {
 		return true, nil
-	}
-	// If local and remote version match or is higher then return false update flag.
-	if versionLocal.GreaterThanOrEqual(versionRemote) {
-		return false, nil
 	}
 
 	return false, nil

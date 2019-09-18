@@ -48,6 +48,28 @@ func TestUpdateCheck_OutdatedVersionUpdateAvailable(t *testing.T) {
 	assert.True(t, upd)
 }
 
+func TestUpdateCheck_NoTagsAvailable(t *testing.T) {
+	ts := httptest.NewServer(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			_, err := w.Write([]byte(`{
+	"values": []
+}`))
+			if err != nil {
+				t.Fail()
+			}
+		}))
+	defer ts.Close()
+
+	bb := bitBucket{
+		bitBucketAPIRepository: ts.URL,
+	}
+	version := "0.0.2"
+
+	upd, err := bb.UpdateAvailable(version)
+	assert.NoError(t, err)
+	assert.False(t, upd)
+}
+
 func TestUpdateCheck_UpToDateVersionNoUpdateAvailable(t *testing.T) {
 	ts := httptest.NewServer(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
