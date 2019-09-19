@@ -8,20 +8,20 @@ import (
 )
 
 type clientRegisterResponse struct {
-	stepName       string
-	responseCtxKey string
-	clientCtxKey   string
-	debug          *DebugMessages
-	authoriser     auth.Authoriser
+	stepName          string
+	responseCtxKey    string
+	clientCtxKey      string
+	debug             *DebugMessages
+	authoriserBuilder auth.AuthoriserBuilder
 }
 
-func NewClientRegisterResponse(responseCtxKey, clientCtxKey string, authoriser auth.Authoriser) Step {
+func NewClientRegisterResponse(responseCtxKey, clientCtxKey string, authoriserBuilder auth.AuthoriserBuilder) Step {
 	return clientRegisterResponse{
-		stepName:       "Decode client register response",
-		responseCtxKey: responseCtxKey,
-		clientCtxKey:   clientCtxKey,
-		debug:          NewDebug(),
-		authoriser:     authoriser,
+		stepName:          "Decode client register response",
+		responseCtxKey:    responseCtxKey,
+		clientCtxKey:      clientCtxKey,
+		debug:             NewDebug(),
+		authoriserBuilder: authoriserBuilder,
 	}
 }
 
@@ -39,7 +39,15 @@ func (s clientRegisterResponse) Run(ctx Context) Result {
 
 	s.debug.Log("getting client")
 	s.debug.Logf("register res: %+v", string(body))
-	client, err := s.authoriser.Client(body)
+	authoriser, err := s.authoriserBuilder.Build()
+	if err != nil {
+		return NewFailResultWithDebug(
+			s.stepName,
+			err.Error(),
+			s.debug,
+		)
+	}
+	client, err := authoriser.Client(body)
 	if err != nil {
 		return s.failResult(fmt.Sprintf("client register: %s", err.Error()))
 	}

@@ -1,7 +1,6 @@
 package step
 
 import (
-	"crypto/rsa"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -16,12 +15,17 @@ import (
 
 func TestNewClientRegisterResponse(t *testing.T) {
 	openIdConfig := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{"client_secret_basic"}}
-	auther := auth.NewAuthoriser(openIdConfig, "ssa", "kid", "clientId", []string{}, &rsa.PrivateKey{}, time.Hour)
-
+	authoriserBuilder := auth.NewAuthoriserBuilder().
+		WithClientID("clientId").
+		WithKID("kid").
+		WithSSA("ssa").
+		WithPrivateKey(generateKey(t)).
+		WithOpenIDConfig(openIdConfig).
+		WithJwtExpiration(time.Hour)
 	ctx := NewContext()
 	body := ioutil.NopCloser(strings.NewReader(`{"client_id": "12345", "client_secret": "54321"}`))
 	ctx.SetResponse("response", &http.Response{Body: body})
-	step := NewClientRegisterResponse("response", "clientCtxKey", auther)
+	step := NewClientRegisterResponse("response", "clientCtxKey", authoriserBuilder)
 
 	result := step.Run(ctx)
 
@@ -37,9 +41,15 @@ func TestNewClientRegisterResponse(t *testing.T) {
 
 func TestNewClientRegisterResponse_FailsIfResponseNotFoundInContext(t *testing.T) {
 	openIdConfig := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{"client_secret_basic"}}
-	auther := auth.NewAuthoriser(openIdConfig, "ssa", "kid", "clientId", []string{}, &rsa.PrivateKey{}, time.Hour)
+	authoriserBuilder := auth.NewAuthoriserBuilder().
+		WithClientID("clientId").
+		WithKID("kid").
+		WithSSA("ssa").
+		WithPrivateKey(generateKey(t)).
+		WithOpenIDConfig(openIdConfig).
+		WithJwtExpiration(time.Hour)
 	ctx := NewContext()
-	step := NewClientRegisterResponse("response", "clientCtxKey", auther)
+	step := NewClientRegisterResponse("response", "clientCtxKey", authoriserBuilder)
 
 	result := step.Run(ctx)
 
@@ -49,11 +59,17 @@ func TestNewClientRegisterResponse_FailsIfResponseNotFoundInContext(t *testing.T
 
 func TestNewClientRegisterResponse_HandlesParsingResponseObject(t *testing.T) {
 	openIdConfig := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{"client_secret_basic"}}
-	auther := auth.NewAuthoriser(openIdConfig, "ssa", "kid", "clientId", []string{}, &rsa.PrivateKey{}, time.Hour)
+	authoriserBuilder := auth.NewAuthoriserBuilder().
+		WithClientID("clientId").
+		WithKID("kid").
+		WithSSA("ssa").
+		WithPrivateKey(generateKey(t)).
+		WithOpenIDConfig(openIdConfig).
+		WithJwtExpiration(time.Hour)
 	ctx := NewContext()
 	body := ioutil.NopCloser(strings.NewReader(`invalid json`))
 	ctx.SetResponse("response", &http.Response{Body: body})
-	step := NewClientRegisterResponse("response", "clientCtxKey", auther)
+	step := NewClientRegisterResponse("response", "clientCtxKey", authoriserBuilder)
 
 	result := step.Run(ctx)
 

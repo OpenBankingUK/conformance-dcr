@@ -94,8 +94,8 @@ func (t *testCaseBuilder) AssertContextTypeApplicationHtml() *testCaseBuilder {
 	return t
 }
 
-func (t *testCaseBuilder) GenerateSignedClaims(authoriser auth.Authoriser) *testCaseBuilder {
-	nextStep := step.NewClaims(jwtClaimsCtxKey, authoriser)
+func (t *testCaseBuilder) GenerateSignedClaims(authoriserBuilder auth.AuthoriserBuilder) *testCaseBuilder {
+	nextStep := step.NewClaims(jwtClaimsCtxKey, authoriserBuilder)
 	t.steps = append(t.steps, nextStep)
 	return t
 }
@@ -124,8 +124,8 @@ func (t *testCaseBuilder) SetInvalidGrantToken() *testCaseBuilder {
 	return t
 }
 
-func (t *testCaseBuilder) ParseClientRegisterResponse(authoriser auth.Authoriser) *testCaseBuilder {
-	nextStep := step.NewClientRegisterResponse(responseCtxKey, clientCtxKey, authoriser)
+func (t *testCaseBuilder) ParseClientRegisterResponse(authoriserBuilder auth.AuthoriserBuilder) *testCaseBuilder {
+	nextStep := step.NewClientRegisterResponse(responseCtxKey, clientCtxKey, authoriserBuilder)
 	t.steps = append(t.steps, nextStep)
 	return t
 }

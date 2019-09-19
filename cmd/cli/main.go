@@ -2,23 +2,19 @@ package main
 
 import (
 	"bufio"
-	"bytes"
-	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	http2 "net/http"
 	"os"
 	"strings"
 	"time"
 
+	"bitbucket.org/openbankingteam/conformance-dcr/cmd/config"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/pkg/errors"
 
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant"
 	ver "bitbucket.org/openbankingteam/conformance-dcr/pkg/version"
 )
 
@@ -63,42 +59,36 @@ func runCmd(flags flags) {
 		os.Exit(1)
 	}
 
-	cfg, err := loadConfig(flags.configFilePath)
-	exitOnError(err)
-
-	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(cfg.PrivateKey))
+	cfg, err := config.LoadConfig(flags.configFilePath)
 	exitOnError(err)
 
 	client := &http2.Client{Timeout: time.Second * 2}
 	openIDConfig, err := openid.Get(cfg.WellknownEndpoint, client)
 	exitOnError(err)
 
-	authoriser := auth.NewAuthoriser(
-		openIDConfig,
-		cfg.SSA,
-		cfg.Kid,
-		cfg.ClientId,
-		cfg.RedirectURIs,
-		privateKey,
-		time.Hour,
-	)
-	invalidAuthoriser := auth.NewAuthoriser(
-		openIDConfig,
-		cfg.SSA,
-		cfg.Kid,
-		cfg.ClientId,
-		cfg.RedirectURIs,
-		privateKey,
-		-time.Hour,
-	)
-
+	authoriserBuilder := auth.NewAuthoriserBuilder().
+		WithOpenIDConfig(openIDConfig).
+		WithSSA(cfg.SSA).
+		WithKID(cfg.Kid).
+		WithClientID(cfg.ClientId).
+		WithRedirectURIs(cfg.RedirectURIs).
+		WithPrivateKey(cfg.PrivateKey).
+		WithJwtExpiration(time.Hour)
 	securedClient, err := http.NewBuilder().
 		WithRootCAs(cfg.TransportRootCAs).
 		WithTransportKeyPair(cfg.TransportCert, cfg.TransportKey).
 		Build()
 	exitOnError(err)
 
-	scenarios := compliant.NewDCR32(openIDConfig, securedClient, authoriser, invalidAuthoriser)
+	dcr32Cfg := compliant.NewDCR32Config(
+		openIDConfig,
+		cfg.SSA,
+		cfg.Kid,
+		cfg.ClientId,
+		cfg.RedirectURIs,
+		cfg.PrivateKey,
+	)
+	scenarios := compliant.NewDCR32(dcr32Cfg, securedClient, authoriserBuilder)
 	tester := compliant.NewTester(flags.filterExpression, flags.debug)
 
 	passes, err := tester.Compliant(scenarios)
@@ -131,35 +121,6 @@ func mustParseFlags() flags {
 		debug:            debug,
 		versionCmd:       versionFlag,
 	}
-}
-
-type Config struct {
-	WellknownEndpoint string   `json:"wellknown_endpoint"`
-	SSA               string   `json:"ssa"`
-	Kid               string   `json:"kid"`
-	RedirectURIs      []string `json:"redirect_uris"`
-	ClientId          string   `json:"client_id"`
-	PrivateKey        string   `json:"private_key"`
-	TransportRootCAs  []string `json:"transport_root_cas"`
-	TransportCert     string   `json:"transport_cert"`
-	TransportKey      string   `json:"transport_key"`
-}
-
-func loadConfig(configFilePath string) (Config, error) {
-	var cfg Config
-	f, err := os.Open(configFilePath)
-	if err != nil {
-		return cfg, errors.Wrapf(err, "unable to open config file %s", configFilePath)
-	}
-	defer f.Close()
-	rawCfg, err := ioutil.ReadAll(f)
-	if err != nil {
-		return cfg, errors.Wrap(err, "unable to read config file contents")
-	}
-	if err := json.NewDecoder(bytes.NewBuffer(rawCfg)).Decode(&cfg); err != nil {
-		return cfg, errors.Wrapf(err, "unable to json decode file contents")
-	}
-	return cfg, nil
 }
 
 func exitOnError(err error) {

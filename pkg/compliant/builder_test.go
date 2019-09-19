@@ -22,15 +22,13 @@ func TestNewBuilder(t *testing.T) {
 }
 
 func TestNewTestCaseBuilder(t *testing.T) {
-	authoriser := auth.NewAuthoriser(
-		openid.Configuration{},
-		"ssa",
-		"kid",
-		"clientId",
-		[]string{},
-		&rsa.PrivateKey{},
-		time.Hour,
-	)
+	authoriserBuilder := auth.NewAuthoriserBuilder().
+		WithClientID("clientId").
+		WithKID("kid").
+		WithSSA("ssa").
+		WithPrivateKey(&rsa.PrivateKey{}).
+		WithOpenIDConfig(openid.Configuration{}).
+		WithJwtExpiration(time.Hour)
 
 	const sampleEndpoint = "http://host/path"
 	tc := NewTestCaseBuilder("test case").
@@ -38,10 +36,10 @@ func TestNewTestCaseBuilder(t *testing.T) {
 		Get("www.google.com").
 		AssertStatusCodeOk().
 		AssertContextTypeApplicationHtml().
-		GenerateSignedClaims(authoriser).
+		GenerateSignedClaims(authoriserBuilder).
 		PostClientRegister(sampleEndpoint).
 		AssertStatusCodeCreated().
-		ParseClientRegisterResponse(authoriser).
+		ParseClientRegisterResponse(authoriserBuilder).
 		ClientRetrieve(sampleEndpoint).
 		ClientDelete(sampleEndpoint).
 		ParseClientRetrieveResponse(sampleEndpoint).
