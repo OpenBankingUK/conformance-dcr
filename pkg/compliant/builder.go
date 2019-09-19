@@ -1,6 +1,7 @@
 package compliant
 
 import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/schema"
 	"net/http"
 	"time"
 
@@ -114,6 +115,12 @@ func (t *testCaseBuilder) ClientDelete(registrationEndpoint string) *testCaseBui
 
 func (t *testCaseBuilder) ClientRetrieve(registrationEndpoint string) *testCaseBuilder {
 	nextStep := step.NewClientRetrieve(responseCtxKey, registrationEndpoint, clientCtxKey, grantTokenCtxKey, t.httpClient)
+	t.steps = append(t.steps, nextStep)
+	return t
+}
+
+func (t *testCaseBuilder) AssertValidSchemaResponse(validator schema.Validator) *testCaseBuilder {
+	nextStep := step.NewClientRetrieveSchema(responseCtxKey, validator)
 	t.steps = append(t.steps, nextStep)
 	return t
 }

@@ -1,6 +1,7 @@
 package compliant
 
 import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/schema"
 	"net/http"
 	"time"
 
@@ -12,6 +13,7 @@ func NewDCR32(
 	cfg DCR32Config,
 	secureClient *http.Client,
 	authoriserBuilder auth.AuthoriserBuilder,
+	validator schema.Validator,
 ) Scenarios {
 	return Scenarios{
 		NewBuilder("Validate OIDC Config Registration URL").
@@ -135,6 +137,7 @@ func NewDCR32(
 					WithHttpClient(secureClient).
 					ClientRetrieve(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 					AssertStatusCodeOk().
+					AssertValidSchemaResponse(validator).
 					ParseClientRetrieveResponse(cfg.OpenIDConfig.TokenEndpoint).
 					Build(),
 			).

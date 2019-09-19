@@ -1,7 +1,9 @@
 package compliant
 
 import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/schema"
 	"crypto/rsa"
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 	"time"
@@ -30,21 +32,31 @@ func TestNewTestCaseBuilder(t *testing.T) {
 		WithOpenIDConfig(openid.Configuration{}).
 		WithJwtExpiration(time.Hour)
 
+	validator, err := schema.NewValidator("3.2")
+	require.NoError(t, err)
+
 	const sampleEndpoint = "http://host/path"
+	var someUrl *string
 	tc := NewTestCaseBuilder("test case").
 		WithHttpClient(&http.Client{}).
 		Get("www.google.com").
 		AssertStatusCodeOk().
+		AssertStatusCodeUnauthorized().
+		AssertStatusCodeBadRequest().
+		AssertStatusCodeCreated().
 		AssertContextTypeApplicationHtml().
 		GenerateSignedClaims(authoriserBuilder).
 		PostClientRegister(sampleEndpoint).
-		AssertStatusCodeCreated().
 		ParseClientRegisterResponse(authoriserBuilder).
 		ClientRetrieve(sampleEndpoint).
 		ClientDelete(sampleEndpoint).
 		ParseClientRetrieveResponse(sampleEndpoint).
+		AssertValidSchemaResponse(validator).
+		SetInvalidGrantToken().
+		ValidateRegistrationEndpoint(someUrl).
+		GetClientCredentialsGrant(sampleEndpoint).
 		Step(step.NewAlwaysPass())
 
 	assert.Equal(t, "test case", tc.name)
-	assert.Len(t, tc.steps, 11)
+	assert.Len(t, tc.steps, 17)
 }

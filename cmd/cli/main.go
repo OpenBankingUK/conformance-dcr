@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/schema"
 	"bufio"
 	"flag"
 	"fmt"
@@ -80,6 +81,10 @@ func runCmd(flags flags) {
 		Build()
 	exitOnError(err)
 
+	const responseSchemaVersion = "3.2"
+	validator, err := schema.NewValidator(responseSchemaVersion)
+	exitOnError(err)
+
 	dcr32Cfg := compliant.NewDCR32Config(
 		openIDConfig,
 		cfg.SSA,
@@ -88,7 +93,7 @@ func runCmd(flags flags) {
 		cfg.RedirectURIs,
 		cfg.PrivateKey,
 	)
-	scenarios := compliant.NewDCR32(dcr32Cfg, securedClient, authoriserBuilder)
+	scenarios := compliant.NewDCR32(dcr32Cfg, securedClient, authoriserBuilder, validator)
 	tester := compliant.NewTester(flags.filterExpression, flags.debug)
 
 	passes, err := tester.Compliant(scenarios)
