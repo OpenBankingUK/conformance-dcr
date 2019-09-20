@@ -1,7 +1,6 @@
 package compliant
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -24,14 +23,14 @@ func TestFilteredTester_ShouldRunOnlyOneScenario(t *testing.T) {
 		NewBuilder("Scenario with ONE test").
 			TestCase(
 				NewTestCaseBuilder("Always fail test").
-					Step(step.NewAlwaysFail()).
+					Step(failStep{}).
 					Build(),
 			).
 			Build(),
 		NewBuilder("Scenario with TWO test").
 			TestCase(
 				NewTestCaseBuilder("Always fail test").
-					Step(step.NewAlwaysFail()).
+					Step(failStep{}).
 					Build(),
 			).
 			Build(),

@@ -11,7 +11,7 @@ func TestVerboseTester_Compliant(t *testing.T) {
 		NewBuilder("Scenario with one test").
 			TestCase(
 				NewTestCaseBuilder("Always fail test").
-					Step(step.NewAlwaysFail()).
+					Step(failStep{}).
 					Build(),
 			).
 			Build(),
@@ -22,4 +22,10 @@ func TestVerboseTester_Compliant(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.False(t, isCompliant)
+}
+
+type failStep struct{}
+
+func (s failStep) Run(ctx step.Context) step.Result {
+	return step.NewFailResult("test name", "reasons")
 }
