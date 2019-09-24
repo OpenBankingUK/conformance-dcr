@@ -44,7 +44,7 @@ func Test_AuthoriserBuilder_Success(t *testing.T) {
 		WithClientID("clientID").
 		WithPrivateKey(&rsa.PrivateKey{}).
 		Build()
-	assert.NoError(t, err)
+	assert.Nil(t, err)
 	assert.Equal(t, NewAuthoriser(
 		openid.Configuration{},
 		"ssa",
