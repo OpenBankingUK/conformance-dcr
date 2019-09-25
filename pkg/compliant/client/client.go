@@ -57,7 +57,6 @@ func (c clientPrivateKeyJwt) CredentialsGrantRequest() (*http.Request, error) {
 	}
 	data := url.Values{}
 	data.Set("grant_type", "client_credentials")
-	data.Set("scope", "accounts openid")
 	data.Set("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
 	data.Set("client_assertion", token)
 	reqBody := strings.NewReader(data.Encode())
@@ -91,7 +90,6 @@ func (c clientBasic) CredentialsGrantRequest() (*http.Request, error) {
 	token := fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte(c.authClientKey())))
 	data := url.Values{}
 	data.Set("grant_type", "client_credentials")
-	data.Set("scope", "accounts openid")
 	reqBody := strings.NewReader(data.Encode())
 	r, err := http.NewRequest(http.MethodPost, c.tokenEndpoint, reqBody)
 	if err != nil {
