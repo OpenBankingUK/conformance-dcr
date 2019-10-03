@@ -8,7 +8,7 @@ import (
 
 func TestVerboseTester_Compliant(t *testing.T) {
 	scenarios := Scenarios{
-		NewBuilder("Scenario with one test").
+		NewBuilder("Scenario with one test", "Spec Link").
 			TestCase(
 				NewTestCaseBuilder("Always fail test").
 					Step(failStep{}).

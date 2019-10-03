@@ -15,15 +15,27 @@ func NewDCR32(
 	authoriserBuilder auth.AuthoriserBuilder,
 	validator schema.Validator,
 ) Scenarios {
+	// nolint:lll
+	const (
+		specLinkDiscovery        = "https://openbanking.atlassian.net/wiki/spaces/DZ/pages/1078034771/Dynamic+Client+Registration+-+v3.2#DynamicClientRegistration-v3.2-Discovery"
+		specLinkRegisterSoftware = "https://openbanking.atlassian.net/wiki/spaces/DZ/pages/1078034771/Dynamic+Client+Registration+-+v3.2#DynamicClientRegistration-v3.2-POST/register"
+		specLinkDeleteSoftware   = "https://openbanking.atlassian.net/wiki/spaces/DZ/pages/1078034771/Dynamic+Client+Registration+-+v3.2#DynamicClientRegistration-v3.2-DELETE/register/{ClientId}"
+		specLinkRetrieveSoftware = "https://openbanking.atlassian.net/wiki/spaces/DZ/pages/1078034771/Dynamic+Client+Registration+-+v3.2#DynamicClientRegistration-v3.2-GET/register/{ClientId}"
+	)
 	return Scenarios{
-		NewBuilder("Validate OIDC Config Registration URL").
-			TestCase(
-				NewTestCaseBuilder("Validate Registration URL").
-					ValidateRegistrationEndpoint(cfg.OpenIDConfig.RegistrationEndpoint).
-					Build(),
-			).
+		NewBuilder(
+			"Validate OIDC Config Registration URL",
+			specLinkDiscovery,
+		).TestCase(
+			NewTestCaseBuilder("Validate Registration URL").
+				ValidateRegistrationEndpoint(cfg.OpenIDConfig.RegistrationEndpoint).
+				Build(),
+		).
 			Build(),
-		NewBuilder("Dynamically create a new software client").
+		NewBuilder(
+			"Dynamically create a new software client",
+			specLinkRegisterSoftware,
+		).
 			TestCase(
 				NewTestCaseBuilder("Register software client").
 					WithHttpClient(secureClient).
@@ -46,7 +58,43 @@ func NewDCR32(
 					Build(),
 			).
 			Build(),
-		NewBuilder("Dynamically create a new software client will fail on invalid registration request").
+		NewBuilder(
+			"Delete software statement is supported",
+			specLinkDeleteSoftware,
+		).
+			TestCase(
+				NewTestCaseBuilder("Register software client").
+					WithHttpClient(secureClient).
+					GenerateSignedClaims(authoriserBuilder).
+					PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
+					AssertStatusCodeCreated().
+					ParseClientRegisterResponse(authoriserBuilder).
+					Build(),
+			).
+			TestCase(
+				NewTestCaseBuilder("Retrieve client credentials grant").
+					WithHttpClient(secureClient).
+					GetClientCredentialsGrant(cfg.OpenIDConfig.TokenEndpoint).
+					Build(),
+			).
+			TestCase(
+				NewTestCaseBuilder("Delete software client").
+					WithHttpClient(secureClient).
+					ClientDelete(cfg.OpenIDConfig.RegistrationEndpointAsString()).
+					Build(),
+			).
+			TestCase(
+				NewTestCaseBuilder("Retrieve delete software client should fail").
+					WithHttpClient(secureClient).
+					ClientRetrieve(cfg.OpenIDConfig.RegistrationEndpointAsString()).
+					AssertStatusCodeUnauthorized().
+					Build(),
+			).
+			Build(),
+		NewBuilder(
+			"Dynamically create a new software client will fail on invalid registration request",
+			specLinkRegisterSoftware,
+		).
 			TestCase(
 				NewTestCaseBuilder("Register software client fails on expired claims").
 					WithHttpClient(secureClient).
@@ -116,7 +164,10 @@ func NewDCR32(
 					Build(),
 			).
 			Build(),
-		NewBuilder("Dynamically retrieve a new software client").
+		NewBuilder(
+			"Dynamically retrieve a new software client",
+			specLinkRetrieveSoftware,
+		).
 			TestCase(
 				NewTestCaseBuilder("Register software client").
 					WithHttpClient(secureClient).
@@ -148,7 +199,10 @@ func NewDCR32(
 					Build(),
 			).
 			Build(),
-		NewBuilder("I should not be able to retrieve a registered software if I send invalid credentials").
+		NewBuilder(
+			"I should not be able to retrieve a registered software if I send invalid credentials",
+			specLinkRetrieveSoftware,
+		).
 			TestCase(
 				NewTestCaseBuilder("Register software client").
 					WithHttpClient(secureClient).

@@ -7,8 +7,8 @@ import (
 
 func TestFilteredTester_FilterTheRightScenario(t *testing.T) {
 	scenarios := Scenarios{
-		NewScenario("One", nil),
-		NewScenario("Two", nil),
+		NewScenario("One", "spec link", nil),
+		NewScenario("Two", "spec link", nil),
 	}
 	tester := filteredTester{expression: "two"}
 
@@ -20,14 +20,14 @@ func TestFilteredTester_FilterTheRightScenario(t *testing.T) {
 
 func TestFilteredTester_ShouldRunOnlyOneScenario(t *testing.T) {
 	scenarios := Scenarios{
-		NewBuilder("Scenario with ONE test").
+		NewBuilder("Scenario with ONE test", "Spec link").
 			TestCase(
 				NewTestCaseBuilder("Always fail test").
 					Step(failStep{}).
 					Build(),
 			).
 			Build(),
-		NewBuilder("Scenario with TWO test").
+		NewBuilder("Scenario with TWO test", "Spec link").
 			TestCase(
 				NewTestCaseBuilder("Always fail test").
 					Step(failStep{}).

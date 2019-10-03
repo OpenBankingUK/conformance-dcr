@@ -14,11 +14,12 @@ import (
 )
 
 func TestNewBuilder(t *testing.T) {
-	scenario := NewBuilder("scenario name").
+	scenario := NewBuilder("scenario name", "spec link").
 		TestCase(NewTestCase("some test", nil)).
 		TestCase(NewTestCase("another test", nil))
 
 	assert.Equal(t, "scenario name", scenario.name)
+	assert.Equal(t, "spec link", scenario.spec)
 	assert.Len(t, scenario.tcs, 2)
 }
 

@@ -1,6 +1,7 @@
 package step
 
 import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
 	"fmt"
 )
 
@@ -28,6 +29,7 @@ func (a assertStatusCode) Run(ctx Context) Result {
 	}
 
 	if r.StatusCode != a.code {
+		debug.Log(http.DebugResponse(r))
 		return NewFailResultWithDebug(
 			a.stepName,
 			fmt.Sprintf("Expecting status code %d but got %d", a.code, r.StatusCode),

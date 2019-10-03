@@ -66,11 +66,12 @@ func TestNewScenario_RunsAllTestCases(t *testing.T) {
 			steps: []step.Step{},
 		},
 	}
-	scenario := NewScenario("some scenario", tcs)
+	scenario := NewScenario("some scenario", "spec link", tcs)
 
 	results := scenario.Run()
 
 	assert.Equal(t, "some scenario", scenario.Name())
+	assert.Equal(t, "spec link", scenario.Spec())
 	assert.False(t, results.Fail())
 	assert.Equal(t, "some scenario", results.Name)
 	assert.Len(t, results.TestCaseResults, 2)
