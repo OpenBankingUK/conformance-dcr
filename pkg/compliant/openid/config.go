@@ -53,3 +53,27 @@ func Get(url string, client *http.Client) (Configuration, error) {
 	}
 	return config, nil
 }
+
+type builder struct {
+	config Configuration
+}
+
+func NewBuilder() *builder {
+	return &builder{
+		config: Configuration{},
+	}
+}
+
+func (b *builder) From(config Configuration) *builder {
+	b.config = config
+	return b
+}
+
+func (b *builder) WithIssuer(issuer string) *builder {
+	b.config.Issuer = issuer
+	return b
+}
+
+func (b *builder) Build() Configuration {
+	return b.config
+}

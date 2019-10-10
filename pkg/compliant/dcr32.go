@@ -112,13 +112,10 @@ func NewDCR32(
 					GenerateSignedClaims(
 						authoriserBuilder.
 							WithOpenIDConfig(
-								openid.Configuration{
-									RegistrationEndpoint:              cfg.OpenIDConfig.RegistrationEndpoint,
-									TokenEndpoint:                     cfg.OpenIDConfig.TokenEndpoint,
-									Issuer:                            "foo.is/invalid",
-									ObjectSignAlgSupported:            cfg.OpenIDConfig.ObjectSignAlgSupported,
-									TokenEndpointAuthMethodsSupported: cfg.OpenIDConfig.TokenEndpointAuthMethodsSupported,
-								},
+								openid.NewBuilder().
+									From(cfg.OpenIDConfig).
+									WithIssuer("foo.is/invalid").
+									Build(),
 							),
 					).
 					PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
@@ -131,13 +128,10 @@ func NewDCR32(
 					GenerateSignedClaims(
 						authoriserBuilder.
 							WithOpenIDConfig(
-								openid.Configuration{
-									RegistrationEndpoint:              cfg.OpenIDConfig.RegistrationEndpoint,
-									TokenEndpoint:                     cfg.OpenIDConfig.TokenEndpoint,
-									Issuer:                            "",
-									ObjectSignAlgSupported:            cfg.OpenIDConfig.ObjectSignAlgSupported,
-									TokenEndpointAuthMethodsSupported: cfg.OpenIDConfig.TokenEndpointAuthMethodsSupported,
-								},
+								openid.NewBuilder().
+									From(cfg.OpenIDConfig).
+									WithIssuer("").
+									Build(),
 							),
 					).
 					PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
@@ -150,13 +144,10 @@ func NewDCR32(
 					GenerateSignedClaims(
 						authoriserBuilder.
 							WithOpenIDConfig(
-								openid.Configuration{
-									RegistrationEndpoint:              cfg.OpenIDConfig.RegistrationEndpoint,
-									TokenEndpoint:                     cfg.OpenIDConfig.TokenEndpoint,
-									Issuer:                            "123456789012345678901234567890",
-									ObjectSignAlgSupported:            cfg.OpenIDConfig.ObjectSignAlgSupported,
-									TokenEndpointAuthMethodsSupported: cfg.OpenIDConfig.TokenEndpointAuthMethodsSupported,
-								},
+								openid.NewBuilder().
+									From(cfg.OpenIDConfig).
+									WithIssuer("123456789012345678901234567890").
+									Build(),
 							),
 					).
 					PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
