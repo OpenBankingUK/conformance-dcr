@@ -1,5 +1,5 @@
-FROM golang:1.12-alpine as gobuilder
-RUN apk update && apk add git make bash
+FROM golang:1.13-alpine as gobuilder
+RUN apk update && apk add git make bash ca-certificates
 
 ENV CGO_ENABLED=0
 ENV GOOS=linux
@@ -18,7 +18,8 @@ FROM scratch
 LABEL MAINTAINER Open Banking Ltd
 
 WORKDIR /app
-
+COPY --from=gobuilder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=gobuilder /app/dcr /app/
 
-CMD ["/app/dcr"]
+ENTRYPOINT ["/app/dcr"]
+CMD []

@@ -1,0 +1,14 @@
+{
+  "wellknown_endpoint": "https://ob19-auth1-ui.o3bank.co.uk/.well-known/openid-configuration",
+  "ssa": "",
+  "kid": "",
+  "redirect_uris": [  ],
+  "client_id": "",
+  "private_key": "",
+  "transport_root_cas": [
+    "",
+    ""
+  ],
+  "transport_cert": "",
+  "transport_key": ""
+}
