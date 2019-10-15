@@ -70,7 +70,11 @@ clean: ## run the clean up
 
 .PHONY: test
 test: ## Run the test suite
-	go test -count=1 -cover ./...
+	go test -count=1 ./...
+
+.PHONY: code-coverage
+code-coverage: ## Generate code coverage
+	./coverage.sh
 
 .PHONY: fmt
 fmt: ## Run gofmt on all go files

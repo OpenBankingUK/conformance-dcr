@@ -14,7 +14,7 @@ pipelines:
     - parallel:
         - step:
             name: go-test
-            image: golang:1.12-alpine
+            image: golang:1.13-alpine
             script:
               - |
                 export CGO_ENABLED=0
@@ -25,6 +25,14 @@ pipelines:
               - make build
               - make test
               - make lint
+
+        - step:
+            name: code-coverage
+            image: golang:1.13-alpine
+            script:
+              - export CGO_ENABLED=0
+              - apk update && apk add git make bash
+              - make code-coverage
 
         # build docker image
         - step:
