@@ -7,8 +7,8 @@ import (
 
 func TestFilteredTester_FilterTheRightScenario(t *testing.T) {
 	scenarios := Scenarios{
-		NewScenario("One", "spec link", nil),
-		NewScenario("Two", "spec link", nil),
+		NewScenario("#1", "One", "spec link", nil),
+		NewScenario("#2", "Two", "spec link", nil),
 	}
 	tester := filteredTester{expression: "two"}
 
@@ -20,14 +20,14 @@ func TestFilteredTester_FilterTheRightScenario(t *testing.T) {
 
 func TestFilteredTester_ShouldRunOnlyOneScenario(t *testing.T) {
 	scenarios := Scenarios{
-		NewBuilder("Scenario with ONE test", "Spec link").
+		NewBuilder("#1", "Scenario with ONE test", "Spec link").
 			TestCase(
 				NewTestCaseBuilder("Always fail test").
 					Step(failStep{}).
 					Build(),
 			).
 			Build(),
-		NewBuilder("Scenario with TWO test", "Spec link").
+		NewBuilder("#2", "Scenario with TWO test", "Spec link").
 			TestCase(
 				NewTestCaseBuilder("Always fail test").
 					Step(failStep{}).
@@ -35,10 +35,13 @@ func TestFilteredTester_ShouldRunOnlyOneScenario(t *testing.T) {
 			).
 			Build(),
 	}
+	manifest, err := NewManifest("test", "0.0", scenarios)
+	assert.NoError(t, err)
+
 	mockDownstreamTester := &mockTester{count: 1}
 	tester := NewFilteredTester("TWO", mockDownstreamTester)
 
-	_, err := tester.Compliant(scenarios)
+	_, err = tester.Compliant(manifest)
 
 	assert.NoError(t, err)
 	assert.Equal(t, 1, mockDownstreamTester.count)
@@ -50,18 +53,16 @@ type mockTester struct {
 
 func (m *mockTester) Name() string { return "mock tester" }
 
-func (m *mockTester) Compliant(scenarios Scenarios) (bool, error) {
-	m.count = len(scenarios)
+func (m *mockTester) Compliant(manifest Manifest) (bool, error) {
+	m.count = len(manifest.scenarios)
 	return true, nil
 }
 
 func TestFilteredTester_ReturnsErrorIfNoTestsFilterTheRightScenario(t *testing.T) {
-	scenarios := Scenarios{}
-
 	mockDownstreamTester := &mockTester{count: 0}
 	tester := NewFilteredTester("TWO", mockDownstreamTester)
 
-	_, err := tester.Compliant(scenarios)
+	_, err := tester.Compliant(Manifest{})
 
 	assert.EqualError(t, err, "no tests found to run")
 }

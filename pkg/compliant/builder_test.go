@@ -14,7 +14,7 @@ import (
 )
 
 func TestNewBuilder(t *testing.T) {
-	scenario := NewBuilder("scenario name", "spec link").
+	scenario := NewBuilder("#1", "scenario name", "spec link").
 		TestCase(NewTestCase("some test", nil)).
 		TestCase(NewTestCase("another test", nil))
 

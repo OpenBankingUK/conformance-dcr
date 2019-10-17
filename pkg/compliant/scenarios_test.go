@@ -66,7 +66,7 @@ func TestNewScenario_RunsAllTestCases(t *testing.T) {
 			steps: []step.Step{},
 		},
 	}
-	scenario := NewScenario("some scenario", "spec link", tcs)
+	scenario := NewScenario("#1", "some scenario", "spec link", tcs)
 
 	results := scenario.Run()
 

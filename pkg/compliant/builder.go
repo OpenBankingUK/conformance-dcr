@@ -10,13 +10,15 @@ import (
 )
 
 type Builder struct {
+	id   string
 	name string
 	spec string
 	tcs  []TestCase
 }
 
-func NewBuilder(name, spec string) *Builder {
+func NewBuilder(id, name, spec string) *Builder {
 	return &Builder{
+		id:   id,
 		name: name,
 		spec: spec,
 		tcs:  []TestCase{},
@@ -29,7 +31,7 @@ func (b *Builder) TestCase(tc TestCase) *Builder {
 }
 
 func (b *Builder) Build() Scenario {
-	return NewScenario(b.name, b.spec, b.tcs)
+	return NewScenario(b.id, b.name, b.spec, b.tcs)
 }
 
 type testCaseBuilder struct {

@@ -1,4 +1,4 @@
-MIN_COVERAGE_PERCENT=61
+MIN_COVERAGE_PERCENT=61.49
 
 calc(){ awk "BEGIN { print "$*" }"; }
 
@@ -8,6 +8,8 @@ NR_PACKAGES=$(go test ./... --cover | wc -l)
 COVERAGE_PERCENT=$(calc "$TOTAL_COVERAGE"/"$NR_PACKAGES")
 
 if (( $(echo "$COVERAGE_PERCENT < $MIN_COVERAGE_PERCENT" | bc -l) )); then
-  echo "Code coverage bellow minimum $MIN_COVERAGE_PERCENT%"
+  echo "Code coverage bellow minimum $MIN_COVERAGE_PERCENT%: $COVERAGE_PERCENT%"
   exit 1
 fi
+
+echo "Code coverage $COVERAGE_PERCENT%"

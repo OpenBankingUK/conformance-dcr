@@ -16,20 +16,18 @@ type colourTester struct {
 	debug bool
 }
 
-func (t colourTester) Compliant(scenarios Scenarios) (bool, error) {
-	ok := true
-	for _, scenario := range scenarios {
-		scenarioResult := scenario.Run()
-		fmt.Printf("=== Scenario: %s\n", scenarioResult.Name)
+func (t colourTester) Compliant(manifest Manifest) (bool, error) {
+	result := manifest.Run()
+	for _, scenarioResult := range result.Results {
+		fmt.Printf("=== Scenario: %s - %s\n", scenarioResult.Id, scenarioResult.Name)
 		for _, testCasesResult := range scenarioResult.TestCaseResults {
 			fmt.Printf("\tTest case: %s\n", testCasesResult.Name)
 			for _, stepResult := range testCasesResult.Results {
 				t.printColourTestResult(stepResult)
 			}
 		}
-		ok = ok && !scenarioResult.Fail()
 	}
-	return ok, nil
+	return !result.Fail(), nil
 }
 
 func (t colourTester) printColourTestResult(result step.Result) {
