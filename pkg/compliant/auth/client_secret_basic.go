@@ -15,13 +15,12 @@ type clientSecretBasic struct {
 	privateKey    *rsa.PrivateKey
 	ssa           string
 	kid           string
-	clientId      string
 	redirectURIs  []string
 	jwtSigner     JwtSigner
 }
 
 func NewClientSecretBasic(
-	issuer, tokenEndpoint, ssa, kid, clientId string,
+	issuer, tokenEndpoint, ssa, kid string,
 	redirectURIs []string,
 	privateKey *rsa.PrivateKey,
 	jwtSigner JwtSigner,
@@ -32,7 +31,6 @@ func NewClientSecretBasic(
 		privateKey:    privateKey,
 		ssa:           ssa,
 		kid:           kid,
-		clientId:      clientId,
 		redirectURIs:  redirectURIs,
 		jwtSigner:     jwtSigner,
 	}

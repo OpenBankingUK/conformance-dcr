@@ -17,7 +17,7 @@ type Config struct {
 	SSA               string          `json:"ssa"`
 	Kid               string          `json:"kid"`
 	RedirectURIs      []string        `json:"redirect_uris"`
-	ClientId          string          `json:"client_id"`
+	SoftwareID        string          `json:"software_id"`
 	PrivateKeyPEM     string          `json:"private_key"`
 	PrivateKey        *rsa.PrivateKey `json:"-"`
 	TransportRootCAs  []string        `json:"transport_root_cas"`

@@ -25,7 +25,7 @@ func TestNewBuilder(t *testing.T) {
 
 func TestNewTestCaseBuilder(t *testing.T) {
 	authoriserBuilder := auth.NewAuthoriserBuilder().
-		WithClientID("clientId").
+		WithSoftwareID("softwareID").
 		WithKID("kid").
 		WithSSA("ssa").
 		WithPrivateKey(&rsa.PrivateKey{}).

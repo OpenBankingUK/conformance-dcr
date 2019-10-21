@@ -71,7 +71,7 @@ func runCmd(flags flags) {
 		WithOpenIDConfig(openIDConfig).
 		WithSSA(cfg.SSA).
 		WithKID(cfg.Kid).
-		WithClientID(cfg.ClientId).
+		WithSoftwareID(cfg.SoftwareID).
 		WithRedirectURIs(cfg.RedirectURIs).
 		WithPrivateKey(cfg.PrivateKey).
 		WithJwtExpiration(time.Hour)
@@ -89,7 +89,6 @@ func runCmd(flags flags) {
 		openIDConfig,
 		cfg.SSA,
 		cfg.Kid,
-		cfg.ClientId,
 		cfg.RedirectURIs,
 		cfg.PrivateKey,
 	)

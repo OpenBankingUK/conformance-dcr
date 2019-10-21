@@ -16,7 +16,7 @@ import (
 func TestNewClientRegisterResponse(t *testing.T) {
 	openIdConfig := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{"client_secret_basic"}}
 	authoriserBuilder := auth.NewAuthoriserBuilder().
-		WithClientID("clientId").
+		WithSoftwareID("softwareID").
 		WithKID("kid").
 		WithSSA("ssa").
 		WithPrivateKey(generateKey(t)).
@@ -42,7 +42,7 @@ func TestNewClientRegisterResponse(t *testing.T) {
 func TestNewClientRegisterResponse_FailsIfResponseNotFoundInContext(t *testing.T) {
 	openIdConfig := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{"client_secret_basic"}}
 	authoriserBuilder := auth.NewAuthoriserBuilder().
-		WithClientID("clientId").
+		WithSoftwareID("softwareID").
 		WithKID("kid").
 		WithSSA("ssa").
 		WithPrivateKey(generateKey(t)).
@@ -60,7 +60,7 @@ func TestNewClientRegisterResponse_FailsIfResponseNotFoundInContext(t *testing.T
 func TestNewClientRegisterResponse_HandlesParsingResponseObject(t *testing.T) {
 	openIdConfig := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{"client_secret_basic"}}
 	authoriserBuilder := auth.NewAuthoriserBuilder().
-		WithClientID("clientId").
+	WithSoftwareID("softwareID").
 		WithKID("kid").
 		WithSSA("ssa").
 		WithPrivateKey(generateKey(t)).
