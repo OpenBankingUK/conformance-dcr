@@ -43,7 +43,7 @@ func Test_ParseConfig_Succeeds_WithValidConfig(t *testing.T) {
 		SSA:               "ssa",
 		Kid:               "kid",
 		RedirectURIs:      []string{"https://0.0.0.0:8443/conformancesuite/callback"},
-		SoftwareID:          "softwareId",
+		SoftwareID:        "softwareId",
 		PrivateKeyPEM:     string(keyPem),
 		PrivateKey:        key,
 		TransportRootCAs: []string{

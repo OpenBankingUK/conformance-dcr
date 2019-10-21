@@ -60,7 +60,7 @@ func TestNewClientRegisterResponse_FailsIfResponseNotFoundInContext(t *testing.T
 func TestNewClientRegisterResponse_HandlesParsingResponseObject(t *testing.T) {
 	openIdConfig := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{"client_secret_basic"}}
 	authoriserBuilder := auth.NewAuthoriserBuilder().
-	WithSoftwareID("softwareID").
+		WithSoftwareID("softwareID").
 		WithKID("kid").
 		WithSSA("ssa").
 		WithPrivateKey(generateKey(t)).
