@@ -93,7 +93,9 @@ func runCmd(flags flags) {
 		cfg.RedirectURIs,
 		cfg.PrivateKey,
 	)
-	scenarios := compliant.NewDCR32(dcr32Cfg, securedClient, authoriserBuilder, validator)
+	scenarios, err := compliant.NewDCR32(dcr32Cfg, securedClient, authoriserBuilder, validator)
+	exitOnError(err)
+
 	tester := compliant.NewTester(flags.filterExpression, flags.debug)
 
 	passes, err := tester.Compliant(scenarios)

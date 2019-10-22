@@ -8,7 +8,7 @@ import (
 
 func TestVerboseTester_Compliant(t *testing.T) {
 	scenarios := Scenarios{
-		NewBuilder("Scenario with one test", "Spec Link").
+		NewBuilder("#1", "Scenario with one test", "Spec Link").
 			TestCase(
 				NewTestCaseBuilder("Always fail test").
 					Step(failStep{}).
@@ -16,9 +16,11 @@ func TestVerboseTester_Compliant(t *testing.T) {
 			).
 			Build(),
 	}
+	manifest, err := NewManifest("test", "0.0", scenarios)
+	assert.NoError(t, err)
 	tester := NewColourTester(false)
 
-	isCompliant, err := tester.Compliant(scenarios)
+	isCompliant, err := tester.Compliant(manifest)
 
 	assert.NoError(t, err)
 	assert.False(t, isCompliant)

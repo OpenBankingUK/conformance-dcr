@@ -14,7 +14,7 @@ func NewDCR32(
 	secureClient *http.Client,
 	authoriserBuilder auth.AuthoriserBuilder,
 	validator schema.Validator,
-) Scenarios {
+) (Manifest, error) {
 	// nolint:lll
 	const (
 		specLinkDiscovery        = "https://openbanking.atlassian.net/wiki/spaces/DZ/pages/1078034771/Dynamic+Client+Registration+-+v3.2#DynamicClientRegistration-v3.2-Discovery"
@@ -22,8 +22,9 @@ func NewDCR32(
 		specLinkDeleteSoftware   = "https://openbanking.atlassian.net/wiki/spaces/DZ/pages/1078034771/Dynamic+Client+Registration+-+v3.2#DynamicClientRegistration-v3.2-DELETE/register/{ClientId}"
 		specLinkRetrieveSoftware = "https://openbanking.atlassian.net/wiki/spaces/DZ/pages/1078034771/Dynamic+Client+Registration+-+v3.2#DynamicClientRegistration-v3.2-GET/register/{ClientId}"
 	)
-	return Scenarios{
+	scenarios := Scenarios{
 		NewBuilder(
+			"DCR-001",
 			"Validate OIDC Config Registration URL",
 			specLinkDiscovery,
 		).TestCase(
@@ -33,6 +34,7 @@ func NewDCR32(
 		).
 			Build(),
 		NewBuilder(
+			"DCR-002",
 			"Dynamically create a new software client",
 			specLinkRegisterSoftware,
 		).
@@ -59,6 +61,7 @@ func NewDCR32(
 			).
 			Build(),
 		NewBuilder(
+			"DCR-003",
 			"Delete software statement is supported",
 			specLinkDeleteSoftware,
 		).
@@ -92,6 +95,7 @@ func NewDCR32(
 			).
 			Build(),
 		NewBuilder(
+			"DCR-004",
 			"Dynamically create a new software client will fail on invalid registration request",
 			specLinkRegisterSoftware,
 		).
@@ -156,6 +160,7 @@ func NewDCR32(
 			).
 			Build(),
 		NewBuilder(
+			"DCR-005",
 			"Dynamically retrieve a new software client",
 			specLinkRetrieveSoftware,
 		).
@@ -191,6 +196,7 @@ func NewDCR32(
 			).
 			Build(),
 		NewBuilder(
+			"DCR-006",
 			"I should not be able to retrieve a registered software if I send invalid credentials",
 			specLinkRetrieveSoftware,
 		).
@@ -225,4 +231,6 @@ func NewDCR32(
 			).
 			Build(),
 	}
+
+	return NewManifest("DCR32", "1.0", scenarios)
 }

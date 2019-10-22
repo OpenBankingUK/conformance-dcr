@@ -4,6 +4,7 @@ import "bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 
 type Scenario interface {
 	Run() ScenarioResult
+	Id() string
 	Name() string
 	Spec() string
 }
@@ -11,6 +12,7 @@ type Scenario interface {
 type Scenarios []Scenario
 
 type ScenarioResult struct {
+	Id   string
 	Name string
 	Spec string
 	TestCaseResults
@@ -28,17 +30,23 @@ func (r ScenariosResult) Fail() bool {
 }
 
 type scenario struct {
+	id   string
 	name string
 	spec string
 	tcs  []TestCase
 }
 
-func NewScenario(name, spec string, tcs []TestCase) Scenario {
+func NewScenario(id, name, spec string, tcs []TestCase) Scenario {
 	return scenario{
+		id:   id,
 		name: name,
 		spec: spec,
 		tcs:  tcs,
 	}
+}
+
+func (s scenario) Id() string {
+	return s.id
 }
 
 func (s scenario) Name() string {
@@ -58,6 +66,7 @@ func (s scenario) Run() ScenarioResult {
 	}
 
 	return ScenarioResult{
+		Id:              s.id,
 		Name:            s.name,
 		TestCaseResults: results,
 	}
