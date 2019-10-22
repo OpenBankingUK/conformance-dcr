@@ -17,7 +17,7 @@ type Authoriser interface {
 
 func NewAuthoriser(
 	config openid.Configuration,
-	ssa, kid, clientId string,
+	ssa, kid, softwareID string,
 	redirectURIs []string,
 	privateKey *rsa.PrivateKey,
 	jwtExpiration time.Duration,
@@ -28,13 +28,12 @@ func NewAuthoriser(
 			config.TokenEndpoint,
 			ssa,
 			kid,
-			clientId,
 			redirectURIs,
 			privateKey,
 			NewJwtSigner(
 				jwt.SigningMethodPS256.Alg(),
 				ssa,
-				clientId,
+				softwareID,
 				config.Issuer,
 				kid,
 				"private_key_jwt",
@@ -50,13 +49,12 @@ func NewAuthoriser(
 			config.TokenEndpoint,
 			ssa,
 			kid,
-			clientId,
 			redirectURIs,
 			privateKey,
 			NewJwtSigner(
 				jwt.SigningMethodPS256.Alg(),
 				ssa,
-				clientId,
+				softwareID,
 				config.Issuer,
 				kid,
 				"client_secret_basic",

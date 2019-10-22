@@ -9,11 +9,11 @@ import (
 )
 
 type AuthoriserBuilder struct {
-	config             openid.Configuration
-	ssa, kID, clientID string
-	redirectURIs       []string
-	privateKey         *rsa.PrivateKey
-	jwtExpiration      time.Duration
+	config               openid.Configuration
+	ssa, kID, softwareID string
+	redirectURIs         []string
+	privateKey           *rsa.PrivateKey
+	jwtExpiration        time.Duration
 }
 
 func NewAuthoriserBuilder() AuthoriserBuilder {
@@ -30,8 +30,8 @@ func (b AuthoriserBuilder) WithSSA(ssa string) AuthoriserBuilder {
 	return b
 }
 
-func (b AuthoriserBuilder) WithClientID(cliendID string) AuthoriserBuilder {
-	b.clientID = cliendID
+func (b AuthoriserBuilder) WithSoftwareID(softwareID string) AuthoriserBuilder {
+	b.softwareID = softwareID
 	return b
 }
 
@@ -62,8 +62,8 @@ func (b AuthoriserBuilder) Build() (Authoriser, error) {
 	if b.kID == "" {
 		return none{}, errors.New("missing kid from authoriser")
 	}
-	if b.clientID == "" {
-		return none{}, errors.New("missing clientID from authoriser")
+	if b.softwareID == "" {
+		return none{}, errors.New("missing softwareID from authoriser")
 	}
 	if b.privateKey == nil {
 		return none{}, errors.New("missing privateKey from authoriser")
@@ -72,7 +72,7 @@ func (b AuthoriserBuilder) Build() (Authoriser, error) {
 		b.config,
 		b.ssa,
 		b.kID,
-		b.clientID,
+		b.softwareID,
 		b.redirectURIs,
 		b.privateKey,
 		b.jwtExpiration,

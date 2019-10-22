@@ -12,7 +12,7 @@ import (
 type JwtSigner struct {
 	signingAlgorithm        string
 	ssa                     string
-	clientID                string
+	softwareID              string
 	issuer                  string
 	kID                     string
 	tokenEndpointAuthMethod string
@@ -24,7 +24,7 @@ type JwtSigner struct {
 func NewJwtSigner(
 	signingAlgorithm,
 	ssa,
-	clientID,
+	softwareID,
 	issuer,
 	kID,
 	tokenEndpointAuthMethod string,
@@ -35,7 +35,7 @@ func NewJwtSigner(
 	return JwtSigner{
 		signingAlgorithm:        signingAlgorithm,
 		ssa:                     ssa,
-		clientID:                clientID,
+		softwareID:              softwareID,
 		issuer:                  issuer,
 		kID:                     kID,
 		tokenEndpointAuthMethod: tokenEndpointAuthMethod,
@@ -62,7 +62,7 @@ func (s JwtSigner) Claims() (string, error) {
 			"exp": exp.Unix(),
 			"jti": id.String(),
 			"iat": iat.Unix(),
-			"iss": s.clientID,
+			"iss": s.softwareID, // TPP's unique software ID from SSA
 
 			// metadata
 			"kid":                             s.kID,

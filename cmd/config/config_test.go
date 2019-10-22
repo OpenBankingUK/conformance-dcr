@@ -29,7 +29,7 @@ func Test_ParseConfig_Succeeds_WithValidConfig(t *testing.T) {
    		"ssa": "ssa",
     	"kid": "kid",
     	"redirect_uris": ["https://0.0.0.0:8443/conformancesuite/callback"],
-    	"client_id": "clientid",
+    	"software_id": "softwareId",
 		"private_key": %s,
     	"transport_root_cas": [
       		"-----BEGIN CERTIFICATE-----\ntransportroot1-----END CERTIFICATE-----\n",
@@ -43,7 +43,7 @@ func Test_ParseConfig_Succeeds_WithValidConfig(t *testing.T) {
 		SSA:               "ssa",
 		Kid:               "kid",
 		RedirectURIs:      []string{"https://0.0.0.0:8443/conformancesuite/callback"},
-		ClientId:          "clientid",
+		SoftwareID:        "softwareId",
 		PrivateKeyPEM:     string(keyPem),
 		PrivateKey:        key,
 		TransportRootCAs: []string{
