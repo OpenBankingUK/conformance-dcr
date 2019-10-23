@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -50,6 +51,7 @@ func Test_AuthoriserBuilder_Success(t *testing.T) {
 		"ssa",
 		"kid",
 		"softwareID",
+		jwt.SigningMethodPS256.Alg(),
 		[]string{},
 		&rsa.PrivateKey{},
 		0,
