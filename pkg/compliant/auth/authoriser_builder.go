@@ -6,18 +6,19 @@ import (
 	"time"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
+	"github.com/dgrijalva/jwt-go"
 )
 
 type AuthoriserBuilder struct {
-	config               openid.Configuration
-	ssa, kID, softwareID string
-	redirectURIs         []string
-	privateKey           *rsa.PrivateKey
-	jwtExpiration        time.Duration
+	config                                        openid.Configuration
+	ssa, kID, softwareID, tokenEndpointAuthMethod string
+	redirectURIs                                  []string
+	privateKey                                    *rsa.PrivateKey
+	jwtExpiration                                 time.Duration
 }
 
 func NewAuthoriserBuilder() AuthoriserBuilder {
-	return AuthoriserBuilder{}
+	return AuthoriserBuilder{tokenEndpointAuthMethod: jwt.SigningMethodPS256.Alg()}
 }
 
 func (b AuthoriserBuilder) WithOpenIDConfig(cfg openid.Configuration) AuthoriserBuilder {
@@ -37,6 +38,11 @@ func (b AuthoriserBuilder) WithSoftwareID(softwareID string) AuthoriserBuilder {
 
 func (b AuthoriserBuilder) WithKID(kID string) AuthoriserBuilder {
 	b.kID = kID
+	return b
+}
+
+func (b AuthoriserBuilder) WithTokenEndpointAuthMethod(alg string) AuthoriserBuilder {
+	b.tokenEndpointAuthMethod = alg
 	return b
 }
 
@@ -73,6 +79,7 @@ func (b AuthoriserBuilder) Build() (Authoriser, error) {
 		b.ssa,
 		b.kID,
 		b.softwareID,
+		b.tokenEndpointAuthMethod,
 		b.redirectURIs,
 		b.privateKey,
 		b.jwtExpiration,
