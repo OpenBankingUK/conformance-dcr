@@ -44,6 +44,7 @@ func Test_AuthoriserBuilder_Success(t *testing.T) {
 		WithKID("kid").
 		WithSoftwareID("softwareID").
 		WithPrivateKey(&rsa.PrivateKey{}).
+		WithTokenEndpointAuthMethod(jwt.SigningMethodPS256.Alg()).
 		Build()
 	assert.NoError(t, err)
 	assert.Equal(t, NewAuthoriser(
