@@ -1,9 +1,11 @@
 package compliant
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/schema"
 	"net/http"
 	"time"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/schema"
+	"github.com/dgrijalva/jwt-go"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
@@ -227,6 +229,20 @@ func NewDCR32(
 				NewTestCaseBuilder("Delete software client").
 					WithHttpClient(secureClient).
 					ClientDelete(cfg.OpenIDConfig.RegistrationEndpointAsString()).
+					Build(),
+			).
+			Build(),
+		NewBuilder(
+			"DCR-007",
+			"I should not be able to retrieve a registered software if I send invalid credentials",
+			specLinkRetrieveSoftware,
+		).
+			TestCase(
+				NewTestCaseBuilder("Register software client will fail with token endpoint auth method RS256").
+					WithHttpClient(secureClient).
+					GenerateSignedClaims(authoriserBuilder.WithTokenEndpointAuthMethod(jwt.SigningMethodRS256.Alg())).
+					PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
+					AssertStatusCodeBadRequest().
 					Build(),
 			).
 			Build(),

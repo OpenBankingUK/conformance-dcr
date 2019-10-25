@@ -6,7 +6,6 @@ import (
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
-	"github.com/dgrijalva/jwt-go"
 )
 
 // Double dispatch Signing method/Client abstract factory
@@ -17,7 +16,7 @@ type Authoriser interface {
 
 func NewAuthoriser(
 	config openid.Configuration,
-	ssa, kid, softwareID string,
+	ssa, kid, softwareID, tokenEndpointAuthMethod string,
 	redirectURIs []string,
 	privateKey *rsa.PrivateKey,
 	jwtExpiration time.Duration,
@@ -31,7 +30,7 @@ func NewAuthoriser(
 			redirectURIs,
 			privateKey,
 			NewJwtSigner(
-				jwt.SigningMethodPS256.Alg(),
+				tokenEndpointAuthMethod,
 				ssa,
 				softwareID,
 				config.Issuer,
@@ -52,7 +51,7 @@ func NewAuthoriser(
 			redirectURIs,
 			privateKey,
 			NewJwtSigner(
-				jwt.SigningMethodPS256.Alg(),
+				tokenEndpointAuthMethod,
 				ssa,
 				softwareID,
 				config.Issuer,

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -43,6 +44,7 @@ func Test_AuthoriserBuilder_Success(t *testing.T) {
 		WithKID("kid").
 		WithSoftwareID("softwareID").
 		WithPrivateKey(&rsa.PrivateKey{}).
+		WithTokenEndpointAuthMethod(jwt.SigningMethodPS256.Alg()).
 		Build()
 	assert.NoError(t, err)
 	assert.Equal(t, NewAuthoriser(
@@ -50,6 +52,7 @@ func Test_AuthoriserBuilder_Success(t *testing.T) {
 		"ssa",
 		"kid",
 		"softwareID",
+		jwt.SigningMethodPS256.Alg(),
 		[]string{},
 		&rsa.PrivateKey{},
 		0,
