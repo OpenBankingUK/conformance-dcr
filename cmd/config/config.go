@@ -23,6 +23,9 @@ type Config struct {
 	TransportRootCAs  []string        `json:"transport_root_cas"`
 	TransportCert     string          `json:"transport_cert"`
 	TransportKey      string          `json:"transport_key"`
+	GetImplemented    bool            `json:"get_implemented"`
+	PutImplemented    bool            `json:"put_implemented"`
+	DeleteImplemented bool            `json:"delete_implemented"`
 }
 
 func LoadConfig(configFilePath string) (Config, error) {

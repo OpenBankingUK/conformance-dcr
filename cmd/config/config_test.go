@@ -36,7 +36,11 @@ func Test_ParseConfig_Succeeds_WithValidConfig(t *testing.T) {
       		"-----BEGIN CERTIFICATE-----\ntransportroot2-----END CERTIFICATE-----\n"
     	],
     	"transport_cert": "-----BEGIN CERTIFICATE-----\n\n-----END CERTIFICATE-----",
-		"transport_key": "-----BEGIN CERTIFICATE-----\n\n-----END CERTIFICATE-----"}`, pkeyJson)
+		"transport_key": "-----BEGIN CERTIFICATE-----\n\n-----END CERTIFICATE-----",
+		"get_implemented": true,
+		"put_implemented": false,
+		"delete_implemented": true
+	}`, pkeyJson)
 	cfg, err := parseConfig(bytes.NewReader([]byte(json)))
 	expectedCfg := Config{
 		WellknownEndpoint: "https://ob19-auth1-ui.o3bank.co.uk/.well-known/openid-configuration",
@@ -50,8 +54,11 @@ func Test_ParseConfig_Succeeds_WithValidConfig(t *testing.T) {
 			"-----BEGIN CERTIFICATE-----\ntransportroot1-----END CERTIFICATE-----\n",
 			"-----BEGIN CERTIFICATE-----\ntransportroot2-----END CERTIFICATE-----\n",
 		},
-		TransportCert: "-----BEGIN CERTIFICATE-----\n\n-----END CERTIFICATE-----",
-		TransportKey:  "-----BEGIN CERTIFICATE-----\n\n-----END CERTIFICATE-----",
+		TransportCert:     "-----BEGIN CERTIFICATE-----\n\n-----END CERTIFICATE-----",
+		TransportKey:      "-----BEGIN CERTIFICATE-----\n\n-----END CERTIFICATE-----",
+		GetImplemented:    true,
+		PutImplemented:    false,
+		DeleteImplemented: true,
 	}
 	assert.NoError(t, err)
 	assert.Equal(t, expectedCfg, cfg)
