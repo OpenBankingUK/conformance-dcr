@@ -72,6 +72,11 @@ clean: ## run the clean up
 test: ## Run the test suite
 	go test -count=1 ./...
 
+.PHONY: e2e
+e2e: build ## Run the test suite
+	./dcr -config-path configs/config.json > run.out || true
+	diff run.out cmd/cli/testdata/ozone.out
+
 .PHONY: code-coverage
 code-coverage: ## Generate code coverage
 	./coverage.sh

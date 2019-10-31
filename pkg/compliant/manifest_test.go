@@ -41,3 +41,15 @@ func TestRunReturnsOneResultPerScenario(t *testing.T) {
 
 	assert.Len(t, result.Results, 2)
 }
+
+func TestRunPassOnNoFails(t *testing.T) {
+	scenarios := Scenarios{
+		scenario{id: "1"},
+	}
+	manifest, err := NewManifest("DCR", "1.0", scenarios)
+	assert.NoError(t, err)
+
+	result := manifest.Run()
+
+	assert.False(t, result.Fail())
+}

@@ -1,0 +1,79 @@
+Dynamic Client Registration Conformance Tool cli
+Error checking for updates: version not set
+=== Scenario: DCR-001 - Validate OIDC Config Registration URL
+	Test case: Validate Registration URL
+		[32mPASS[0m Registration Endpoint Validate
+=== Scenario: DCR-002 - Dynamically create a new software client
+	Test case: Register software client
+		[32mPASS[0m Generate signed software client claims
+		[32mPASS[0m Software client register
+		[32mPASS[0m Assert status code 201
+		[32mPASS[0m Decode client register response
+	Test case: Retrieve client credentials grant
+		[32mPASS[0m Client credentials grant
+	Test case: Delete software client
+		[32mPASS[0m Software client delete
+=== Scenario: DCR-003 - Delete software statement is supported
+	Test case: Register software client
+		[32mPASS[0m Generate signed software client claims
+		[32mPASS[0m Software client register
+		[32mPASS[0m Assert status code 201
+		[32mPASS[0m Decode client register response
+	Test case: Retrieve client credentials grant
+		[32mPASS[0m Client credentials grant
+	Test case: Delete software client
+		[32mPASS[0m Software client delete
+	Test case: Retrieve delete software client should fail
+		[32mPASS[0m Software client retrieve
+		[31mFAIL[0m Assert status code 401: Expecting status code 401 but got 500
+=== Scenario: DCR-004 - Dynamically create a new software client will fail on invalid registration request
+	Test case: Register software client fails on expired claims
+		[32mPASS[0m Generate signed software client claims
+		[32mPASS[0m Software client register
+		[32mPASS[0m Assert status code 400
+	Test case: Register software client fails on invalid issuer
+		[32mPASS[0m Generate signed software client claims
+		[32mPASS[0m Software client register
+		[32mPASS[0m Assert status code 400
+	Test case: Register software client fails on invalid issuer too short
+		[32mPASS[0m Generate signed software client claims
+		[32mPASS[0m Software client register
+		[32mPASS[0m Assert status code 400
+	Test case: Register software client fails on invalid issuer too long
+		[32mPASS[0m Generate signed software client claims
+		[32mPASS[0m Software client register
+		[32mPASS[0m Assert status code 400
+=== Scenario: DCR-005 - Dynamically retrieve a new software client
+	Test case: Register software client
+		[32mPASS[0m Generate signed software client claims
+		[32mPASS[0m Software client register
+		[32mPASS[0m Assert status code 201
+		[32mPASS[0m Decode client register response
+	Test case: Retrieve client credentials grant
+		[32mPASS[0m Client credentials grant
+	Test case: Retrieve software client
+		[32mPASS[0m Software client retrieve
+		[32mPASS[0m Assert status code 200
+		[31mFAIL[0m Validate client response schema: schema invalid: json: cannot unmarshal array into Go struct field OBClientRegistrationResponseSchema32.token_endpoint_auth_method of type string, json: cannot unmarshal array into Go struct field OBClientRegistrationResponseSchema32.token_endpoint_auth_method of type string
+		[32mPASS[0m Decode client retrieve response
+	Test case: Delete software client
+		[32mPASS[0m Software client delete
+=== Scenario: DCR-006 - I should not be able to retrieve a registered software if I send invalid credentials
+	Test case: Register software client
+		[32mPASS[0m Generate signed software client claims
+		[32mPASS[0m Software client register
+		[32mPASS[0m Assert status code 201
+		[32mPASS[0m Decode client register response
+	Test case: Retrieve software client with invalid credentials should not succeed
+		[32mPASS[0m Set invalid grant token
+		[32mPASS[0m Software client retrieve
+		[32mPASS[0m Assert status code 401
+	Test case: Retrieve client credentials grant
+		[32mPASS[0m Client credentials grant
+	Test case: Delete software client
+		[32mPASS[0m Software client delete
+=== Scenario: DCR-007 - I should not be able to retrieve a registered software if I send invalid credentials
+	Test case: Register software client will fail with token endpoint auth method RS256
+		[32mPASS[0m Generate signed software client claims
+		[32mPASS[0m Software client register
+		[31mFAIL[0m Assert status code 400: Expecting status code 400 but got 201

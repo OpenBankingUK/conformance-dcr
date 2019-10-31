@@ -91,6 +91,9 @@ func runCmd(flags flags) {
 		cfg.Kid,
 		cfg.RedirectURIs,
 		cfg.PrivateKey,
+		cfg.GetImplemented,
+		cfg.PutImplemented,
+		cfg.DeleteImplemented,
 	)
 	scenarios, err := compliant.NewDCR32(dcr32Cfg, securedClient, authoriserBuilder, validator)
 	exitOnError(err)

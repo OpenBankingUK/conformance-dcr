@@ -34,6 +34,16 @@ pipelines:
               - apk update && apk add git make bash
               - make code-coverage
 
+        - step:
+            name: e2e
+            image: golang:1.13-alpine
+            script:
+              - export CGO_ENABLED=0
+              - apk update && apk add git make bash
+              - mkdir configs
+              - echo ${OZONE_CONFIG} | base64 -d  > configs/config.json
+              - make e2e
+
         # build docker image
         - step:
             name: docker-image-build
