@@ -1,4 +1,4 @@
-MIN_COVERAGE_PERCENT=61.49
+MIN_COVERAGE_PERCENT=61.69
 
 calc(){ awk "BEGIN { print "$*" }"; }
 

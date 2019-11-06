@@ -1,0 +1,29 @@
+{
+ "name": "manifest test test result",
+ "version": "0.0",
+ "pass": false,
+ "scenarios": [
+  {
+   "id": "1",
+   "name": "scenario one",
+   "spec": "spec link",
+   "pass": false,
+   "test_cases": [
+    {
+     "name": "tc one",
+     "pass": false,
+     "steps": [
+      {
+       "name": "step one",
+       "pass": false,
+       "reason": "reasons",
+       "debug": [
+        "0001-01-01T00:00:00Z debug"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

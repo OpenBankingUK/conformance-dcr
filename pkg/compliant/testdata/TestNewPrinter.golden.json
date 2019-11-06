@@ -1,0 +1,4 @@
+=== Scenario: 1 - scenario one
+	Test case: tc one
+		[31mFAIL[0m step one: reasons
+0001/01/01 00:00:00 [38;5;247mdebug[0m

@@ -1,13 +1,28 @@
 package compliant
 
-type Tester interface {
-	Compliant(manifest Manifest) (bool, error)
+func NewTester() *tester {
+	return &tester{}
 }
 
-func NewTester(expression string, debug bool) Tester {
-	tester := NewColourTester(debug)
-	if expression != "" {
-		return NewFilteredTester(expression, tester)
+type ListenerFunc func(result ManifestResult) error
+
+type tester struct {
+	listeners []ListenerFunc
+}
+
+func (t *tester) AddListener(listener ListenerFunc) {
+	t.listeners = append(t.listeners, listener)
+}
+
+func (t *tester) Compliant(manifest Manifest) (bool, error) {
+	result := manifest.Run()
+
+	for _, listener := range t.listeners {
+		err := listener(result)
+		if err != nil {
+			return false, err
+		}
 	}
-	return tester
+
+	return !result.Fail(), nil
 }

@@ -68,6 +68,7 @@ func (s scenario) Run() ScenarioResult {
 	return ScenarioResult{
 		Id:              s.id,
 		Name:            s.name,
+		Spec:            s.spec,
 		TestCaseResults: results,
 	}
 }

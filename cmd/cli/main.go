@@ -95,12 +95,25 @@ func runCmd(flags flags) {
 		cfg.PutImplemented,
 		cfg.DeleteImplemented,
 	)
-	scenarios, err := compliant.NewDCR32(dcr32Cfg, securedClient, authoriserBuilder, validator)
+	manifest, err := compliant.NewDCR32(dcr32Cfg, securedClient, authoriserBuilder, validator)
 	exitOnError(err)
 
-	tester := compliant.NewTester(flags.filterExpression, flags.debug)
+	if flags.filterExpression != "" {
+		manifest, err = compliant.NewFilteredManifest(manifest, flags.filterExpression)
+		exitOnError(err)
+	}
 
-	passes, err := tester.Compliant(scenarios)
+	tester := compliant.NewTester()
+
+	printer := compliant.NewPrinter(flags.debug)
+	tester.AddListener(printer.Print)
+
+	if flags.report {
+		reporterFunc := compliant.NewReporter(flags.debug, "report.json")
+		tester.AddListener(reporterFunc.Report)
+	}
+
+	passes, err := tester.Compliant(manifest)
 	exitOnError(err)
 
 	if !passes {
@@ -113,14 +126,16 @@ type flags struct {
 	configFilePath   string
 	filterExpression string
 	debug            bool
+	report           bool
 }
 
 func mustParseFlags() flags {
 	var configFilePath, filterExpression string
-	var debug, versionFlag bool
+	var debug, report, versionFlag bool
 	flag.StringVar(&configFilePath, "config-path", "", "Config file path")
 	flag.StringVar(&filterExpression, "filter", "", "Filter scenarios containing value")
 	flag.BoolVar(&debug, "debug", false, "Enable debug defaults to disabled")
+	flag.BoolVar(&report, "report", false, "Enable report output defaults to disabled")
 	flag.BoolVar(&versionFlag, "version", false, "Print the version details of conformance-dcr")
 	flag.Parse()
 
@@ -128,6 +143,7 @@ func mustParseFlags() flags {
 		configFilePath:   configFilePath,
 		filterExpression: filterExpression,
 		debug:            debug,
+		report:           report,
 		versionCmd:       versionFlag,
 	}
 }
