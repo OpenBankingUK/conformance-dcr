@@ -90,7 +90,7 @@ lint: ## Basic linting and vetting of code
 	golangci-lint run
 
 .PHONY: pre_commit
-pre_commit: fmt lint build
+pre_commit: fmt lint build test
 pre_commit: ## pre-commit checks
 	@echo -e "\033[92m  ---> pre-commit ... \033[0m"
 	go test -cover -count=1 ./...
