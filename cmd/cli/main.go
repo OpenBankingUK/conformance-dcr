@@ -3,6 +3,9 @@ package main
 import (
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/schema"
 	"bufio"
+	"crypto/x509"
+	"encoding/pem"
+	"errors"
 	"flag"
 	"fmt"
 	http2 "net/http"
@@ -67,6 +70,13 @@ func runCmd(flags flags) {
 	openIDConfig, err := openid.Get(cfg.WellknownEndpoint, client)
 	exitOnError(err)
 
+	block, _ := pem.Decode([]byte(cfg.TransportCert))
+	if block == nil {
+		exitOnError(errors.New("failed to parse certificate PEM"))
+	}
+	transportCert, err := x509.ParseCertificate(block.Bytes)
+	exitOnError(err)
+
 	authoriserBuilder := auth.NewAuthoriserBuilder().
 		WithOpenIDConfig(openIDConfig).
 		WithSSA(cfg.SSA).
@@ -74,7 +84,9 @@ func runCmd(flags flags) {
 		WithSoftwareID(cfg.SoftwareID).
 		WithRedirectURIs(cfg.RedirectURIs).
 		WithPrivateKey(cfg.PrivateKey).
-		WithJwtExpiration(time.Hour)
+		WithJwtExpiration(time.Hour).
+		WithTransportCert(transportCert)
+
 	securedClient, err := http.NewBuilder().
 		WithRootCAs(cfg.TransportRootCAs).
 		WithTransportKeyPair(cfg.TransportCert, cfg.TransportKey).

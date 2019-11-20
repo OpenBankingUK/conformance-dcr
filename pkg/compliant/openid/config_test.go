@@ -78,3 +78,16 @@ func TestGet_HandlesErrorGet(t *testing.T) {
 		"Failed to GET OpenIDConfiguration: url=-: Get -: unsupported protocol scheme \"\"",
 	)
 }
+
+func TestRegistrationEndpointAsString(t *testing.T) {
+	endpoint := "/registration"
+	c := Configuration{RegistrationEndpoint: &endpoint}
+
+	assert.Equal(t, "/registration", c.RegistrationEndpointAsString())
+}
+
+func TestRegistrationEndpointAsString_EmptyOnNil(t *testing.T) {
+	c := Configuration{}
+
+	assert.Equal(t, "", c.RegistrationEndpointAsString())
+}

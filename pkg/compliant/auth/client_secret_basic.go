@@ -2,7 +2,6 @@ package auth
 
 import (
 	"bytes"
-	"crypto/rsa"
 	"encoding/json"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
@@ -10,29 +9,14 @@ import (
 )
 
 type clientSecretBasic struct {
-	issuer        string
 	tokenEndpoint string
-	privateKey    *rsa.PrivateKey
-	ssa           string
-	kid           string
-	redirectURIs  []string
-	jwtSigner     JwtSigner
+	signer        Signer
 }
 
-func NewClientSecretBasic(
-	issuer, tokenEndpoint, ssa, kid string,
-	redirectURIs []string,
-	privateKey *rsa.PrivateKey,
-	jwtSigner JwtSigner,
-) Authoriser {
+func NewClientSecretBasic(tokenEndpoint string, signer Signer) Authoriser {
 	return clientSecretBasic{
-		issuer:        issuer,
 		tokenEndpoint: tokenEndpoint,
-		privateKey:    privateKey,
-		ssa:           ssa,
-		kid:           kid,
-		redirectURIs:  redirectURIs,
-		jwtSigner:     jwtSigner,
+		signer:        signer,
 	}
 }
 
@@ -55,5 +39,5 @@ type OBClientRegistrationResponse struct {
 }
 
 func (c clientSecretBasic) Claims() (string, error) {
-	return c.jwtSigner.Claims()
+	return c.signer.Claims()
 }

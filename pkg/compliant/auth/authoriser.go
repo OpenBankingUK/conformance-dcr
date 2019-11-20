@@ -2,6 +2,7 @@ package auth
 
 import (
 	"crypto/rsa"
+	"crypto/x509"
 	"time"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
@@ -20,14 +21,28 @@ func NewAuthoriser(
 	redirectURIs []string,
 	privateKey *rsa.PrivateKey,
 	jwtExpiration time.Duration,
+	transportCert *x509.Certificate,
 ) Authoriser {
+	if sliceContains("tls_client_auth", config.TokenEndpointAuthMethodsSupported) {
+		return NewTlsClientAuth(
+			config.TokenEndpoint,
+			NewJwtSigner(
+				tokenEndpointAuthMethod,
+				ssa,
+				softwareID,
+				config.Issuer,
+				kid,
+				"tls_client_auth",
+				redirectURIs,
+				privateKey,
+				jwtExpiration,
+				transportCert,
+			),
+		)
+	}
 	if sliceContains("private_key_jwt", config.TokenEndpointAuthMethodsSupported) {
 		return NewClientPrivateKeyJwt(
-			config.Issuer,
 			config.TokenEndpoint,
-			ssa,
-			kid,
-			redirectURIs,
 			privateKey,
 			NewJwtSigner(
 				tokenEndpointAuthMethod,
@@ -39,17 +54,13 @@ func NewAuthoriser(
 				redirectURIs,
 				privateKey,
 				jwtExpiration,
+				transportCert,
 			),
 		)
 	}
 	if sliceContains("client_secret_basic", config.TokenEndpointAuthMethodsSupported) {
 		return NewClientSecretBasic(
-			config.Issuer,
 			config.TokenEndpoint,
-			ssa,
-			kid,
-			redirectURIs,
-			privateKey,
 			NewJwtSigner(
 				tokenEndpointAuthMethod,
 				ssa,
@@ -60,6 +71,7 @@ func NewAuthoriser(
 				redirectURIs,
 				privateKey,
 				jwtExpiration,
+				transportCert,
 			),
 		)
 	}

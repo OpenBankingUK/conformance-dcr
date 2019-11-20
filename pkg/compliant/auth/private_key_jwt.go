@@ -10,29 +10,16 @@ import (
 )
 
 type clientPrivateKeyJwt struct {
-	issuer        string
 	tokenEndpoint string
 	privateKey    *rsa.PrivateKey
-	ssa           string
-	kid           string
-	redirectURIs  []string
-	jwtSigner     JwtSigner
+	signer        Signer
 }
 
-func NewClientPrivateKeyJwt(
-	issuer, tokenEndpoint, ssa, kid string,
-	redirectURIs []string,
-	privateKey *rsa.PrivateKey,
-	jwtSigner JwtSigner,
-) Authoriser {
+func NewClientPrivateKeyJwt(tokenEndpoint string, privateKey *rsa.PrivateKey, signer Signer) Authoriser {
 	return clientPrivateKeyJwt{
-		issuer:        issuer,
 		tokenEndpoint: tokenEndpoint,
 		privateKey:    privateKey,
-		ssa:           ssa,
-		kid:           kid,
-		redirectURIs:  redirectURIs,
-		jwtSigner:     jwtSigner,
+		signer:        signer,
 	}
 }
 
@@ -50,5 +37,5 @@ func (c clientPrivateKeyJwt) Client(response []byte) (client.Client, error) {
 }
 
 func (c clientPrivateKeyJwt) Claims() (string, error) {
-	return c.jwtSigner.Claims()
+	return c.signer.Claims()
 }

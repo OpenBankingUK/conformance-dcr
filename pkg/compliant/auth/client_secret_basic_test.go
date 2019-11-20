@@ -14,12 +14,7 @@ func TestNewClientSecretBasicAuther_Claims(t *testing.T) {
 	privateKey, err := certs.ParseRsaPrivateKeyFromPemFile("testdata/private-sign.key")
 	require.NoError(t, err)
 	auther := NewClientSecretBasic(
-		"issuer",
 		"tokenEndpoint",
-		"ssa",
-		"kid",
-		[]string{},
-		privateKey,
 		NewJwtSigner(
 			jwt.SigningMethodRS256.Alg(),
 			"ssa",
@@ -30,6 +25,7 @@ func TestNewClientSecretBasicAuther_Claims(t *testing.T) {
 			[]string{},
 			privateKey,
 			time.Hour,
+			nil,
 		),
 	)
 
@@ -43,12 +39,7 @@ func TestClientSecretBasicAuther_Client_ReturnsAClient(t *testing.T) {
 	privateKey, err := certs.ParseRsaPrivateKeyFromPemFile("testdata/private-sign.key")
 	require.NoError(t, err)
 	auther := NewClientSecretBasic(
-		"issuer",
 		"tokenEndpoint",
-		"ssa",
-		"kid",
-		[]string{},
-		privateKey,
 		NewJwtSigner(
 			jwt.SigningMethodRS256.Alg(),
 			"ssa",
@@ -59,6 +50,7 @@ func TestClientSecretBasicAuther_Client_ReturnsAClient(t *testing.T) {
 			[]string{},
 			privateKey,
 			time.Hour,
+			nil,
 		),
 	)
 

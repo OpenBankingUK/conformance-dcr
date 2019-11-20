@@ -2,6 +2,7 @@ package auth
 
 import (
 	"crypto/rsa"
+	"crypto/x509"
 	"testing"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
@@ -39,13 +40,18 @@ func Test_AuthoriserBuilder_FailsOnMissingPrivateKey(t *testing.T) {
 }
 
 func Test_AuthoriserBuilder_Success(t *testing.T) {
+	cert := &x509.Certificate{}
+
 	authoriser, err := NewAuthoriserBuilder().
 		WithSSA("ssa").
 		WithKID("kid").
 		WithSoftwareID("softwareID").
 		WithPrivateKey(&rsa.PrivateKey{}).
 		WithTokenEndpointAuthMethod(jwt.SigningMethodPS256.Alg()).
+		WithRedirectURIs([]string{"/redirect"}).
+		WithTransportCert(cert).
 		Build()
+
 	assert.NoError(t, err)
 	assert.Equal(t, NewAuthoriser(
 		openid.Configuration{},
@@ -53,8 +59,9 @@ func Test_AuthoriserBuilder_Success(t *testing.T) {
 		"kid",
 		"softwareID",
 		jwt.SigningMethodPS256.Alg(),
-		[]string{},
+		[]string{"/redirect"},
 		&rsa.PrivateKey{},
 		0,
+		cert,
 	), authoriser)
 }

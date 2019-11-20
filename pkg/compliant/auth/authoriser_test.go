@@ -33,6 +33,7 @@ func TestNewAuther_ReturnsClientSecretBasic(t *testing.T) {
 		[]string{},
 		&rsa.PrivateKey{},
 		time.Hour,
+		nil,
 	)
 
 	assert.IsType(t, clientSecretBasic{}, auther)
@@ -52,9 +53,30 @@ func TestNewAuther_ReturnsPrivateKeyJwt(t *testing.T) {
 		[]string{},
 		&rsa.PrivateKey{},
 		time.Hour,
+		nil,
 	)
 
 	assert.IsType(t, clientPrivateKeyJwt{}, auther)
+}
+
+func TestNewAuther_ReturnsTlsClientAuth(t *testing.T) {
+	openIdConfig := openid.Configuration{
+		TokenEndpointAuthMethodsSupported: []string{"tls_client_auth"},
+	}
+
+	auther := NewAuthoriser(
+		openIdConfig,
+		"ssa",
+		"kid",
+		"softwareID",
+		jwt.SigningMethodPS256.Alg(),
+		[]string{},
+		&rsa.PrivateKey{},
+		time.Hour,
+		nil,
+	)
+
+	assert.IsType(t, tlsClientAuth{}, auther)
 }
 
 func TestNewAuther_ReturnsNoAuther(t *testing.T) {
@@ -71,6 +93,7 @@ func TestNewAuther_ReturnsNoAuther(t *testing.T) {
 		[]string{},
 		&rsa.PrivateKey{},
 		time.Hour,
+		nil,
 	)
 
 	assert.IsType(t, none{}, auther)

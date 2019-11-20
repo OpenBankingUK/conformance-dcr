@@ -2,6 +2,7 @@ package auth
 
 import (
 	"crypto/rsa"
+	"crypto/x509"
 	"errors"
 	"time"
 
@@ -15,10 +16,16 @@ type AuthoriserBuilder struct {
 	redirectURIs                                  []string
 	privateKey                                    *rsa.PrivateKey
 	jwtExpiration                                 time.Duration
+	transportCert                                 *x509.Certificate
 }
 
 func NewAuthoriserBuilder() AuthoriserBuilder {
 	return AuthoriserBuilder{tokenEndpointAuthMethod: jwt.SigningMethodPS256.Alg()}
+}
+
+func (b AuthoriserBuilder) WithTransportCert(transportCert *x509.Certificate) AuthoriserBuilder {
+	b.transportCert = transportCert
+	return b
 }
 
 func (b AuthoriserBuilder) WithOpenIDConfig(cfg openid.Configuration) AuthoriserBuilder {
@@ -83,5 +90,6 @@ func (b AuthoriserBuilder) Build() (Authoriser, error) {
 		b.redirectURIs,
 		b.privateKey,
 		b.jwtExpiration,
+		b.transportCert,
 	), nil
 }
