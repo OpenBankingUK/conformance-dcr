@@ -1,6 +1,20 @@
 # `QUICK-START`
 
-## Print Help Menu
+## Run Stable Version
+
+```sh
+$ curl --proto '=https' --tlsv1.2 -sSf https://bitbucket.org/openbankingteam/conformance-dcr/raw/develop/scripts/docker-run-stable.sh | bash
+...
+```
+
+## Run Latest Version
+
+```sh
+$ curl --proto '=https' --tlsv1.2 -sSf https://bitbucket.org/openbankingteam/conformance-dcr/raw/develop/scripts/docker-run-latest.sh | bash
+...
+```
+
+## Print (Latest) Help Menu
 
 ```sh
 $ DCR_VERSION='latest'; docker --log-level=debug run --rm -it openbanking/conformance-dcr:"${DCR_VERSION}"
@@ -19,7 +33,7 @@ Usage of dcr:
 ...
 ```
 
-## Print Version Information
+## Print (Latest) Version Information
 
 ```sh
 $ DCR_VERSION='latest'; docker --log-level=debug run --rm -it openbanking/conformance-dcr:"${DCR_VERSION}" -version

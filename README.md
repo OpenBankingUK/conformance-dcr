@@ -23,15 +23,15 @@ Create a configuration file from `config.json.sample`.
 
 Pull and run the latest (stable) tagged Docker image:
 
-``sh
+```sh
 docker run --rm -v /path/to/you/local/config.json:/config.json -it "openbanking/conformance-dcr:latest" -config-path=/config.json -report
-``
+```
 
 # Development
 
 ## Requirements
 
-- Go 1.13
+* Go 1.13
 
 ## Running
 
