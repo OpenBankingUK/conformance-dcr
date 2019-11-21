@@ -21,12 +21,11 @@ const (
 	specLinkRetrieveSoftware = "https://openbanking.atlassian.net/wiki/spaces/DZ/pages/1078034771/Dynamic+Client+Registration+-+v3.2#DynamicClientRegistration-v3.2-GET/register/{ClientId}"
 )
 
-func NewDCR32(
-	cfg DCR32Config,
-	secureClient *http.Client,
-	authoriserBuilder auth.AuthoriserBuilder,
-	validator schema.Validator,
-) (Manifest, error) {
+func NewDCR32(cfg DCR32Config) (Manifest, error) {
+	secureClient := cfg.SecureClient
+	authoriserBuilder := cfg.AuthoriserBuilder
+	validator := cfg.SchemaValidator
+
 	scenarios := Scenarios{
 		DCR32ValidateOIDCConfigRegistrationURL(cfg),
 		DCR32CreateSoftwareClient(cfg, secureClient, authoriserBuilder),
@@ -36,6 +35,7 @@ func NewDCR32(
 		DCR32RegisterWithInvalidCredentials(cfg, secureClient, authoriserBuilder),
 		DCR32RetrieveWithInvalidCredentials(cfg, secureClient, authoriserBuilder),
 	}
+
 	return NewManifest("DCR32", "1.0", scenarios)
 }
 
@@ -327,7 +327,7 @@ func DCR32RetrieveWithInvalidCredentials(
 		TestCase(
 			NewTestCaseBuilder("Register software client will fail with token endpoint auth method RS256").
 				WithHttpClient(secureClient).
-				GenerateSignedClaims(authoriserBuilder.WithTokenEndpointAuthMethod(jwt.SigningMethodRS256.Alg())).
+				GenerateSignedClaims(authoriserBuilder.WithTokenEndpointAuthMethod(jwt.SigningMethodRS256)).
 				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 				AssertStatusCodeBadRequest().
 				Build(),

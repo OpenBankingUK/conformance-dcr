@@ -15,7 +15,7 @@ type Signer interface {
 }
 
 type jwtSigner struct {
-	signingAlgorithm        string
+	signingAlgorithm        jwt.SigningMethod
 	ssa                     string
 	softwareID              string
 	issuer                  string
@@ -28,7 +28,7 @@ type jwtSigner struct {
 }
 
 func NewJwtSigner(
-	signingAlgorithm,
+	signingAlgorithm jwt.SigningMethod,
 	ssa,
 	softwareID,
 	issuer,
@@ -61,18 +61,21 @@ func (s jwtSigner) Claims() (string, error) {
 
 	iat := time.Now().UTC()
 	exp := iat.Add(s.jwtExpiration)
-	signingMethod := jwt.SigningMethodRS256
 	claims := jwt.MapClaims{
 		// standard claims
 		"aud": s.issuer,
 		"exp": exp.Unix(),
 		"jti": id.String(),
 		"iat": iat.Unix(),
-		"iss": s.softwareID, // TPP's unique software ID from SSA
+
+		// Identifier for the TPP.
+		// This value must be unique for each TPP registered by the issuer of the SSA.
+		// The value must be a Base62 encoded GUID.
+		// For SSAs issued by the OB Directory, this must be the software_id
+		"iss": s.softwareID,
 
 		// metadata
-		"kid":                             s.kID,
-		"token_endpoint_auth_signing_alg": signingMethod.Alg(),
+		"token_endpoint_auth_signing_alg": s.signingAlgorithm.Alg(),
 		"grant_types": []string{
 			"authorization_code",
 			"client_credentials",
@@ -88,7 +91,7 @@ func (s jwtSigner) Claims() (string, error) {
 			"code",
 			"code id_token",
 		},
-		"id_token_signed_response_alg": signingMethod.Alg(),
+		"id_token_signed_response_alg": s.signingAlgorithm.Alg(),
 	}
 
 	if s.tokenEndpointAuthMethod == "tls_client_auth" {
@@ -98,7 +101,9 @@ func (s jwtSigner) Claims() (string, error) {
 		claims["tls_client_auth_subject_dn"] = s.transportCert.Subject.ToRDNSequence().String()
 	}
 
-	token := jwt.NewWithClaims(signingMethod, claims)
+	token := jwt.NewWithClaims(s.signingAlgorithm, claims)
+	token.Header["kid"] = s.kID
+
 	signedJwt, err := token.SignedString(s.privateKey)
 	if err != nil {
 		return "", errors.Wrap(err, "signing claims")

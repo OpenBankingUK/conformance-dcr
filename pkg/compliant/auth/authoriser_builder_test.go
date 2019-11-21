@@ -47,7 +47,7 @@ func Test_AuthoriserBuilder_Success(t *testing.T) {
 		WithKID("kid").
 		WithSoftwareID("softwareID").
 		WithPrivateKey(&rsa.PrivateKey{}).
-		WithTokenEndpointAuthMethod(jwt.SigningMethodPS256.Alg()).
+		WithTokenEndpointAuthMethod(jwt.SigningMethodPS256).
 		WithRedirectURIs([]string{"/redirect"}).
 		WithTransportCert(cert).
 		Build()
@@ -58,7 +58,7 @@ func Test_AuthoriserBuilder_Success(t *testing.T) {
 		"ssa",
 		"kid",
 		"softwareID",
-		jwt.SigningMethodPS256.Alg(),
+		jwt.SigningMethodPS256,
 		[]string{"/redirect"},
 		&rsa.PrivateKey{},
 		0,

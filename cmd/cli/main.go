@@ -1,11 +1,7 @@
 package main
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/schema"
 	"bufio"
-	"crypto/x509"
-	"encoding/pem"
-	"errors"
 	"flag"
 	"fmt"
 	http2 "net/http"
@@ -13,12 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"bitbucket.org/openbankingteam/conformance-dcr/cmd/config"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
-
 	ver "bitbucket.org/openbankingteam/conformance-dcr/pkg/version"
 )
 
@@ -63,51 +55,30 @@ func runCmd(flags flags) {
 		os.Exit(1)
 	}
 
-	cfg, err := config.LoadConfig(flags.configFilePath)
+	cfg, err := LoadConfig(flags.configFilePath)
 	exitOnError(err)
 
 	client := &http2.Client{Timeout: time.Second * 2}
 	openIDConfig, err := openid.Get(cfg.WellknownEndpoint, client)
 	exitOnError(err)
 
-	block, _ := pem.Decode([]byte(cfg.TransportCert))
-	if block == nil {
-		exitOnError(errors.New("failed to parse certificate PEM"))
-	}
-	transportCert, err := x509.ParseCertificate(block.Bytes)
-	exitOnError(err)
-
-	authoriserBuilder := auth.NewAuthoriserBuilder().
-		WithOpenIDConfig(openIDConfig).
-		WithSSA(cfg.SSA).
-		WithKID(cfg.Kid).
-		WithSoftwareID(cfg.SoftwareID).
-		WithRedirectURIs(cfg.RedirectURIs).
-		WithPrivateKey(cfg.PrivateKey).
-		WithJwtExpiration(time.Hour).
-		WithTransportCert(transportCert)
-
-	securedClient, err := http.NewBuilder().
-		WithRootCAs(cfg.TransportRootCAs).
-		WithTransportKeyPair(cfg.TransportCert, cfg.TransportKey).
-		Build()
-	exitOnError(err)
-
-	const responseSchemaVersion = "3.2"
-	validator, err := schema.NewValidator(responseSchemaVersion)
-	exitOnError(err)
-
-	dcr32Cfg := compliant.NewDCR32Config(
+	dcr32Cfg, err := compliant.NewDCR32Config(
 		openIDConfig,
 		cfg.SSA,
 		cfg.Kid,
+		cfg.SoftwareStatementId,
 		cfg.RedirectURIs,
-		cfg.PrivateKey,
+		cfg.SigningKeyPEM,
+		cfg.TransportKeyPEM,
+		cfg.TransportCertPEM,
+		cfg.TransportRootCAsPEM,
 		cfg.GetImplemented,
 		cfg.PutImplemented,
 		cfg.DeleteImplemented,
 	)
-	manifest, err := compliant.NewDCR32(dcr32Cfg, securedClient, authoriserBuilder, validator)
+	exitOnError(err)
+
+	manifest, err := compliant.NewDCR32(dcr32Cfg)
 	exitOnError(err)
 
 	if flags.filterExpression != "" {
@@ -173,7 +144,7 @@ func getUpdateMessage(v VersionInfo, bitbucketTagsEndpoint string) string {
 	vc := ver.NewBitBucket(bitbucketTagsEndpoint)
 	update, err := vc.UpdateAvailable(v.version)
 	if err != nil {
-		return fmt.Sprintf("Error checking for updates: %s", err.Error())
+		return fmt.Sprintf("error checking for updates: %s", err.Error())
 	}
 	if update {
 		sb := strings.Builder{}

@@ -11,16 +11,20 @@ import (
 )
 
 type AuthoriserBuilder struct {
-	config                                        openid.Configuration
-	ssa, kID, softwareID, tokenEndpointAuthMethod string
-	redirectURIs                                  []string
-	privateKey                                    *rsa.PrivateKey
-	jwtExpiration                                 time.Duration
-	transportCert                                 *x509.Certificate
+	config                  openid.Configuration
+	ssa, kID, softwareID    string
+	tokenEndpointAuthMethod jwt.SigningMethod
+	redirectURIs            []string
+	privateKey              *rsa.PrivateKey
+	jwtExpiration           time.Duration
+	transportCert           *x509.Certificate
 }
 
 func NewAuthoriserBuilder() AuthoriserBuilder {
-	return AuthoriserBuilder{tokenEndpointAuthMethod: jwt.SigningMethodPS256.Alg()}
+	return AuthoriserBuilder{
+		tokenEndpointAuthMethod: jwt.SigningMethodRS256,
+		jwtExpiration:           time.Hour,
+	}
 }
 
 func (b AuthoriserBuilder) WithTransportCert(transportCert *x509.Certificate) AuthoriserBuilder {
@@ -48,7 +52,7 @@ func (b AuthoriserBuilder) WithKID(kID string) AuthoriserBuilder {
 	return b
 }
 
-func (b AuthoriserBuilder) WithTokenEndpointAuthMethod(alg string) AuthoriserBuilder {
+func (b AuthoriserBuilder) WithTokenEndpointAuthMethod(alg jwt.SigningMethod) AuthoriserBuilder {
 	b.tokenEndpointAuthMethod = alg
 	return b
 }

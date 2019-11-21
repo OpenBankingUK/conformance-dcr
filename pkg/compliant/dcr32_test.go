@@ -11,14 +11,7 @@ import (
 )
 
 func TestNewDCR32(t *testing.T) {
-	validator, err := schema.NewValidator("3.2")
-	require.NoError(t, err)
-	manifest, err := NewDCR32(
-		DCR32Config{},
-		&http.Client{},
-		auth.NewAuthoriserBuilder(),
-		validator,
-	)
+	manifest, err := NewDCR32(DCR32Config{})
 	require.NoError(t, err)
 
 	assert.Equal(t, "1.0", manifest.Version())

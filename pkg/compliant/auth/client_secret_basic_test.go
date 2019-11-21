@@ -16,7 +16,7 @@ func TestNewClientSecretBasicAuther_Claims(t *testing.T) {
 	auther := NewClientSecretBasic(
 		"tokenEndpoint",
 		NewJwtSigner(
-			jwt.SigningMethodRS256.Alg(),
+			jwt.SigningMethodRS256,
 			"ssa",
 			"softwareID",
 			"issuer",
@@ -41,7 +41,7 @@ func TestClientSecretBasicAuther_Client_ReturnsAClient(t *testing.T) {
 	auther := NewClientSecretBasic(
 		"tokenEndpoint",
 		NewJwtSigner(
-			jwt.SigningMethodRS256.Alg(),
+			jwt.SigningMethodRS256,
 			"ssa",
 			"softwareID",
 			"issuer",

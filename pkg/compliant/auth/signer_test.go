@@ -3,6 +3,7 @@ package auth
 import (
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/certs"
 	"crypto/x509"
+	"crypto/x509/pkix"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/assert"
@@ -15,7 +16,7 @@ func TestNewJwtSigner(t *testing.T) {
 	privateKey, err := certs.ParseRsaPrivateKeyFromPemFile("testdata/private-sign.key")
 	require.NoError(t, err)
 	signer := NewJwtSigner(
-		jwt.SigningMethodRS256.Alg(),
+		jwt.SigningMethodRS256,
 		"ssa",
 		"softwareID",
 		"issuer",
@@ -46,7 +47,7 @@ func TestNewJwtSigner(t *testing.T) {
 	assert.Equal(t, []interface{}{"authorization_code", "client_credentials"}, claims["grant_types"])
 	assert.Equal(t, "RS256", claims["id_token_signed_response_alg"])
 	assert.Equal(t, "softwareID", claims["iss"])
-	assert.Equal(t, "kid", claims["kid"])
+	assert.Equal(t, "kid", token.Header["kid"])
 	assert.Equal(t, []interface{}{"/redirect"}, claims["redirect_uris"])
 	assert.Equal(t, "none", claims["request_object_signing_alg"])
 	assert.Equal(t, []interface{}{"code", "code id_token"}, claims["response_types"])
@@ -60,7 +61,7 @@ func TestNewJwtSigner_TlsClientAuthAddSubjectToClaims(t *testing.T) {
 	privateKey, err := certs.ParseRsaPrivateKeyFromPemFile("testdata/private-sign.key")
 	require.NoError(t, err)
 	signer := NewJwtSigner(
-		jwt.SigningMethodRS256.Alg(),
+		jwt.SigningMethodRS256,
 		"ssa",
 		"softwareID",
 		"issuer",
@@ -69,7 +70,7 @@ func TestNewJwtSigner_TlsClientAuthAddSubjectToClaims(t *testing.T) {
 		[]string{"/redirect"},
 		privateKey,
 		time.Hour,
-		&x509.Certificate{},
+		&x509.Certificate{Subject: pkix.Name{Organization: []string{"OB"}}},
 	)
 
 	signedClaims, err := signer.Claims()
@@ -91,21 +92,21 @@ func TestNewJwtSigner_TlsClientAuthAddSubjectToClaims(t *testing.T) {
 	assert.Equal(t, []interface{}{"authorization_code", "client_credentials"}, claims["grant_types"])
 	assert.Equal(t, "RS256", claims["id_token_signed_response_alg"])
 	assert.Equal(t, "softwareID", claims["iss"])
-	assert.Equal(t, "kid", claims["kid"])
+	assert.Equal(t, "kid", token.Header["kid"])
 	assert.Equal(t, []interface{}{"/redirect"}, claims["redirect_uris"])
 	assert.Equal(t, "none", claims["request_object_signing_alg"])
 	assert.Equal(t, []interface{}{"code", "code id_token"}, claims["response_types"])
 	assert.Equal(t, "accounts openid", claims["scope"])
 	assert.Equal(t, "ssa", claims["software_statement"])
 	assert.Equal(t, "tls_client_auth", claims["token_endpoint_auth_method"])
-	assert.Equal(t, "", claims["tls_client_auth_subject_dn"])
+	assert.Equal(t, "O=OB", claims["tls_client_auth_subject_dn"])
 }
 
 func TestNewJwtSigner_TlsClientAuthDoesNotPanicOnMissingCert(t *testing.T) {
 	privateKey, err := certs.ParseRsaPrivateKeyFromPemFile("testdata/private-sign.key")
 	require.NoError(t, err)
 	signer := NewJwtSigner(
-		jwt.SigningMethodRS256.Alg(),
+		jwt.SigningMethodRS256,
 		"ssa",
 		"softwareID",
 		"issuer",

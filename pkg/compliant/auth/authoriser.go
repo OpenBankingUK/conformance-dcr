@@ -3,6 +3,7 @@ package auth
 import (
 	"crypto/rsa"
 	"crypto/x509"
+	"github.com/dgrijalva/jwt-go"
 	"time"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
@@ -17,7 +18,7 @@ type Authoriser interface {
 
 func NewAuthoriser(
 	config openid.Configuration,
-	ssa, kid, softwareID, tokenEndpointAuthMethod string,
+	ssa, kid, softwareID string, tokenEndpointAuthMethod jwt.SigningMethod,
 	redirectURIs []string,
 	privateKey *rsa.PrivateKey,
 	jwtExpiration time.Duration,
