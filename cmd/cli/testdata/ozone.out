@@ -1,5 +1,4 @@
 Dynamic Client Registration Conformance Tool cli
-error checking for updates: version not set
 === Scenario: DCR-001 - Validate OIDC Config Registration URL
 	Test case: Validate Registration URL
 		[32mPASS[0m Registration Endpoint Validate
