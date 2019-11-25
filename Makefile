@@ -10,10 +10,9 @@ BUILD_TIME			:= $(shell date -u)
 COMMIT_HASH			:= $(shell git rev-list -1 HEAD)
 COMMIT_HASH_SHORT	:= $(shell git rev-parse --short HEAD)
 
-# Go builds flags:
+# Go build flags:
 # => "-X main.version=0.0.1 -X main.commitHash=227cea43baed3e8be03f8adc8da33bef73cdb377 -X 'main.buildTime=Fri Aug 30 09:46:24 UTC 2019'"
-VERSION_PKG 		:= bitbucket.org/openbankingteam/conformance-dcr/cmd/cli/main
-LD_FLAGS			:= "-X ${VERSION_PKG}.version=0.0.1 -X ${VERSION_PKG}.commitHash=${COMMIT_HASH} -X '${VERSION_PKG}.buildTime=${BUILD_TIME}'"
+LD_FLAGS := "-X main.version=0.0.1 -X main.commitHash=${COMMIT_HASH} -X 'main.buildTime=${BUILD_TIME}'"
 
 .PHONY: all
 
