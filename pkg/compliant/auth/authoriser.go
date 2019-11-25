@@ -59,6 +59,23 @@ func NewAuthoriser(
 			),
 		)
 	}
+	if sliceContains("client_secret_jwt", config.TokenEndpointAuthMethodsSupported) {
+		return NewClientSecretJWT(
+			config.TokenEndpoint,
+			NewJwtSigner(
+				tokenEndpointAuthMethod,
+				ssa,
+				softwareID,
+				config.Issuer,
+				kid,
+				"client_secret_jwt",
+				redirectURIs,
+				privateKey,
+				jwtExpiration,
+				transportCert,
+			),
+		)
+	}
 	if sliceContains("client_secret_basic", config.TokenEndpointAuthMethodsSupported) {
 		return NewClientSecretBasic(
 			config.TokenEndpoint,

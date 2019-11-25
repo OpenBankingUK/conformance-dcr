@@ -105,7 +105,7 @@ func TestContext_GetOpenIdConfig_ReturnsError_IfDoesntExists(t *testing.T) {
 
 func TestContext_SetClient(t *testing.T) {
 	ctx := NewContext()
-	client := dcr.NewClientBasic("id", "tokenEndpoint", "Token")
+	client := dcr.NewClientSecretBasic("id", "tokenEndpoint", "Token")
 	ctx.SetClient("key", client)
 
 	value, err := ctx.GetClient("key")
@@ -116,7 +116,7 @@ func TestContext_SetClient(t *testing.T) {
 
 func TestContext_GetClient_ReturnsError_IfDoesntExists(t *testing.T) {
 	ctx := NewContext()
-	client := dcr.NewClientBasic("id", "tokenEndpoint", "Token")
+	client := dcr.NewClientSecretBasic("id", "tokenEndpoint", "Token")
 	ctx.SetClient("key", client)
 
 	_, err := ctx.GetClient("non existing key")

@@ -35,7 +35,7 @@ func (s clientRetrieveResponse) Run(ctx Context) Result {
 		return NewFailResult(s.stepName, "decoding response: "+err.Error())
 	}
 
-	ctx.SetClient(s.clientCtxKey, client.NewClientBasic(
+	ctx.SetClient(s.clientCtxKey, client.NewClientSecretBasic(
 		registrationResponse.ClientID,
 		registrationResponse.ClientSecret,
 		s.tokenEndpoint,

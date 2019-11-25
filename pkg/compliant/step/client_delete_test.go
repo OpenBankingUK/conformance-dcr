@@ -26,7 +26,7 @@ func TestNewClientDelete(t *testing.T) {
 	}))
 	defer server.Close()
 
-	softClient := client.NewClientBasic(clientID, server.URL, clientSecret)
+	softClient := client.NewClientSecretBasic(clientID, server.URL, clientSecret)
 	ctx := NewContext()
 	ctx.SetClient("clientKey", softClient)
 	ctx.SetGrantToken("clientGrantKey", auth.GrantToken{})
@@ -48,7 +48,7 @@ func TestNewClientDelete_Expects204(t *testing.T) {
 	}))
 	defer server.Close()
 
-	softClient := client.NewClientBasic(clientID, server.URL, clientSecret)
+	softClient := client.NewClientSecretBasic(clientID, server.URL, clientSecret)
 	ctx := NewContext()
 	ctx.SetClient("clientKey", softClient)
 	ctx.SetGrantToken("clientGrantKey", auth.GrantToken{})
@@ -61,7 +61,7 @@ func TestNewClientDelete_Expects204(t *testing.T) {
 }
 
 func TestNewClientDelete_HandlesCreateRequestError(t *testing.T) {
-	softClient := client.NewClientBasic(clientID, "", clientSecret)
+	softClient := client.NewClientSecretBasic(clientID, "", clientSecret)
 	ctx := NewContext()
 	ctx.SetClient("clientKey", softClient)
 	ctx.SetGrantToken("clientGrantKey", auth.GrantToken{})
@@ -78,7 +78,7 @@ func TestNewClientDelete_HandlesCreateRequestError(t *testing.T) {
 }
 
 func TestNewClientDelete_HandlesExecuteRequestError(t *testing.T) {
-	softClient := client.NewClientBasic(clientID, "", clientSecret)
+	softClient := client.NewClientSecretBasic(clientID, "", clientSecret)
 	ctx := NewContext()
 	ctx.SetClient("clientKey", softClient)
 	ctx.SetGrantToken("clientGrantKey", auth.GrantToken{})
@@ -110,7 +110,7 @@ func TestNewClientDelete_HandlesErrorForClientNotFound(t *testing.T) {
 }
 
 func TestNewClientDelete_HandlesErrorForGrantNotFound(t *testing.T) {
-	softClient := client.NewClientBasic(clientID, "", clientSecret)
+	softClient := client.NewClientSecretBasic(clientID, "", clientSecret)
 	ctx := NewContext()
 	ctx.SetClient("clientKey", softClient)
 	step := NewClientDelete("localhost", "clientKey", "clientGrantKey", &http.Client{})

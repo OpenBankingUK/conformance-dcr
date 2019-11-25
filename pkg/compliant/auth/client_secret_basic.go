@@ -26,7 +26,7 @@ func (c clientSecretBasic) Client(response []byte) (client.Client, error) {
 		return client.NewNoClient(), errors.Wrap(err, "client secret basic client")
 	}
 
-	return client.NewClientBasic(
+	return client.NewClientSecretBasic(
 		registrationResponse.ClientID,
 		registrationResponse.ClientSecret,
 		c.tokenEndpoint,

@@ -2,40 +2,37 @@ package auth
 
 import (
 	"bytes"
-	"crypto/rsa"
 	"encoding/json"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
 	"github.com/pkg/errors"
 )
 
-type clientPrivateKeyJwt struct {
+type clientSecretJWT struct {
 	tokenEndpoint string
-	privateKey    *rsa.PrivateKey
 	signer        Signer
 }
 
-func NewClientPrivateKeyJwt(tokenEndpoint string, privateKey *rsa.PrivateKey, signer Signer) Authoriser {
-	return clientPrivateKeyJwt{
+func NewClientSecretJWT(tokenEndpoint string, signer Signer) Authoriser {
+	return clientSecretJWT{
 		tokenEndpoint: tokenEndpoint,
-		privateKey:    privateKey,
 		signer:        signer,
 	}
 }
 
-func (c clientPrivateKeyJwt) Client(response []byte) (client.Client, error) {
+func (c clientSecretJWT) Client(response []byte) (client.Client, error) {
 	var registrationResponse OBClientRegistrationResponse
 	if err := json.NewDecoder(bytes.NewReader(response)).Decode(&registrationResponse); err != nil {
-		return client.NewNoClient(), errors.Wrap(err, "private key jwt client")
+		return client.NewNoClient(), errors.Wrap(err, "client secret basic jwt")
 	}
 
-	return client.NewPrivateKeyJwt(
+	return client.NewClientSecretJwt(
 		registrationResponse.ClientID,
+		registrationResponse.ClientSecret,
 		c.tokenEndpoint,
-		c.privateKey,
 	), nil
 }
 
-func (c clientPrivateKeyJwt) Claims() (string, error) {
+func (c clientSecretJWT) Claims() (string, error) {
 	return c.signer.Claims()
 }
