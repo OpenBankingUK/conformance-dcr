@@ -15,6 +15,7 @@ COMMIT_HASH_SHORT	:= $(shell git rev-parse --short HEAD)
 LD_FLAGS := "-X main.version=1.0.0 -X main.commitHash=${COMMIT_HASH} -X 'main.buildTime=${BUILD_TIME}'"
 
 .PHONY: all
+all: fmt lint test build e2e build_image
 
 .PHONY: help
 help: ## Displays this help.
@@ -50,8 +51,9 @@ build_image: ## build the docker image.
 .PHONY: tools
 tools: ## install go tools (goimports, golangci-lint)
 	@echo -e "\033[92m  ---> Installing Go Tools ... \033[0m"
-	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 	go get -u golang.org/x/tools/cmd/goimports
+	@printf "%b" "\033[93m" "  ---> Installing golangci-lint@v1.16.0 (https://github.com/golangci/golangci-lint) ... " "\033[0m" "\n"
+	curl -sfL "https://install.goreleaser.com/github.com/golangci/golangci-lint.sh" | sh -s -- -b $(shell go env GOPATH)/bin v1.16.0
 
 .PHONY: deps
 deps: ## download dependencies
@@ -72,8 +74,8 @@ test: ## Run the test suite
 	go test -count=1 ./...
 
 .PHONY: e2e
-e2e: build ## Run the test suite
-	./dcr -config-path configs/config.json > run.out || true
+e2e: build test ## Run the test suite
+	-./dcr -config-path configs/config.json > run.out
 	diff run.out cmd/cli/testdata/ozone.out
 
 .PHONY: code-coverage
@@ -87,7 +89,8 @@ fmt: ## Run gofmt on all go files
 
 .PHONY: lint
 lint: ## Basic linting and vetting of code
-	golangci-lint run
+	@printf "%b" "\033[93m" "  ---> Linting ... " "\033[0m" "\n"
+	golangci-lint run --fix --config ./.golangci.yml ./...
 
 .PHONY: pre_commit
 pre_commit: fmt lint build test

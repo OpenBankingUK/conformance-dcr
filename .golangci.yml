@@ -79,7 +79,10 @@ linters-settings:
     fast: true
   unparam:
     fast: true
-
+  goimports:
+    # put imports beginning with prefix after 3rd-party packages;
+    # it's a comma-separated list of prefixes
+    local-prefixes: bitbucket.org/openbankingteam/conformance-dcr
 
   # see: https://github.com/golangci/golangci-lint/blob/master/.golangci.example.yml#L47
   #

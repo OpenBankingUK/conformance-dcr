@@ -1,19 +1,16 @@
 #!/usr/bin/env bash
-set -eu -o pipefail
 
+# abort on errors and more error-checking.
+set -euo pipefail
 set -o noclobber    # Avoid overlay files (echo "hi" > foo)
 set -o errexit      # Used to exit upon error, avoiding cascading errors
 set -o pipefail     # Unveils hidden failures
 set -o nounset      # Exposes unset variables
-
-# set -o nullglob     # Non-matching globs are removed  ('*.foo' => '')
 shopt -s nullglob   # Non-matching globs are removed  ('*.foo' => '')
-# set -o failglob     # Non-matching globs throw errors
 shopt -s failglob   # Non-matching globs throw errors
-# set -o nocaseglob   # Case insensitive globs
 shopt -s nocaseglob # Case insensitive globs
-# set -o globstar     # Allow ** for recursive matches ('lib/**/*.rb' => 'lib/a/b/c.rb')
-shopt -s globstar # Allow ** for recursive matches ('lib/**/*.rb' => 'lib/a/b/c.rb')
+shopt -s dotglob    # Wildcards match dotfiles ("*.sh" => ".foo.sh")
+shopt -s globstar   # Allow ** for recursive matches ('lib/**/*.rb' => 'lib/a/b/c.rb')
 
 MIN_COVERAGE_PERCENT=71
 
