@@ -1,6 +1,6 @@
 # `QUICK-START`
 
-Create a configuration file from [/config.json.sample](/config.json.sample). See the sample configuration at [./config_ozone_sample.json](./config_ozone_sample.json), if you are having problems.
+Create a configuration file using [/config.json.sample](/config.json.sample).
 
 ## Print (Latest) Help Menu
 
@@ -82,8 +82,6 @@ Accept: application/json
 Content-Type: application/jwt
 ...
 ```
-
-See complete at [./logs/ozone_run_debug.log](./logs/ozone_run_debug.log).
 
 ## Run Stable Version
 

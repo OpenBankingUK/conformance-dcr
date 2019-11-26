@@ -74,7 +74,7 @@ test: ## Run the test suite
 	go test -count=1 ./...
 
 .PHONY: e2e
-e2e: build test ## Run the test suite
+e2e: build ## Run the test suite
 	-./dcr -config-path configs/config.json > run.out
 	diff run.out cmd/cli/testdata/ozone.out
 
@@ -98,7 +98,7 @@ lint_fix: ## Basic linting and vetting of code with fix option enabled
 	golangci-lint run --fix --config ./.golangci.yml ./...
 
 .PHONY: pre_commit
-pre_commit: fmt lint build test
+pre_commit: fmt lint build test e2e
 pre_commit: ## pre-commit checks
 	@echo -e "\033[92m  ---> pre-commit ... \033[0m"
 	go test -cover -count=1 ./...
