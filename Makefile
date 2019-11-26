@@ -15,7 +15,7 @@ COMMIT_HASH_SHORT	:= $(shell git rev-parse --short HEAD)
 LD_FLAGS := "-X main.version=1.0.0 -X main.commitHash=${COMMIT_HASH} -X 'main.buildTime=${BUILD_TIME}'"
 
 .PHONY: all
-all: fmt lint test build e2e build_image
+all: fmt lint_fix test build e2e build_image
 
 .PHONY: help
 help: ## Displays this help.
@@ -90,6 +90,11 @@ fmt: ## Run gofmt on all go files
 .PHONY: lint
 lint: ## Basic linting and vetting of code
 	@printf "%b" "\033[93m" "  ---> Linting ... " "\033[0m" "\n"
+	golangci-lint run --config ./.golangci.yml ./...
+
+.PHONY: lint_fix
+lint_fix: ## Basic linting and vetting of code with fix option enabled
+	@printf "%b" "\033[93m" "  ---> Linting with fix enabled ... " "\033[0m" "\n"
 	golangci-lint run --fix --config ./.golangci.yml ./...
 
 .PHONY: pre_commit
