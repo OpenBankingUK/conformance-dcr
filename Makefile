@@ -53,7 +53,7 @@ tools: ## install go tools (goimports, golangci-lint)
 	@echo -e "\033[92m  ---> Installing Go Tools ... \033[0m"
 	go get -u golang.org/x/tools/cmd/goimports
 	@printf "%b" "\033[93m" "  ---> Installing golangci-lint@v1.16.0 (https://github.com/golangci/golangci-lint) ... " "\033[0m" "\n"
-	curl -sfL "https://install.goreleaser.com/github.com/golangci/golangci-lint.sh" | sh -s -- -b $(shell go env GOPATH)/bin v1.16.0
+	curl -sfL "https://install.goreleaser.com/github.com/golangci/golangci-lint.sh" | sh -s -- -b $(shell go env GOPATH)/bin v1.21.0
 
 .PHONY: deps
 deps: ## download dependencies
