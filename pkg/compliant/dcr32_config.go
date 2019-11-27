@@ -39,6 +39,7 @@ func NewDCR32Config(
 	getImplemented bool,
 	putImplemented bool,
 	deleteImplemented bool,
+	tokenEndpointRS256Method bool,
 ) (DCR32Config, error) {
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(signingKeyPEM))
 	if err != nil {
@@ -68,6 +69,10 @@ func NewDCR32Config(
 		WithRedirectURIs(redirectURIs).
 		WithPrivateKey(privateKey).
 		WithTransportCert(transportCert)
+
+	if tokenEndpointRS256Method {
+		authoriserBuilder = authoriserBuilder.WithTokenEndpointAuthMethod(jwt.SigningMethodRS256)
+	}
 
 	secureClient, err := http.NewBuilder().
 		WithRootCAs(transportRootCAs).

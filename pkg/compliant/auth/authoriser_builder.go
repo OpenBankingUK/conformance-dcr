@@ -22,7 +22,7 @@ type AuthoriserBuilder struct {
 
 func NewAuthoriserBuilder() AuthoriserBuilder {
 	return AuthoriserBuilder{
-		tokenEndpointAuthMethod: jwt.SigningMethodRS256,
+		tokenEndpointAuthMethod: jwt.SigningMethodPS256,
 		jwtExpiration:           time.Hour,
 	}
 }

@@ -24,17 +24,8 @@ help: ## Displays this help.
 ##@ Building & Running:
 
 .PHONY: run
-run: build
-run: ## run binary directly without docker.
-	./dcr -config-path configs/config.json
-
-.PHONY: run_image
-run_image: ## run the 'latest' docker image.
-	@echo -e "\033[92m  ---> Running image ... \033[0m"
-		docker run \
-			--rm \
-			-it \
-			"openbanking/conformance-dcr:latest"
+run: build ## run binary directly without docker.
+	./dcr -config-path configs/config.json -rs256
 
 .PHONY: build
 build: ## build the server binary directly.
@@ -75,7 +66,7 @@ test: ## Run the test suite
 
 .PHONY: e2e
 e2e: build ## Run the test suite
-	-./dcr -config-path configs/config.json > run.out
+	./dcr -config-path configs/config.json -rs256 > run.out || true
 	diff run.out cmd/cli/testdata/ozone.out
 
 .PHONY: code-coverage
