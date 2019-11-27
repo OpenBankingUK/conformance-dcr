@@ -9,7 +9,7 @@ The supporting documentation assumes technical understanding of the Open Banking
 
 ## Quickstart
 
-See the guide at [QUICK-START.md](https://bitbucket.org/openbankingteam/conformance-suite/src/develop/QUICK-START.md).
+See the guide at [QUICK-START.md](https://bitbucket.org/openbankingteam/conformance-dcr/src/develop/QUICK-START.md).
 
 # Development
 
