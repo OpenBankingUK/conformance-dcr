@@ -18,20 +18,7 @@ Create a configuration file using [/config.json.sample](/config.json.sample).
 The following command will download the latest DCR Tool from docker hub and run it.
 
 ```sh
-docker run --rm -it -v "[CONFIG FILE]:/home/app/.config/conformance-dcr/config.json" "openbanking/conformance-dcr:[TAG]"
-```
-
-## Run with Report
-
-```sh
-  docker --log-level=debug run \
-    --rm \
-    -it \
-    -v "[CONFIG_PATH]":/home/app/.config/conformance-dcr/config.json \
-    openbanking/conformance-dcr:"$[DCR_VERSION]" \
-      -debug \
-      -report \
-      -config-path=/home/app/.config/conformance-dcr/config.json
+docker run --rm -it -v [CONFIG FILE]:/config.json openbanking/conformance-dcr:[TAG] -config-path=/config.json
 ```
 
 ## Optional - Downloading with Docker Content Trust (recommended)
