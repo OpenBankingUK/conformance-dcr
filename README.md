@@ -7,19 +7,9 @@ ASPSPs in a manner that offers very low friction and removes hurdles and barrier
 
 The supporting documentation assumes technical understanding of the Open Banking ecosystem and DCR. An introduction to the concepts is available via the [Open Banking Website](https://www.openbanking.org.uk/).
 
-# Running
-
-## Prerequisites
-
-In order to run a container you'll need docker installed.
-
-* [Windows](https://docs.docker.com/windows/started)
-* [OS X](https://docs.docker.com/mac/started/)
-* [Linux](https://docs.docker.com/linux/started/)
-
 ## Quickstart
 
-See the guide at [./docs/QUICK-START.md](./docs/QUICK-START.md).
+See the guide at [QUICK-START.md](https://bitbucket.org/openbankingteam/conformance-suite/src/develop/QUICK-START.md).
 
 # Development
 
