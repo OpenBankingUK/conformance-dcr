@@ -17,8 +17,8 @@ type Signer interface {
 type jwtSigner struct {
 	signingAlgorithm        jwt.SigningMethod
 	ssa                     string
-	softwareID              string
 	issuer                  string
+	audience                string
 	kID                     string
 	tokenEndpointAuthMethod string
 	redirectURIs            []string
@@ -30,8 +30,8 @@ type jwtSigner struct {
 func NewJwtSigner(
 	signingAlgorithm jwt.SigningMethod,
 	ssa,
-	softwareID,
 	issuer,
+	audience,
 	kID,
 	tokenEndpointAuthMethod string,
 	redirectURIs []string,
@@ -42,8 +42,8 @@ func NewJwtSigner(
 	return jwtSigner{
 		signingAlgorithm:        signingAlgorithm,
 		ssa:                     ssa,
-		softwareID:              softwareID,
 		issuer:                  issuer,
+		audience:                audience,
 		kID:                     kID,
 		tokenEndpointAuthMethod: tokenEndpointAuthMethod,
 		redirectURIs:            redirectURIs,
@@ -62,8 +62,14 @@ func (s jwtSigner) Claims() (string, error) {
 	iat := time.Now().UTC()
 	exp := iat.Add(s.jwtExpiration)
 	claims := jwt.MapClaims{
-		// standard claims
-		"aud": s.issuer,
+
+		// This should be the unique identifier for the ASPSP
+		// issued by the issuer of the software statement.
+		// An ASPSP processing the software statement may validate the
+		// value of the claim and reject software statements for which the ASPSP is not the audience.
+		// The value must be a Base62 encoded GUID.
+		"aud": s.audience,
+
 		"exp": exp.Unix(),
 		"jti": id.String(),
 		"iat": iat.Unix(),
@@ -72,7 +78,7 @@ func (s jwtSigner) Claims() (string, error) {
 		// This value must be unique for each TPP registered by the issuer of the SSA.
 		// The value must be a Base62 encoded GUID.
 		// For SSAs issued by the OB Directory, this must be the software_id
-		"iss": s.softwareID,
+		"iss": s.issuer,
 
 		// metadata
 		"token_endpoint_auth_signing_alg": s.signingAlgorithm.Alg(),

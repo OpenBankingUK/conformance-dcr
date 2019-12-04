@@ -29,8 +29,9 @@ func Test_ParseConfig_Succeeds_WithValidConfig(t *testing.T) {
 		"wellknown_endpoint": "https://ob19-auth1-ui.o3bank.co.uk/.well-known/openid-configuration",
    		"ssa": "ssa",
     	"kid": "kid",
+    	"aud": "aud",
     	"redirect_uris": ["https://0.0.0.0:8443/conformancesuite/callback"],
-    	"software_id": "softwareId",
+    	"issuer": "softwareId",
 		"private_key": %s,
     	"transport_root_cas": [
       		"-----BEGIN CERTIFICATE-----\ntransportroot1-----END CERTIFICATE-----\n",
@@ -44,12 +45,13 @@ func Test_ParseConfig_Succeeds_WithValidConfig(t *testing.T) {
 	}`, pkeyJson)
 	cfg, err := parseConfig(bytes.NewReader([]byte(json)))
 	expectedCfg := Config{
-		WellknownEndpoint:   "https://ob19-auth1-ui.o3bank.co.uk/.well-known/openid-configuration",
-		SSA:                 "ssa",
-		Kid:                 "kid",
-		RedirectURIs:        []string{"https://0.0.0.0:8443/conformancesuite/callback"},
-		SoftwareStatementId: "softwareId",
-		SigningKeyPEM:       string(keyPem),
+		WellknownEndpoint: "https://ob19-auth1-ui.o3bank.co.uk/.well-known/openid-configuration",
+		SSA:               "ssa",
+		Kid:               "kid",
+		Aud:               "aud",
+		RedirectURIs:      []string{"https://0.0.0.0:8443/conformancesuite/callback"},
+		Issuer:            "softwareId",
+		SigningKeyPEM:     string(keyPem),
 		TransportRootCAsPEM: []string{
 			"-----BEGIN CERTIFICATE-----\ntransportroot1-----END CERTIFICATE-----\n",
 			"-----BEGIN CERTIFICATE-----\ntransportroot2-----END CERTIFICATE-----\n",
@@ -80,6 +82,7 @@ func Test_ReadsConfigFromFile(t *testing.T) {
 	assert.Equal(t, "https://ob19-auth1-ui.o3bank.co.uk/.well-known/openid-configuration", config.WellknownEndpoint)
 	assert.Equal(t, "ssa", config.SSA)
 	assert.Equal(t, "kid", config.Kid)
+	assert.Equal(t, "aud", config.Aud)
 	assert.Equal(t, []string{"redirecturi"}, config.RedirectURIs)
 	assert.Equal(t, "private_key", config.SigningKeyPEM)
 	assert.Equal(t, []string{"cert 1", "cert 2"}, config.TransportRootCAsPEM)

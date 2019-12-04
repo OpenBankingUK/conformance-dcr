@@ -65,8 +65,9 @@ func runCmd(flags flags) {
 	dcr32Cfg, err := compliant.NewDCR32Config(
 		openIDConfig,
 		cfg.SSA,
+		cfg.Aud,
 		cfg.Kid,
-		cfg.SoftwareStatementId,
+		cfg.Issuer,
 		cfg.RedirectURIs,
 		cfg.SigningKeyPEM,
 		cfg.TransportKeyPEM,

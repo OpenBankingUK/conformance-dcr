@@ -21,6 +21,7 @@ func TestNewDCR32Config(t *testing.T) {
 	config, err := NewDCR32Config(
 		openid.Configuration{},
 		"ssa",
+		"aud",
 		"kid",
 		"ssaId",
 		[]string{"/redirect"},

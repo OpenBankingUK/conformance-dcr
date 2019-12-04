@@ -27,6 +27,7 @@ func TestNewAuther_ReturnsClientSecretBasic(t *testing.T) {
 	auther := NewAuthoriser(
 		openIdConfig,
 		"ssa",
+		"aud",
 		"kid",
 		"softwareID",
 		jwt.SigningMethodPS256,
@@ -47,6 +48,7 @@ func TestNewAuther_ReturnsPrivateKeyJwt(t *testing.T) {
 	auther := NewAuthoriser(
 		openIdConfig,
 		"ssa",
+		"aud",
 		"kid",
 		"softwareID",
 		jwt.SigningMethodPS256,
@@ -67,6 +69,7 @@ func TestNewAuther_ReturnsTlsClientAuth(t *testing.T) {
 	auther := NewAuthoriser(
 		openIdConfig,
 		"ssa",
+		"aud",
 		"kid",
 		"softwareID",
 		jwt.SigningMethodPS256,
@@ -87,6 +90,7 @@ func TestNewAuther_ReturnsNoAuther(t *testing.T) {
 	auther := NewAuthoriser(
 		openIdConfig,
 		"ssa",
+		"aud",
 		"kid",
 		"softwareID",
 		jwt.SigningMethodPS256,

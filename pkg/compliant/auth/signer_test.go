@@ -18,8 +18,8 @@ func TestNewJwtSigner(t *testing.T) {
 	signer := NewJwtSigner(
 		jwt.SigningMethodRS256,
 		"ssa",
-		"softwareID",
 		"issuer",
+		"aud",
 		"kid",
 		"private_key_jwt",
 		[]string{"/redirect"},
@@ -43,10 +43,10 @@ func TestNewJwtSigner(t *testing.T) {
 	assert.True(t, ok)
 
 	assert.Equal(t, "web", claims["application_type"])
-	assert.Equal(t, "issuer", claims["aud"])
+	assert.Equal(t, "aud", claims["aud"])
 	assert.Equal(t, []interface{}{"authorization_code", "client_credentials"}, claims["grant_types"])
 	assert.Equal(t, "RS256", claims["id_token_signed_response_alg"])
-	assert.Equal(t, "softwareID", claims["iss"])
+	assert.Equal(t, "issuer", claims["iss"])
 	assert.Equal(t, "kid", token.Header["kid"])
 	assert.Equal(t, []interface{}{"/redirect"}, claims["redirect_uris"])
 	assert.Equal(t, "none", claims["request_object_signing_alg"])
@@ -63,8 +63,8 @@ func TestNewJwtSigner_TlsClientAuthAddSubjectToClaims(t *testing.T) {
 	signer := NewJwtSigner(
 		jwt.SigningMethodRS256,
 		"ssa",
-		"softwareID",
 		"issuer",
+		"aud",
 		"kid",
 		"tls_client_auth",
 		[]string{"/redirect"},
@@ -88,10 +88,10 @@ func TestNewJwtSigner_TlsClientAuthAddSubjectToClaims(t *testing.T) {
 	assert.True(t, ok)
 
 	assert.Equal(t, "web", claims["application_type"])
-	assert.Equal(t, "issuer", claims["aud"])
+	assert.Equal(t, "aud", claims["aud"])
 	assert.Equal(t, []interface{}{"authorization_code", "client_credentials"}, claims["grant_types"])
 	assert.Equal(t, "RS256", claims["id_token_signed_response_alg"])
-	assert.Equal(t, "softwareID", claims["iss"])
+	assert.Equal(t, "issuer", claims["iss"])
 	assert.Equal(t, "kid", token.Header["kid"])
 	assert.Equal(t, []interface{}{"/redirect"}, claims["redirect_uris"])
 	assert.Equal(t, "none", claims["request_object_signing_alg"])
@@ -108,8 +108,8 @@ func TestNewJwtSigner_TlsClientAuthDoesNotPanicOnMissingCert(t *testing.T) {
 	signer := NewJwtSigner(
 		jwt.SigningMethodRS256,
 		"ssa",
-		"softwareID",
 		"issuer",
+		"aud",
 		"kid",
 		"tls_client_auth",
 		[]string{"/redirect"},

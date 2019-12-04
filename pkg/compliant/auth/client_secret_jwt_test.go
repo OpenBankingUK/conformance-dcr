@@ -18,8 +18,8 @@ func TestNewClientSecretJWT_Claims(t *testing.T) {
 		NewJwtSigner(
 			jwt.SigningMethodRS256,
 			"ssa",
-			"softwareID",
 			"issuer",
+			"aud",
 			"kid",
 			"client_secret_jwt",
 			[]string{},
@@ -43,8 +43,8 @@ func TestClientSecretJWT_Client_ReturnsAClient(t *testing.T) {
 		NewJwtSigner(
 			jwt.SigningMethodRS256,
 			"ssa",
-			"softwareID",
 			"issuer",
+			"aud",
 			"kid",
 			"client_secret_jwt",
 			[]string{},

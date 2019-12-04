@@ -10,7 +10,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 )
 
 // nolint:lll
@@ -169,12 +168,7 @@ func DCR32CreateInvalidRegistrationRequest(
 				WithHttpClient(secureClient).
 				GenerateSignedClaims(
 					authoriserBuilder.
-						WithOpenIDConfig(
-							openid.NewBuilder().
-								From(cfg.OpenIDConfig).
-								WithIssuer("foo.is/invalid").
-								Build(),
-						),
+						WithIssuer("foo.is/invalid"),
 				).
 				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 				AssertStatusCodeBadRequest().
@@ -185,12 +179,7 @@ func DCR32CreateInvalidRegistrationRequest(
 				WithHttpClient(secureClient).
 				GenerateSignedClaims(
 					authoriserBuilder.
-						WithOpenIDConfig(
-							openid.NewBuilder().
-								From(cfg.OpenIDConfig).
-								WithIssuer("").
-								Build(),
-						),
+						WithIssuer(""),
 				).
 				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 				AssertStatusCodeBadRequest().
@@ -201,12 +190,7 @@ func DCR32CreateInvalidRegistrationRequest(
 				WithHttpClient(secureClient).
 				GenerateSignedClaims(
 					authoriserBuilder.
-						WithOpenIDConfig(
-							openid.NewBuilder().
-								From(cfg.OpenIDConfig).
-								WithIssuer("123456789012345678901234567890").
-								Build(),
-						),
+						WithIssuer("123456789012345678901234567890"),
 				).
 				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 				AssertStatusCodeBadRequest().

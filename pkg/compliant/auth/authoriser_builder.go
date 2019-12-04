@@ -12,7 +12,7 @@ import (
 
 type AuthoriserBuilder struct {
 	config                  openid.Configuration
-	ssa, kID, softwareID    string
+	ssa, aud, kID, issuer   string
 	tokenEndpointAuthMethod jwt.SigningMethod
 	redirectURIs            []string
 	privateKey              *rsa.PrivateKey
@@ -42,8 +42,13 @@ func (b AuthoriserBuilder) WithSSA(ssa string) AuthoriserBuilder {
 	return b
 }
 
-func (b AuthoriserBuilder) WithSoftwareID(softwareID string) AuthoriserBuilder {
-	b.softwareID = softwareID
+func (b AuthoriserBuilder) WithIssuer(issuer string) AuthoriserBuilder {
+	b.issuer = issuer
+	return b
+}
+
+func (b AuthoriserBuilder) WithAud(aud string) AuthoriserBuilder {
+	b.aud = aud
 	return b
 }
 
@@ -79,17 +84,15 @@ func (b AuthoriserBuilder) Build() (Authoriser, error) {
 	if b.kID == "" {
 		return none{}, errors.New("missing kid from authoriser")
 	}
-	if b.softwareID == "" {
-		return none{}, errors.New("missing softwareID from authoriser")
-	}
 	if b.privateKey == nil {
 		return none{}, errors.New("missing privateKey from authoriser")
 	}
 	return NewAuthoriser(
 		b.config,
 		b.ssa,
+		b.aud,
 		b.kID,
-		b.softwareID,
+		b.issuer,
 		b.tokenEndpointAuthMethod,
 		b.redirectURIs,
 		b.privateKey,

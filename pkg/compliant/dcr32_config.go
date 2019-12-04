@@ -30,7 +30,7 @@ type DCR32Config struct {
 
 func NewDCR32Config(
 	openIDConfig openid.Configuration,
-	ssa, kid, ssaId string,
+	ssa, aud, kid, issuer string,
 	redirectURIs []string,
 	signingKeyPEM string,
 	transportSigningKeyPEM string,
@@ -64,8 +64,9 @@ func NewDCR32Config(
 	authoriserBuilder := auth.NewAuthoriserBuilder().
 		WithOpenIDConfig(openIDConfig).
 		WithSSA(ssa).
+		WithAud(aud).
 		WithKID(kid).
-		WithSoftwareID(ssaId).
+		WithIssuer(issuer).
 		WithRedirectURIs(redirectURIs).
 		WithPrivateKey(privateKey).
 		WithTransportCert(transportCert)

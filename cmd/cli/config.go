@@ -14,8 +14,9 @@ type Config struct {
 	WellknownEndpoint   string   `json:"wellknown_endpoint"`
 	SSA                 string   `json:"ssa"`
 	Kid                 string   `json:"kid"`
+	Aud                 string   `json:"aud"`
 	RedirectURIs        []string `json:"redirect_uris"`
-	SoftwareStatementId string   `json:"software_id"`
+	Issuer              string   `json:"issuer"`
 	SigningKeyPEM       string   `json:"private_key"`
 	TransportRootCAsPEM []string `json:"transport_root_cas"`
 	TransportCertPEM    string   `json:"transport_cert"`

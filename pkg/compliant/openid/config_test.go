@@ -29,7 +29,6 @@ func TestGetConfig(t *testing.T) {
 	expected := Configuration{
 		RegistrationEndpoint:              &registrationEndpoint,
 		TokenEndpoint:                     "http://token_endpoint",
-		Issuer:                            "issuer",
 		ObjectSignAlgSupported:            []string{"alg1"},
 		TokenEndpointAuthMethodsSupported: []string{"alg2"},
 	}

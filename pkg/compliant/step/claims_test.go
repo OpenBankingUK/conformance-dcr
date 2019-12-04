@@ -14,9 +14,9 @@ import (
 
 func TestClaims_Run(t *testing.T) {
 	ctx := NewContext()
-	config := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{"client_secret_basic"}, Issuer: "issuer"}
+	config := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{"client_secret_basic"}}
 	authoriserBuilder := auth.NewAuthoriserBuilder().
-		WithSoftwareID("softwareID").
+		WithIssuer("issuer").
 		WithKID("kid").
 		WithSSA("ssa").
 		WithPrivateKey(generateKey(t)).
@@ -38,7 +38,7 @@ func TestClaims_Run_FailsOnClaimsError(t *testing.T) {
 	ctx := NewContext()
 	config := openid.Configuration{TokenEndpointAuthMethodsSupported: []string{""}}
 	authoriserBuilder := auth.NewAuthoriserBuilder().
-		WithSoftwareID("softwareID").
+		WithIssuer("softwareID").
 		WithKID("kid").
 		WithSSA("ssa").
 		WithPrivateKey(generateKey(t)).
