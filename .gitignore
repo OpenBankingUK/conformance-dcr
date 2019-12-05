@@ -2,3 +2,5 @@ dcr
 configs/
 run.out
 report.json
+conformance-dcr_debug.log
+conformance-dcr_report.json
