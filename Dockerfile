@@ -25,5 +25,7 @@ LABEL MAINTAINER="Open Banking Ltd"
 COPY --from=gobuilder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=gobuilder /app/dcr /usr/bin/dcr
 
+EXPOSE 8080
+
 ENTRYPOINT ["dcr"]
 CMD ["--help"]

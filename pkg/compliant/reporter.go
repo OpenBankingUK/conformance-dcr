@@ -4,20 +4,22 @@ import (
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"net/http"
 	"time"
 )
 
-func NewReporter(debug bool, filename string) reporter {
+func NewReporter(debug bool, doneSignal chan<- bool, serverAddr string) reporter {
 	return reporter{
-		filename: filename,
-		debug:    debug,
+		debug:          debug,
+		doneSignalChan: doneSignal,
+		serverAddr:     serverAddr,
 	}
 }
 
 type reporter struct {
-	filename string
-	debug    bool
+	debug          bool
+	doneSignalChan chan<- bool
+	serverAddr     string
 }
 
 func (r reporter) Report(result ManifestResult) error {
@@ -25,7 +27,23 @@ func (r reporter) Report(result ManifestResult) error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(r.filename, file, 0644)
+
+	r.startServer(file)
+
+	return nil
+}
+
+func (r reporter) startServer(report []byte) {
+	go func() {
+		handler := downloadHandler{
+			doneSignalChan: r.doneSignalChan,
+			report:         report,
+		}
+
+		server := &http.Server{Addr: r.serverAddr, Handler: handler}
+		err := server.ListenAndServe()
+		fmt.Printf("Error starting embedded webserver: %s", err)
+	}()
 }
 
 func (r reporter) mapToReport(result ManifestResult) Report {
@@ -116,4 +134,27 @@ type ReportStep struct {
 	Pass   bool     `json:"pass"`
 	Reason string   `json:"reason,omitempty"`
 	Debug  []string `json:"debug,omitempty"`
+}
+
+type downloadHandler struct {
+	doneSignalChan chan<- bool
+	report         []byte
+}
+
+func (h downloadHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+	if r.URL.Query().Get("download") != "" {
+		_, err := rw.Write(h.report)
+		if err != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+			fmt.Printf("Server error: %s", err.Error())
+		}
+		h.doneSignalChan <- true
+		return
+	}
+
+	_, err := rw.Write([]byte(`<html><body><a href="?download=report">Click here to download report.</a></body></html>`))
+	if err != nil {
+		fmt.Printf("Server error: %s", err.Error())
+		rw.WriteHeader(http.StatusInternalServerError)
+	}
 }

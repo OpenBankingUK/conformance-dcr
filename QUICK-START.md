@@ -21,6 +21,17 @@ The following command will download the latest DCR Tool from docker hub and run 
 docker run --rm -it -v [CONFIG FILE]:/config.json openbanking/conformance-dcr:[TAG] -config-path=/config.json
 ```
 
+## Generate DCR Compliance report
+
+DCR Report is generated when running the tool with a `-report` flag, for security reasons you will have
+to download from a embedded webserver.
+
+```sh
+docker run --rm -it -p 8080:8080 -v [CONFIG FILE]:/config.json openbanking/conformance-dcr:[TAG] -config-path=/config.json
+```
+
+Instructions will be printed how to download the report.
+
 ## Optional - Downloading with Docker Content Trust (recommended)
 
 Docker Content Trust *(DCT)* ensures that all content is securely received and verified. Open Banking cryptographically signs the images upon completion of a satisfactory image check, so that implementers can verify and trust certified content.

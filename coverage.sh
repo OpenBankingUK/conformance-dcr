@@ -2,7 +2,7 @@
 # abort on errors and more error-checking.
 set -euo pipefail
 
-MIN_COVERAGE_PERCENT=71
+MIN_COVERAGE_PERCENT=70
 
 calc(){ awk "BEGIN { print "$*" }"; }
 

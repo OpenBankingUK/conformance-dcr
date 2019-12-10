@@ -32,9 +32,7 @@ func NewBitBucket(bitBucketAPIRepository string) Checker {
 
 // tag structure used map response of tags.
 type tag struct {
-	Name          string `json:"name"`
-	Date          string `json:"date"`
-	CommitMessage string `json:"message"`
+	Name string `json:"name"`
 }
 
 // tagsAPIResponse structure to map response.

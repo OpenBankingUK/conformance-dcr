@@ -6,9 +6,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 )
 
 func TestNewReporter(t *testing.T) {
@@ -43,11 +45,27 @@ func TestNewReporter(t *testing.T) {
 		Version: "0.0",
 	}
 
-	out := filepath.Join("testdata", "temp.json")
-	reporter := NewReporter(true, out)
+	doneSignal := make(chan bool, 1)
+	serverAddr := "localhost:8001"
+	reporter := NewReporter(true, doneSignal, serverAddr)
 
 	err := reporter.Report(result)
-	assert.NoError(t, err)
+	require.NoError(t, err)
+
+	// wait for http server to start
+	time.Sleep(time.Millisecond * 100)
+
+	// download report
+	out := filepath.Join("testdata", "temp.json")
+	r, err := http.Get("http://" + serverAddr + "?download=report")
+	require.NoError(t, err)
+	file, err := os.Create(out)
+	require.NoError(t, err)
+	defer file.Close()
+	_, err = io.Copy(file, r.Body)
+	require.NoError(t, err)
+
+	<-doneSignal
 
 	gp := filepath.Join("testdata", t.Name()+".golden.json")
 

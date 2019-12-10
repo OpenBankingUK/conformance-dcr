@@ -93,17 +93,40 @@ func runCmd(flags flags) {
 	printer := compliant.NewPrinter(flags.debug)
 	tester.AddListener(printer.Print)
 
+	doneSignal := make(chan bool)
+	serverAddr := serverAddress(flags.httpServerPort)
 	if flags.report {
-		reporterFunc := compliant.NewReporter(flags.debug, "report.json")
+		reporterFunc := compliant.NewReporter(flags.debug, doneSignal, serverAddr)
 		tester.AddListener(reporterFunc.Report)
 	}
 
 	passes, err := tester.Compliant(manifest)
 	exitOnError(err)
 
+	if flags.report {
+		waitForDownloadOrTimeout(serverAddr, doneSignal)
+	}
+
 	if !passes {
 		os.Exit(1)
 	}
+}
+
+func waitForDownloadOrTimeout(serverAddr string, doneSignal <-chan bool) {
+	fmt.Printf("To download report open webpage http://%s\n", serverAddr)
+	fmt.Println("Waiting for report download...")
+	select {
+	case <-doneSignal:
+		fmt.Println("Report download completed, exiting.")
+		break
+	case <-time.After(2 * time.Minute):
+		fmt.Println("Time out waiting for report download, exiting.")
+		break
+	}
+}
+
+func serverAddress(port string) string {
+	return fmt.Sprintf("0.0.0.0:%s", port)
 }
 
 type flags struct {
@@ -113,13 +136,15 @@ type flags struct {
 	debug                    bool
 	report                   bool
 	tokenEndpointRS256Method bool
+	httpServerPort           string
 }
 
 func mustParseFlags() flags {
-	var configFilePath, filterExpression string
+	var configFilePath, filterExpression, httpServerPort string
 	var debug, report, versionFlag, tokenEndpointRS256Method bool
 	flag.StringVar(&configFilePath, "config-path", "", "Config file path")
 	flag.StringVar(&filterExpression, "filter", "", "Filter scenarios containing value")
+	flag.StringVar(&httpServerPort, "port", "8080", "Http server port for report download")
 	flag.BoolVar(&debug, "debug", false, "Enable debug defaults to disabled")
 	flag.BoolVar(&report, "report", false, "Enable report output defaults to disabled")
 	flag.BoolVar(&versionFlag, "version", false, "Print the version details of conformance-dcr")
@@ -133,6 +158,7 @@ func mustParseFlags() flags {
 		report:                   report,
 		versionCmd:               versionFlag,
 		tokenEndpointRS256Method: tokenEndpointRS256Method,
+		httpServerPort:           httpServerPort,
 	}
 }
 
