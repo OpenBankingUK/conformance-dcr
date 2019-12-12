@@ -13,7 +13,29 @@ Note for Windows 10 users - Docker on Windows 10 requires Hyper-V to be installe
 
 ## How to run Dynamic Client Registration Tool
 
-Create a configuration file using [/config.json.sample](/config.json.sample).
+### Configuration
+
+A template configuration file can be found at [/config.json.sample](/config.json.sample).
+
+|Name                       |Type        |Description                               |
+|---------------------------|------------|------------------------------------------|
+|wellknown_endpoint         | string     | Open ID Connect wellknown endpoint for DCR|
+|ssa                        | string     | Software Statement Assertion for client   |
+|kid                        | string     | Key ID - Identifies your key pair|
+|aud                        | string     | Audience - The intended audience that the client is being registerd with. Typically the unique identifier of the organisation.|
+|issuer                     | string     | Unique identifer for the TPP/Client organisation, for example `software_id` as provided by Open Banking Directory. |
+|redirect_uris              | []string   | URIs used to callback to your application during registration, consent acquisition|
+|private_key                | string     | Private key associated with client|
+|transport_root_cas         | []string   | Root CAs for transport cert|
+|transport_cert             | string     | Transport cert associated with client|
+|transport_key              | string     | Private key for transport|
+|get_implemented            | bool       | HTTP GET method implemented as per DCR specification|
+|put_implemented            | bool       | HTTP PUT method implemented as per DCR specification|
+|delete_implemented         | bool       | HTTP DELETE method implemented as per DCR specification|
+
+Note that HTTP POST is the only HTTP method required by the specification, which will always be tested. If the implementation under test supports HTTP GET, PUT or DELETE, they can be specified using the booleans in the configuration as shown above.
+
+### Run the tool
 
 The following command will download the latest DCR Tool from docker hub and run it.
 
