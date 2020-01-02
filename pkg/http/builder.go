@@ -15,20 +15,25 @@ type MATLSClientBuilder interface {
 type mTLSClientBuilder struct {
 	certPEMBlock, keyPEMBlock *string
 	rootCAs                   *[]string
-	insecureVerify            bool
+	tlsSkipVerify             bool
 }
 
 func NewBuilder() *mTLSClientBuilder {
 	return &mTLSClientBuilder{
-		certPEMBlock:   nil,
-		keyPEMBlock:    nil,
-		rootCAs:        nil,
-		insecureVerify: false,
+		certPEMBlock:  nil,
+		keyPEMBlock:   nil,
+		rootCAs:       nil,
+		tlsSkipVerify: false,
 	}
 }
 
 func (b *mTLSClientBuilder) WithRootCAs(rootCAs []string) *mTLSClientBuilder {
 	b.rootCAs = &rootCAs
+	return b
+}
+
+func (b *mTLSClientBuilder) WithTlsSkipVerify(tlsSkipVerify bool) *mTLSClientBuilder {
+	b.tlsSkipVerify = tlsSkipVerify
 	return b
 }
 
@@ -59,7 +64,7 @@ func (b *mTLSClientBuilder) Build() (*http.Client, error) {
 
 	config := MATLSConfig{
 		ClientCerts:        clientCerts,
-		InsecureSkipVerify: b.insecureVerify,
+		InsecureSkipVerify: b.tlsSkipVerify,
 		RootCAs:            rootCAs,
 		TLSMinVersion:      tls.VersionTLS12,
 	}

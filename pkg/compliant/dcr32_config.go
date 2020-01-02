@@ -40,6 +40,7 @@ func NewDCR32Config(
 	putImplemented bool,
 	deleteImplemented bool,
 	tokenEndpointRS256Method bool,
+	tlsSkipVerify bool,
 ) (DCR32Config, error) {
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(signingKeyPEM))
 	if err != nil {
@@ -78,6 +79,7 @@ func NewDCR32Config(
 	secureClient, err := http.NewBuilder().
 		WithRootCAs(transportRootCAs).
 		WithTransportKeyPair(transportCertPEM, transportSigningKeyPEM).
+		WithTlsSkipVerify(tlsSkipVerify).
 		Build()
 	if err != nil {
 		return DCR32Config{}, errors.Wrap(err, "creating DCR32 config")

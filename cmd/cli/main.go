@@ -77,6 +77,7 @@ func runCmd(flags flags) {
 		cfg.PutImplemented,
 		cfg.DeleteImplemented,
 		flags.tokenEndpointRS256Method,
+		flags.tlsSkipVerify,
 	)
 	exitOnError(err)
 
@@ -136,12 +137,13 @@ type flags struct {
 	debug                    bool
 	report                   bool
 	tokenEndpointRS256Method bool
+	tlsSkipVerify            bool
 	httpServerPort           string
 }
 
 func mustParseFlags() flags {
 	var configFilePath, filterExpression, httpServerPort string
-	var debug, report, versionFlag, tokenEndpointRS256Method bool
+	var debug, report, versionFlag, tokenEndpointRS256Method, tlsSkipVerify bool
 	flag.StringVar(&configFilePath, "config-path", "", "Config file path")
 	flag.StringVar(&filterExpression, "filter", "", "Filter scenarios containing value")
 	flag.StringVar(&httpServerPort, "port", "8080", "Http server port for report download")
@@ -149,6 +151,7 @@ func mustParseFlags() flags {
 	flag.BoolVar(&report, "report", false, "Enable report output defaults to disabled")
 	flag.BoolVar(&versionFlag, "version", false, "Print the version details of conformance-dcr")
 	flag.BoolVar(&tokenEndpointRS256Method, "rs256", false, "Run test suite with RS256 (testing only)")
+	flag.BoolVar(&tlsSkipVerify, "tlsskipverify", false, "Skip ssl cert verify")
 	flag.Parse()
 
 	return flags{
@@ -158,6 +161,7 @@ func mustParseFlags() flags {
 		report:                   report,
 		versionCmd:               versionFlag,
 		tokenEndpointRS256Method: tokenEndpointRS256Method,
+		tlsSkipVerify:            tlsSkipVerify,
 		httpServerPort:           httpServerPort,
 	}
 }

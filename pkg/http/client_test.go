@@ -43,15 +43,6 @@ func TestRootCASFromFile_HandlesFileError(t *testing.T) {
 	assert.Nil(t, cert)
 }
 
-func TestNewMATLSClient_ReturnsErrIfITryInsecureVerify(t *testing.T) {
-	client, err := NewMATLSClient(MATLSConfig{
-		InsecureSkipVerify: true,
-	})
-
-	assert.EqualError(t, err, "insecure skip verify not allowed")
-	assert.Nil(t, client)
-}
-
 func TestNewMATLSClient(t *testing.T) {
 	// Bootstrap the tests with required keys certificates
 	rootCAs, err := RootCASFromFile("testdata/client-sample-root-ca.pem")
