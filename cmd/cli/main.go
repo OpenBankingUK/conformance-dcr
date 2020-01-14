@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"crypto/rsa"
 	"flag"
 	"fmt"
 	http2 "net/http"
@@ -12,10 +13,13 @@ import (
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant"
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	ver "bitbucket.org/openbankingteam/conformance-dcr/pkg/version"
+	"github.com/dgrijalva/jwt-go"
 )
 
 func main() {
 	fmt.Println("Dynamic Client Registration Conformance Tool cli")
+
+	patchJwtLibraryBug()
 
 	flags := mustParseFlags()
 
@@ -191,4 +195,10 @@ func getUpdateMessage(v VersionInfo, bitbucketTagsEndpoint string) string {
 	}
 
 	return ""
+}
+
+func patchJwtLibraryBug() {
+	jwt.SigningMethodPS256.Options.SaltLength = rsa.PSSSaltLengthEqualsHash
+	jwt.SigningMethodPS384.Options.SaltLength = rsa.PSSSaltLengthEqualsHash
+	jwt.SigningMethodPS512.Options.SaltLength = rsa.PSSSaltLengthEqualsHash
 }
