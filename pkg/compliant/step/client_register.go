@@ -52,7 +52,7 @@ func (s clientRegister) doJwtPostRequest(endpoint, jwtClaims string) (*http.Resp
 	if err != nil {
 		return nil, errors.Wrap(err, "creating jwt post request")
 	}
-	req.Header.Add("Content-Type", "application/jwt")
+	req.Header.Add("Content-Type", "application/jose")
 	req.Header.Add("Accept", "application/json")
 	s.debug.Log(http2.DebugRequest(req))
 

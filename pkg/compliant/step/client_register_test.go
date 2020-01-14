@@ -15,8 +15,7 @@ func TestNewClientRegister(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		require.Equal(t, req.URL.String(), "/some/path")
 
-		// is it a JWT body?
-		require.Equal(t, "application/jwt", req.Header.Get("Content-Type"))
+		require.Equal(t, "application/jose", req.Header.Get("Content-Type"))
 
 		// does it have the JWT body?
 		body, err := ioutil.ReadAll(req.Body)
