@@ -1,4 +1,4 @@
-FROM golang:1.13-alpine as gobuilder
+FROM golang:1.13.6-alpine as gobuilder
 RUN apk update && apk add git make bash ca-certificates
 
 ENV TERM xterm-color

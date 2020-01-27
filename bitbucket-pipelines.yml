@@ -14,7 +14,7 @@ pipelines:
     - parallel:
         - step:
             name: go-test
-            image: golang:1.13-alpine
+            image: golang:1.13.6-alpine
             script:
               - |
                 export CGO_ENABLED=0
@@ -28,7 +28,7 @@ pipelines:
 
         - step:
             name: code-coverage
-            image: golang:1.13-alpine
+            image: golang:1.13.6-alpine
             script:
               - export CGO_ENABLED=0
               - apk update && apk add git make bash
@@ -36,7 +36,7 @@ pipelines:
 
         - step:
             name: e2e
-            image: golang:1.13-alpine
+            image: golang:1.13.6-alpine
             script:
               - export CGO_ENABLED=0
               - apk update && apk add git make bash
