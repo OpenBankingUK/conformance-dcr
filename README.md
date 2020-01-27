@@ -19,7 +19,8 @@ See the guide at [QUICK-START.md](https://bitbucket.org/openbankingteam/conforma
 The release is called **v1.0.1**, it updates the tool:
 - Support report download via http
 - Patch to fix 3rd party library bug jwt-go
-- Fix content type sent on client register to application/jose 
+- Fix content type sent on client register to application/jose
+- Added debug file to report zip 
 
 # Development
 
