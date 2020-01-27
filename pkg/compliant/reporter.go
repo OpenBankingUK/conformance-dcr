@@ -1,11 +1,14 @@
 package compliant
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
-	"time"
+	"os"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
+	"github.com/sirupsen/logrus"
 )
 
 func NewReporter(debug bool, doneSignal chan<- bool, serverAddr string) reporter {
@@ -22,18 +25,41 @@ type reporter struct {
 	serverAddr     string
 }
 
+// Report marshals the result into json, then starts a server to host the generated report file.
 func (r reporter) Report(result ManifestResult) error {
 	file, err := json.MarshalIndent(r.mapToReport(result), "", " ")
 	if err != nil {
 		return err
 	}
 
-	r.startServer(file)
+	reportFile := "report.json"
+	files := []string{reportFile}
+	err = ioutil.WriteFile(reportFile, file, os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	if r.debug {
+		var debugFile *os.File
+		debugFile, err = r.GetDebugFile(result)
+		if err != nil {
+			return err
+		}
+
+		files = append(files, debugFile.Name())
+	}
+
+	zip, err := ZipFiles(files)
+	if err != nil {
+		return err
+	}
+
+	r.startServer(zip)
 
 	return nil
 }
 
-func (r reporter) startServer(report []byte) {
+func (r reporter) startServer(report *os.File) {
 	go func() {
 		handler := downloadHandler{
 			doneSignalChan: r.doneSignalChan,
@@ -44,6 +70,40 @@ func (r reporter) startServer(report []byte) {
 		err := server.ListenAndServe()
 		fmt.Printf("Error starting embedded webserver: %s", err)
 	}()
+}
+
+func (r reporter) GetDebugFile(result ManifestResult) (*os.File, error) {
+	file, err := os.Create("debug.json")
+	if err != nil {
+		return nil, err
+	}
+	log := logrus.New()
+	log.SetFormatter(&logrus.JSONFormatter{})
+	log.SetOutput(file)
+	log.SetLevel(logrus.DebugLevel)
+
+	for _, scenario := range result.Results {
+		for _, testcase := range scenario.TestCaseResults {
+			for _, result := range testcase.Results {
+				for _, message := range result.Debug.Item {
+					log.WithTime(message.Time).
+						WithFields(logrus.Fields{
+							"scenario_id":        scenario.Id,
+							"scenario_name":      scenario.Name,
+							"scenario_spec":      scenario.Spec,
+							"scenario_pass":      !scenario.Fail(),
+							"testcase_name":      testcase.Name,
+							"testcase_pass":      !testcase.Fail(),
+							"result_name":        result.Name,
+							"result_pass":        result.Pass,
+							"result_fail_reason": result.FailReason,
+						}).
+						Debug(message.Message)
+				}
+			}
+		}
+	}
+	return file, nil
 }
 
 func (r reporter) mapToReport(result ManifestResult) Report {
@@ -80,32 +140,13 @@ func (r reporter) mapTCSToReport(results TestCaseResults) []ReportTestcase {
 func (r reporter) mapStepsToReport(results step.Results) []ReportStep {
 	stepResults := make([]ReportStep, len(results))
 	for key, result := range results {
-
-		var debug []string
-		if r.debug {
-			debug = r.mapDebugToReport(result.Debug)
-		}
-
 		stepResults[key] = ReportStep{
 			Name:   result.Name,
 			Pass:   result.Pass,
 			Reason: result.FailReason,
-			Debug:  debug,
 		}
 	}
 	return stepResults
-}
-
-func (r reporter) mapDebugToReport(messages step.DebugMessages) []string {
-	result := make([]string, len(messages.Item))
-	for key, message := range messages.Item {
-		result[key] = fmt.Sprintf(
-			"%s %s",
-			message.Time.Format(time.RFC3339),
-			message.Message,
-		)
-	}
-	return result
 }
 
 type Report struct {
@@ -138,16 +179,22 @@ type ReportStep struct {
 
 type downloadHandler struct {
 	doneSignalChan chan<- bool
-	report         []byte
+	report         *os.File
 }
 
 func (h downloadHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if r.URL.Query().Get("download") != "" {
-		_, err := rw.Write(h.report)
+		b, err := ioutil.ReadFile(h.report.Name())
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
 			fmt.Printf("Server error: %s", err.Error())
 		}
+		_, err = rw.Write(b)
+		if err != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+			fmt.Printf("Server error: %s", err.Error())
+		}
+		rw.Header().Add("Content-Type", "application/zip")
 		h.doneSignalChan <- true
 		return
 	}

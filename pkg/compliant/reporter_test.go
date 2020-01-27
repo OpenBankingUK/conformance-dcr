@@ -1,9 +1,7 @@
 package compliant
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"archive/zip"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -11,6 +9,10 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewReporter(t *testing.T) {
@@ -59,11 +61,38 @@ func TestNewReporter(t *testing.T) {
 	out := filepath.Join("testdata", "temp.json")
 	r, err := http.Get("http://" + serverAddr + "?download=report")
 	require.NoError(t, err)
+	b := make([]byte, r.ContentLength)
+	_, err = io.ReadFull(r.Body, b)
+	require.NoError(t, err)
+
+	//write the bytes downloaded to a tmpFile.zip
+	tmpFile, err := ioutil.TempFile("", "reporter_test_zip")
+	require.NoError(t, err)
+	defer os.Remove(tmpFile.Name())
+	_, err = tmpFile.Write(b)
+	require.NoError(t, err)
+	err = tmpFile.Close()
+	require.NoError(t, err)
+
+	//unzip the tmpFile.File
+	zipReader, err := zip.OpenReader(tmpFile.Name())
+	require.NoError(t, err)
+	defer zipReader.Close()
+
 	file, err := os.Create(out)
 	require.NoError(t, err)
 	defer file.Close()
-	_, err = io.Copy(file, r.Body)
-	require.NoError(t, err)
+	for _, f := range zipReader.File {
+		if f.Name == "report.json" {
+			//write the contents of each file to out
+			var rc io.ReadCloser
+			rc, err = f.Open()
+			require.NoError(t, err)
+			_, err = io.CopyN(file, rc, f.FileInfo().Size())
+			require.NoError(t, err)
+			rc.Close()
+		}
+	}
 
 	<-doneSignal
 
