@@ -11,7 +11,7 @@ import (
 )
 
 func TestNewClientRegister(t *testing.T) {
-	// creating a stub server that expects a JWT body posted
+	// creating a stub server that expects a JOSE body posted
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		require.Equal(t, req.URL.String(), "/some/path")
 
