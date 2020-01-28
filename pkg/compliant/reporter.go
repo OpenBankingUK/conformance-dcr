@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -55,7 +56,7 @@ func (r reporter) Report(result ManifestResult) error {
 	return nil
 }
 
-func (r reporter) startServer(report []byte) {
+func (r reporter) startServer(report io.Reader) {
 	go func() {
 		handler := downloadHandler{
 			doneSignalChan: r.doneSignalChan,
@@ -183,12 +184,12 @@ type ReportStep struct {
 
 type downloadHandler struct {
 	doneSignalChan chan<- bool
-	report         []byte
+	report         io.Reader
 }
 
 func (h downloadHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if r.URL.Query().Get("download") != "" {
-		_, err := rw.Write(h.report)
+		_, err := io.Copy(rw, h.report)
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
 			fmt.Printf("Server error: %s", err.Error())
@@ -210,7 +211,7 @@ type ReportFile struct {
 	Body string
 }
 
-func ZipReportFiles(files []ReportFile) ([]byte, error) {
+func ZipReportFiles(files []ReportFile) (*bytes.Buffer, error) {
 	buf := new(bytes.Buffer)
 	w := zip.NewWriter(buf)
 
@@ -225,5 +226,5 @@ func ZipReportFiles(files []ReportFile) ([]byte, error) {
 		}
 	}
 	w.Close()
-	return buf.Bytes(), nil
+	return buf, nil
 }
