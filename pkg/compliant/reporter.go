@@ -36,7 +36,8 @@ func (r reporter) Report(result ManifestResult) error {
 	}
 
 	if r.debug {
-		debugJson, err := json.MarshalIndent(r.GetDebugLog(result), "", " ")
+		var debugJson []byte
+		debugJson, err = json.MarshalIndent(r.GetDebugLog(result), "", " ")
 		if err != nil {
 			return err
 		}
