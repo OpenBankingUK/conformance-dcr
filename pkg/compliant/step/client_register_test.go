@@ -17,7 +17,7 @@ func TestNewClientRegister(t *testing.T) {
 
 		require.Equal(t, "application/jose", req.Header.Get("Content-Type"))
 
-		// does it have the JWT body?
+		// does it have the JOSE body?
 		body, err := ioutil.ReadAll(req.Body)
 		require.NoError(t, err)
 		assert.Equal(t, "jwt.Claims.xxxx", string(body))
