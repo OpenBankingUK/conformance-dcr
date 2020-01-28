@@ -12,7 +12,7 @@ COMMIT_HASH_SHORT	:= $(shell git rev-parse --short HEAD)
 
 # Go build flags:
 # => "-X main.version=0.0.1 -X main.commitHash=227cea43baed3e8be03f8adc8da33bef73cdb377 -X 'main.buildTime=Fri Aug 30 09:46:24 UTC 2019'"
-LD_FLAGS := "-X main.version=1.0.0 -X main.commitHash=${COMMIT_HASH} -X 'main.buildTime=${BUILD_TIME}'"
+LD_FLAGS := "-X main.version=1.0.1 -X main.commitHash=${COMMIT_HASH} -X 'main.buildTime=${BUILD_TIME}'"
 
 .PHONY: all
 all: fmt lint_fix test build e2e build_image
