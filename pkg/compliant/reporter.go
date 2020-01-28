@@ -212,7 +212,7 @@ type ReportFile struct {
 func ZipReportFiles(files []ReportFile) ([]byte, error) {
 	buf := new(bytes.Buffer)
 	w := zip.NewWriter(buf)
-	defer w.Close()
+
 	for _, file := range files {
 		f, err := w.Create(file.Name)
 		if err != nil {
@@ -223,6 +223,6 @@ func ZipReportFiles(files []ReportFile) ([]byte, error) {
 			return nil, err
 		}
 	}
-
+	w.Close()
 	return buf.Bytes(), nil
 }
