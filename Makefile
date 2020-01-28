@@ -33,9 +33,13 @@ build: ## build the server binary directly.
 	go build -ldflags ${LD_FLAGS} -o dcr bitbucket.org/openbankingteam/conformance-dcr/cmd/cli
 
 .PHONY: build_image
-build_image: ## build the docker image.
+build_image: ## build the docker image. Use available args IMAGE_TAG=v1.x.y, ENABLE_IMAGE_SIGNING=1
 	@echo -e "\033[92m  ---> Building image ... \033[0m"
-	docker build -t "openbanking/conformance-dcr:latest" .
+	@# We could enable parallel builds for multi-staged builds with `DOCKER_BUILDKIT=1`
+	@# See: https://github.com/moby/moby/pull/37151
+	@#DOCKER_BUILDKIT=1
+	@export DOCKER_CONTENT_TRUST=${ENABLE_IMAGE_SIGNING}
+	docker build ${DOCKER_BUILD_ARGS} -t "openbanking/conformance-dcr:${IMAGE_TAG}" .
 
 ##@ Dependencies:
 
