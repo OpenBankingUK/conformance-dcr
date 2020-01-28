@@ -225,6 +225,9 @@ func ZipReportFiles(files []ReportFile) (*bytes.Buffer, error) {
 			return nil, err
 		}
 	}
-	w.Close()
+	err := w.Close()
+	if err != nil {
+		return nil, err
+	}
 	return buf, nil
 }
