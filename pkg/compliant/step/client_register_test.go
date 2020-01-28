@@ -11,14 +11,13 @@ import (
 )
 
 func TestNewClientRegister(t *testing.T) {
-	// creating a stub server that expects a JWT body posted
+	// creating a stub server that expects a JOSE body posted
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		require.Equal(t, req.URL.String(), "/some/path")
 
-		// is it a JWT body?
-		require.Equal(t, "application/jwt", req.Header.Get("Content-Type"))
+		require.Equal(t, "application/jose", req.Header.Get("Content-Type"))
 
-		// does it have the JWT body?
+		// does it have the JOSE body?
 		body, err := ioutil.ReadAll(req.Body)
 		require.NoError(t, err)
 		assert.Equal(t, "jwt.Claims.xxxx", string(body))
