@@ -48,5 +48,5 @@ pipelines:
         - step:
             name: docker-image-build
             script:
-              - make build_image
+              - make build_image IMAGE_TAG=latest
               - docker images

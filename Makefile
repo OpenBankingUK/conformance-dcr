@@ -12,7 +12,7 @@ COMMIT_HASH_SHORT	:= $(shell git rev-parse --short HEAD)
 
 # Go build flags:
 # => "-X main.version=0.0.1 -X main.commitHash=227cea43baed3e8be03f8adc8da33bef73cdb377 -X 'main.buildTime=Fri Aug 30 09:46:24 UTC 2019'"
-LD_FLAGS := "-X main.version=1.0.0 -X main.commitHash=${COMMIT_HASH} -X 'main.buildTime=${BUILD_TIME}'"
+LD_FLAGS := "-X main.version=1.0.1 -X main.commitHash=${COMMIT_HASH} -X 'main.buildTime=${BUILD_TIME}'"
 
 .PHONY: all
 all: fmt lint_fix test build e2e build_image
@@ -33,9 +33,13 @@ build: ## build the server binary directly.
 	go build -ldflags ${LD_FLAGS} -o dcr bitbucket.org/openbankingteam/conformance-dcr/cmd/cli
 
 .PHONY: build_image
-build_image: ## build the docker image.
+build_image: ## build the docker image. Use available args IMAGE_TAG=v1.x.y, ENABLE_IMAGE_SIGNING=1
 	@echo -e "\033[92m  ---> Building image ... \033[0m"
-	docker build -t "openbanking/conformance-dcr:latest" .
+	@# We could enable parallel builds for multi-staged builds with `DOCKER_BUILDKIT=1`
+	@# See: https://github.com/moby/moby/pull/37151
+	@#DOCKER_BUILDKIT=1
+	@export DOCKER_CONTENT_TRUST=${ENABLE_IMAGE_SIGNING}
+	docker build ${DOCKER_BUILD_ARGS} -t "openbanking/conformance-dcr:${IMAGE_TAG}" .
 
 ##@ Dependencies:
 
