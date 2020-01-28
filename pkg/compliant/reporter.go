@@ -25,42 +25,31 @@ type reporter struct {
 	serverAddr     string
 }
 
-// Report marshals the result into json, then starts a server to host the generated report file.
+// Report marshals the result and debug into json, zips them, then starts a server to host the generated zip file.
 func (r reporter) Report(result ManifestResult) error {
-	reportFile, err := json.MarshalIndent(r.mapToReport(result), "", " ")
+	reportJson, err := json.MarshalIndent(r.mapToReport(result), "", " ")
 	if err != nil {
 		return err
 	}
-	var files = []struct {
-		Name, Body string
-	}{
-		{"report.json", string(reportFile)},
+	var files = []ReportFile{
+		{"report.json", string(reportJson)},
 	}
 
 	if r.debug {
-		debugFile, err := json.MarshalIndent(r.GetDebugLog(result), "", " ")
+		debugJson, err := json.MarshalIndent(r.GetDebugLog(result), "", " ")
 		if err != nil {
 			return err
 		}
 
-		files = append(files, struct{ Name, Body string }{"debug.json", string(debugFile)})
+		files = append(files, ReportFile{"debug.json", string(debugJson)})
 	}
 
-	buf := new(bytes.Buffer)
-	w := zip.NewWriter(buf)
-
-	for _, file := range files {
-		f, err := w.Create(file.Name)
-		if err != nil {
-			return err
-		}
-		_, err = f.Write([]byte(file.Body))
-		if err != nil {
-			return err
-		}
+	b, err := ZipReportFiles(files)
+	if err != nil {
+		return err
 	}
-	w.Close()
-	r.startServer(buf.Bytes())
+
+	r.startServer(b)
 
 	return nil
 }
@@ -213,4 +202,27 @@ func (h downloadHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Server error: %s", err.Error())
 		rw.WriteHeader(http.StatusInternalServerError)
 	}
+}
+
+type ReportFile struct {
+	Name string
+	Body string
+}
+
+func ZipReportFiles(files []ReportFile) ([]byte, error) {
+	buf := new(bytes.Buffer)
+	w := zip.NewWriter(buf)
+	defer w.Close()
+	for _, file := range files {
+		f, err := w.Create(file.Name)
+		if err != nil {
+			return nil, err
+		}
+		_, err = f.Write([]byte(file.Body))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return buf.Bytes(), nil
 }
