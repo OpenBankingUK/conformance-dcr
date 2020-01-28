@@ -1,14 +1,15 @@
 package compliant
 
 import (
+	"archive/zip"
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
-	"os"
+	"time"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
-	"github.com/sirupsen/logrus"
 )
 
 func NewReporter(debug bool, doneSignal chan<- bool, serverAddr string) reporter {
@@ -25,41 +26,37 @@ type reporter struct {
 	serverAddr     string
 }
 
-// Report marshals the result into json, then starts a server to host the generated report file.
+// Report marshals the result and debug into json, zips them, then starts a server to host the generated zip file.
 func (r reporter) Report(result ManifestResult) error {
-	file, err := json.MarshalIndent(r.mapToReport(result), "", " ")
+	reportJson, err := json.MarshalIndent(r.mapToReport(result), "", " ")
 	if err != nil {
 		return err
 	}
-
-	reportFile := "report.json"
-	files := []string{reportFile}
-	err = ioutil.WriteFile(reportFile, file, os.ModePerm)
-	if err != nil {
-		return err
+	var files = []ReportFile{
+		{"report.json", string(reportJson)},
 	}
 
 	if r.debug {
-		var debugFile *os.File
-		debugFile, err = r.GetDebugFile(result)
+		var debugJson []byte
+		debugJson, err = json.MarshalIndent(r.GetDebugLog(result), "", " ")
 		if err != nil {
 			return err
 		}
 
-		files = append(files, debugFile.Name())
+		files = append(files, ReportFile{"debug.json", string(debugJson)})
 	}
 
-	zip, err := ZipFiles(files)
+	b, err := ZipReportFiles(files)
 	if err != nil {
 		return err
 	}
 
-	r.startServer(zip)
+	r.startServer(b)
 
 	return nil
 }
 
-func (r reporter) startServer(report *os.File) {
+func (r reporter) startServer(report io.Reader) {
 	go func() {
 		handler := downloadHandler{
 			doneSignalChan: r.doneSignalChan,
@@ -72,38 +69,46 @@ func (r reporter) startServer(report *os.File) {
 	}()
 }
 
-func (r reporter) GetDebugFile(result ManifestResult) (*os.File, error) {
-	file, err := os.Create("debug.json")
-	if err != nil {
-		return nil, err
-	}
-	log := logrus.New()
-	log.SetFormatter(&logrus.JSONFormatter{})
-	log.SetOutput(file)
-	log.SetLevel(logrus.DebugLevel)
+type DebugLine struct {
+	Time     string         `json:"time,omitempty"`
+	Message  string         `json:"message,omitempty"`
+	Scenario ReportScenario `json:"scenario,omitempty"`
+	Testcase ReportTestcase `json:"testcase,omitempty"`
+	Result   ReportStep     `json:"result,omitempty"`
+}
+
+func (r reporter) GetDebugLog(result ManifestResult) []DebugLine {
+
+	var log []DebugLine
 
 	for _, scenario := range result.Results {
 		for _, testcase := range scenario.TestCaseResults {
 			for _, result := range testcase.Results {
 				for _, message := range result.Debug.Item {
-					log.WithTime(message.Time).
-						WithFields(logrus.Fields{
-							"scenario_id":        scenario.Id,
-							"scenario_name":      scenario.Name,
-							"scenario_spec":      scenario.Spec,
-							"scenario_pass":      !scenario.Fail(),
-							"testcase_name":      testcase.Name,
-							"testcase_pass":      !testcase.Fail(),
-							"result_name":        result.Name,
-							"result_pass":        result.Pass,
-							"result_fail_reason": result.FailReason,
-						}).
-						Debug(message.Message)
+					log = append(log, DebugLine{
+						Message: message.Message,
+						Time:    message.Time.Format(time.RFC3339),
+						Scenario: ReportScenario{
+							Id:   scenario.Id,
+							Name: scenario.Name,
+							Spec: scenario.Spec,
+							Pass: !scenario.Fail(),
+						},
+						Testcase: ReportTestcase{
+							Name: testcase.Name,
+							Pass: !testcase.Fail(),
+						},
+						Result: ReportStep{
+							Name:   result.Name,
+							Pass:   result.Pass,
+							Reason: result.FailReason,
+						},
+					})
 				}
 			}
 		}
 	}
-	return file, nil
+	return log
 }
 
 func (r reporter) mapToReport(result ManifestResult) Report {
@@ -153,7 +158,7 @@ type Report struct {
 	Name      string           `json:"name"`
 	Version   string           `json:"version"`
 	Pass      bool             `json:"pass"`
-	Scenarios []ReportScenario `json:"scenarios"`
+	Scenarios []ReportScenario `json:"scenarios,omitempty"`
 }
 
 type ReportScenario struct {
@@ -161,13 +166,13 @@ type ReportScenario struct {
 	Name      string           `json:"name"`
 	Spec      string           `json:"spec"`
 	Pass      bool             `json:"pass"`
-	TestCases []ReportTestcase `json:"test_cases"`
+	TestCases []ReportTestcase `json:"test_cases,omitempty"`
 }
 
 type ReportTestcase struct {
 	Name  string       `json:"name"`
 	Pass  bool         `json:"pass"`
-	Steps []ReportStep `json:"steps"`
+	Steps []ReportStep `json:"steps,omitempty"`
 }
 
 type ReportStep struct {
@@ -179,17 +184,12 @@ type ReportStep struct {
 
 type downloadHandler struct {
 	doneSignalChan chan<- bool
-	report         *os.File
+	report         io.Reader
 }
 
 func (h downloadHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if r.URL.Query().Get("download") != "" {
-		b, err := ioutil.ReadFile(h.report.Name())
-		if err != nil {
-			rw.WriteHeader(http.StatusInternalServerError)
-			fmt.Printf("Server error: %s", err.Error())
-		}
-		_, err = rw.Write(b)
+		_, err := io.Copy(rw, h.report)
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
 			fmt.Printf("Server error: %s", err.Error())
@@ -204,4 +204,30 @@ func (h downloadHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Server error: %s", err.Error())
 		rw.WriteHeader(http.StatusInternalServerError)
 	}
+}
+
+type ReportFile struct {
+	Name string
+	Body string
+}
+
+func ZipReportFiles(files []ReportFile) (*bytes.Buffer, error) {
+	buf := new(bytes.Buffer)
+	w := zip.NewWriter(buf)
+
+	for _, file := range files {
+		f, err := w.Create(file.Name)
+		if err != nil {
+			return nil, err
+		}
+		_, err = f.Write([]byte(file.Body))
+		if err != nil {
+			return nil, err
+		}
+	}
+	err := w.Close()
+	if err != nil {
+		return nil, err
+	}
+	return buf, nil
 }
