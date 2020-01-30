@@ -8,15 +8,12 @@ ENV GOARCH=amd64
 
 WORKDIR /app
 
-RUN printf "%b" "\033[92m" "gobuilder: copying only go.mod and go.sum for pre-cache step..." "\033[0m" "\n"
 COPY go.mod go.sum ./
 RUN go mod download
-RUN printf "%b" "\033[92m" "gobuilder: copying all files ..." "\033[0m" "\n"
 COPY . .
 RUN make build
 
-RUN printf "%b" "\033[92m" "gobuilder: printing DCR version information ..." "\033[0m" "\n" && \
-    /app/dcr -version
+RUN /app/dcr -version
 
 # Final image to run the binary
 FROM scratch
