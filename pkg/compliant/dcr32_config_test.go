@@ -33,7 +33,6 @@ func TestNewDCR32Config(t *testing.T) {
 		false,
 		false,
 		false,
-		false,
 	)
 	require.NoError(t, err)
 

@@ -80,7 +80,6 @@ func runCmd(flags flags) {
 		cfg.GetImplemented,
 		cfg.PutImplemented,
 		cfg.DeleteImplemented,
-		flags.tokenEndpointRS256Method,
 		flags.tlsSkipVerify,
 	)
 	exitOnError(err)
@@ -135,38 +134,35 @@ func serverAddress(port string) string {
 }
 
 type flags struct {
-	versionCmd               bool
-	configFilePath           string
-	filterExpression         string
-	debug                    bool
-	report                   bool
-	tokenEndpointRS256Method bool
-	tlsSkipVerify            bool
-	httpServerPort           string
+	versionCmd       bool
+	configFilePath   string
+	filterExpression string
+	debug            bool
+	report           bool
+	tlsSkipVerify    bool
+	httpServerPort   string
 }
 
 func mustParseFlags() flags {
 	var configFilePath, filterExpression, httpServerPort string
-	var debug, report, versionFlag, tokenEndpointRS256Method, tlsSkipVerify bool
+	var debug, report, versionFlag, tlsSkipVerify bool
 	flag.StringVar(&configFilePath, "config-path", "", "Config file path")
 	flag.StringVar(&filterExpression, "filter", "", "Filter scenarios containing value")
 	flag.StringVar(&httpServerPort, "port", "8080", "Http server port for report download")
 	flag.BoolVar(&debug, "debug", false, "Enable debug defaults to disabled")
 	flag.BoolVar(&report, "report", false, "Enable report output defaults to disabled")
 	flag.BoolVar(&versionFlag, "version", false, "Print the version details of conformance-dcr")
-	flag.BoolVar(&tokenEndpointRS256Method, "rs256", false, "Run test suite with RS256 (testing only)")
 	flag.BoolVar(&tlsSkipVerify, "tlsskipverify", false, "Skip ssl cert verify")
 	flag.Parse()
 
 	return flags{
-		configFilePath:           configFilePath,
-		filterExpression:         filterExpression,
-		debug:                    debug,
-		report:                   report,
-		versionCmd:               versionFlag,
-		tokenEndpointRS256Method: tokenEndpointRS256Method,
-		tlsSkipVerify:            tlsSkipVerify,
-		httpServerPort:           httpServerPort,
+		configFilePath:   configFilePath,
+		filterExpression: filterExpression,
+		debug:            debug,
+		report:           report,
+		versionCmd:       versionFlag,
+		tlsSkipVerify:    tlsSkipVerify,
+		httpServerPort:   httpServerPort,
 	}
 }
 
