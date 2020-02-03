@@ -12,7 +12,7 @@ import (
 type Configuration struct {
 	RegistrationEndpoint              *string  `json:"registration_endpoint"`
 	TokenEndpoint                     string   `json:"token_endpoint"`
-	ObjectSignAlgSupported            []string `json:"request_object_signing_alg_values_supported"`
+	RequestObjectSignAlgSupported     []string `json:"request_object_signing_alg_values_supported"`
 	TokenEndpointAuthMethodsSupported []string `json:"token_endpoint_auth_methods_supported"`
 }
 

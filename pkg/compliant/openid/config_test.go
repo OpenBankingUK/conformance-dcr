@@ -29,7 +29,7 @@ func TestGetConfig(t *testing.T) {
 	expected := Configuration{
 		RegistrationEndpoint:              &registrationEndpoint,
 		TokenEndpoint:                     "http://token_endpoint",
-		ObjectSignAlgSupported:            []string{"alg1"},
+		RequestObjectSignAlgSupported:     []string{"alg1"},
 		TokenEndpointAuthMethodsSupported: []string{"alg2"},
 	}
 	assert.Equal(t, expected, config)

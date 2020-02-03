@@ -21,6 +21,7 @@ type jwtSigner struct {
 	audience                string
 	kID                     string
 	tokenEndpointAuthMethod string
+	requestObjectSignAlg    string
 	redirectURIs            []string
 	privateKey              *rsa.PrivateKey
 	jwtExpiration           time.Duration
@@ -34,6 +35,7 @@ func NewJwtSigner(
 	audience,
 	kID,
 	tokenEndpointAuthMethod string,
+	requestObjectSignAlg string,
 	redirectURIs []string,
 	privateKey *rsa.PrivateKey,
 	jwtExpiration time.Duration,
@@ -46,6 +48,7 @@ func NewJwtSigner(
 		audience:                audience,
 		kID:                     kID,
 		tokenEndpointAuthMethod: tokenEndpointAuthMethod,
+		requestObjectSignAlg:    requestObjectSignAlg,
 		redirectURIs:            redirectURIs,
 		privateKey:              privateKey,
 		jwtExpiration:           jwtExpiration,
@@ -62,7 +65,6 @@ func (s jwtSigner) Claims() (string, error) {
 	iat := time.Now().UTC()
 	exp := iat.Add(s.jwtExpiration)
 	claims := jwt.MapClaims{
-
 		// This should be the unique identifier for the ASPSP
 		// issued by the issuer of the software statement.
 		// An ASPSP processing the software statement may validate the
@@ -92,7 +94,7 @@ func (s jwtSigner) Claims() (string, error) {
 		"token_endpoint_auth_method": s.tokenEndpointAuthMethod,
 		"software_statement":         s.ssa,
 		"scope":                      "accounts openid",
-		"request_object_signing_alg": "none",
+		"request_object_signing_alg": s.requestObjectSignAlg,
 		"response_types": []string{
 			"code",
 			"code id_token",
