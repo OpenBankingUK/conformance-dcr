@@ -24,4 +24,7 @@ func TestClientTlsClientAuth(t *testing.T) {
 
 	require.Equal(t, 1, len(bodyDecoded["grant_type"]))
 	require.Equal(t, "client_credentials", bodyDecoded["grant_type"][0])
+
+	require.Equal(t, 1, len(bodyDecoded["scope"]))
+	require.Equal(t, "openid", bodyDecoded["scope"][0])
 }
