@@ -26,16 +26,19 @@ See the guide at [QUICK-START.md](https://bitbucket.org/openbankingteam/conforma
 ## Release Notes 
 * * *
 
-# Release v1.0.2
+### Release v1.0.2
 
 The release is called **v1.0.2**, it updates the tool:
+
 - Removed unused RS256 flag
 - Fixed `request_object_signing_alg` claims value from `none` to first found in .wellknown  
 - Fixed missing `scope` in client credentials grant call  
+- Fixed wrong header token value calculation for `client_secret_basic` token endpoint auth method   
 
-# Release v1.0.1
+### Release v1.0.1
 
 The release is called **v1.0.1**, it updates the tool:
+
 - Support report download via http
 - Patch to fix 3rd party library bug jwt-go
 - Fix content type sent on client register to application/jose
