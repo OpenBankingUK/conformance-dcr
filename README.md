@@ -26,6 +26,13 @@ See the guide at [QUICK-START.md](https://bitbucket.org/openbankingteam/conforma
 ## Release Notes 
 * * *
 
+# Release v1.0.2
+
+The release is called **v1.0.2**, it updates the tool:
+- Removed unused RS256 flag
+- Fixed `request_object_signing_alg` claims value from `none` to first found in .wellknown  
+- Fixed missing `scope` in client credentials grant call  
+
 # Release v1.0.1
 
 The release is called **v1.0.1**, it updates the tool:
