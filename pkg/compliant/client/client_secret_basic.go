@@ -11,15 +11,15 @@ import (
 
 type clientSecretBasic struct {
 	id            string
-	tokenEndpoint string
 	secret        string
+	tokenEndpoint string
 }
 
-func NewClientSecretBasic(id, tokenEndpoint, secret string) Client {
+func NewClientSecretBasic(id, secret, tokenEndpoint string) Client {
 	return clientSecretBasic{
 		id:            id,
-		tokenEndpoint: tokenEndpoint,
 		secret:        secret,
+		tokenEndpoint: tokenEndpoint,
 	}
 }
 

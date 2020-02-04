@@ -1,6 +1,8 @@
 package step
 
 import (
+	"encoding/base64"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -36,7 +38,9 @@ func TestNewClientRegisterResponse(t *testing.T) {
 	r, err := client.CredentialsGrantRequest()
 	require.NoError(t, err)
 	assert.Equal(t, "12345", client.Id())
-	assert.Equal(t, "Basic MTIzNDU6", r.Header.Get("Authorization"))
+
+	expectedTokenHeader := fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte("12345:54321")))
+	assert.Equal(t, expectedTokenHeader, r.Header.Get("Authorization"))
 }
 
 func TestNewClientRegisterResponse_FailsIfResponseNotFoundInContext(t *testing.T) {

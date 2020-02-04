@@ -1,6 +1,8 @@
 package client
 
 import (
+	"encoding/base64"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
@@ -9,12 +11,14 @@ import (
 )
 
 func TestClientBasic(t *testing.T) {
-	client := NewClientSecretBasic("id", "token", "secret")
+	client := NewClientSecretBasic("id", "secret", "http://endpoint")
+
+	expectedTokenHeader := fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte("id:secret")))
 
 	request, err := client.CredentialsGrantRequest()
 	require.NoError(t, err)
 	assert.Equal(t, "id", client.Id())
-	assert.Equal(t, "Basic aWQ6c2VjcmV0", request.Header.Get("Authorization"))
+	assert.Equal(t, expectedTokenHeader, request.Header.Get("Authorization"))
 
 	bodyByes, err := ioutil.ReadAll(request.Body)
 	require.NoError(t, err)

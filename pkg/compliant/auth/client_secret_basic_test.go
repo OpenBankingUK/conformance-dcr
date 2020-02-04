@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"encoding/base64"
+	"fmt"
 	"testing"
 	"time"
 
@@ -61,5 +63,7 @@ func TestClientSecretBasicAuther_Client_ReturnsAClient(t *testing.T) {
 	r, err := client.CredentialsGrantRequest()
 	require.NoError(t, err)
 	assert.Equal(t, "12345", client.Id())
-	assert.Equal(t, "Basic MTIzNDU6dG9rZW5FbmRwb2ludA==", r.Header.Get("Authorization"))
+
+	expectedTokenHeader := fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte("12345:54321")))
+	assert.Equal(t, expectedTokenHeader, r.Header.Get("Authorization"))
 }
