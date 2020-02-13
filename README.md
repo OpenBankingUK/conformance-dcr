@@ -26,6 +26,12 @@ See the guide at [QUICK-START.md](https://bitbucket.org/openbankingteam/conforma
 ## Release Notes 
 * * *
 
+### Release v1.0.3
+
+The release is called **v1.0.3**, it updates the tool:
+
+- Fixed `response_types` property in register software from static to `response_types_supported` from .wellknown    
+
 ### Release v1.0.2
 
 The release is called **v1.0.2**, it updates the tool:
