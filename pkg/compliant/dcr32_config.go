@@ -68,6 +68,7 @@ func NewDCR32Config(
 		WithKID(kid).
 		WithIssuer(issuer).
 		WithRedirectURIs(redirectURIs).
+		WithResponseTypes(openIDConfig.ResponseTypesSupported).
 		WithPrivateKey(privateKey).
 		WithTransportCert(transportCert)
 

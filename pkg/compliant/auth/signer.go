@@ -23,6 +23,7 @@ type jwtSigner struct {
 	tokenEndpointAuthMethod string
 	requestObjectSignAlg    string
 	redirectURIs            []string
+	responseTypes           *[]string
 	privateKey              *rsa.PrivateKey
 	jwtExpiration           time.Duration
 	transportCert           *x509.Certificate
@@ -37,6 +38,7 @@ func NewJwtSigner(
 	tokenEndpointAuthMethod string,
 	requestObjectSignAlg string,
 	redirectURIs []string,
+	responseTypes *[]string,
 	privateKey *rsa.PrivateKey,
 	jwtExpiration time.Duration,
 	transportCert *x509.Certificate,
@@ -50,6 +52,7 @@ func NewJwtSigner(
 		tokenEndpointAuthMethod: tokenEndpointAuthMethod,
 		requestObjectSignAlg:    requestObjectSignAlg,
 		redirectURIs:            redirectURIs,
+		responseTypes:           responseTypes,
 		privateKey:              privateKey,
 		jwtExpiration:           jwtExpiration,
 		transportCert:           transportCert,
@@ -88,18 +91,23 @@ func (s jwtSigner) Claims() (string, error) {
 			"authorization_code",
 			"client_credentials",
 		},
-		"subject_type":               "public",
-		"application_type":           "web",
-		"redirect_uris":              s.redirectURIs,
-		"token_endpoint_auth_method": s.tokenEndpointAuthMethod,
-		"software_statement":         s.ssa,
-		"scope":                      "accounts openid",
-		"request_object_signing_alg": s.requestObjectSignAlg,
-		"response_types": []string{
-			"code",
-			"code id_token",
-		},
+		"subject_type":                 "public",
+		"application_type":             "web",
+		"redirect_uris":                s.redirectURIs,
+		"token_endpoint_auth_method":   s.tokenEndpointAuthMethod,
+		"software_statement":           s.ssa,
+		"scope":                        "accounts openid",
+		"request_object_signing_alg":   s.requestObjectSignAlg,
 		"id_token_signed_response_alg": s.signingAlgorithm.Alg(),
+	}
+
+	err = validResponseTypes(s.responseTypes)
+	if err != nil {
+		return "", errors.Wrap(err, "signing claims")
+	}
+
+	if s.responseTypes != nil {
+		claims["response_types"] = s.responseTypes
 	}
 
 	if s.tokenEndpointAuthMethod == "tls_client_auth" {
@@ -118,4 +126,23 @@ func (s jwtSigner) Claims() (string, error) {
 	}
 
 	return signedJwt, nil
+}
+
+// DCR 3.2 spec allows: nil, "code" or "code id_token"
+func validResponseTypes(types *[]string) error {
+	if types == nil {
+		return nil
+	}
+
+	if len(*types) == 0 {
+		return errors.New("response types exists but empty")
+	}
+
+	for _, value := range *types {
+		if value != "code" && value != "code id_token" {
+			return errors.New("response types must be `code` and/or `code id_token`")
+		}
+	}
+
+	return nil
 }

@@ -10,10 +10,11 @@ import (
 )
 
 type Configuration struct {
-	RegistrationEndpoint              *string  `json:"registration_endpoint"`
-	TokenEndpoint                     string   `json:"token_endpoint"`
-	RequestObjectSignAlgSupported     []string `json:"request_object_signing_alg_values_supported"`
-	TokenEndpointAuthMethodsSupported []string `json:"token_endpoint_auth_methods_supported"`
+	RegistrationEndpoint              *string   `json:"registration_endpoint"`
+	TokenEndpoint                     string    `json:"token_endpoint"`
+	RequestObjectSignAlgSupported     []string  `json:"request_object_signing_alg_values_supported"`
+	TokenEndpointAuthMethodsSupported []string  `json:"token_endpoint_auth_methods_supported"`
+	ResponseTypesSupported            *[]string `json:"response_types_supported"`
 }
 
 func (c Configuration) RegistrationEndpointAsString() string {
@@ -51,23 +52,4 @@ func Get(url string, client *http.Client) (Configuration, error) {
 		return config, errors.Wrap(err, "invalid OpenIDConfiguration body content")
 	}
 	return config, nil
-}
-
-type builder struct {
-	config Configuration
-}
-
-func NewBuilder() *builder {
-	return &builder{
-		config: Configuration{},
-	}
-}
-
-func (b *builder) From(config Configuration) *builder {
-	b.config = config
-	return b
-}
-
-func (b *builder) Build() Configuration {
-	return b.config
 }
