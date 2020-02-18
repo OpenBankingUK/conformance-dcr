@@ -24,11 +24,12 @@ See the guide at [QUICK-START.md](https://bitbucket.org/openbankingteam/conforma
 * Dynamic Client Registration v3.1: <https://openbankinguk.github.io/dcr-docs-pub/v3.1/dynamic-client-registration.html>.
 
 ## Release Notes 
-* * *
+
+### Release v1.0.3
+
+- Fixed `response_types` property in register software from static to `response_types_supported` from .wellknown    
 
 ### Release v1.0.2
-
-The release is called **v1.0.2**, it updates the tool:
 
 - Removed unused RS256 flag
 - Fixed `request_object_signing_alg` claims value from `none` to first found in .wellknown  
@@ -36,8 +37,6 @@ The release is called **v1.0.2**, it updates the tool:
 - Fixed wrong header token value calculation for `client_secret_basic` token endpoint auth method   
 
 ### Release v1.0.1
-
-The release is called **v1.0.1**, it updates the tool:
 
 - Support report download via http
 - Patch to fix 3rd party library bug jwt-go
