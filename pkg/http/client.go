@@ -37,7 +37,7 @@ func NewMATLSClient(config MATLSConfig) (*http.Client, error) {
 	tlsConfig.BuildNameToCertificate()
 	transport := &http.Transport{TLSClientConfig: tlsConfig}
 
-	return &http.Client{Transport: transport, Timeout: time.Second * 5}, nil
+	return &http.Client{Transport: transport, Timeout: time.Second * 10}, nil
 }
 
 func TlsClientCert(certPEMBlock, keyPEMBlock []byte) ([]tls.Certificate, error) {
