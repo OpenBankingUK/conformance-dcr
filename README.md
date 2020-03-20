@@ -25,6 +25,10 @@ See the guide at [QUICK-START.md](https://bitbucket.org/openbankingteam/conforma
 
 ## Release Notes 
 
+### Release v1.0.4
+
+- Increase timeout to 10 seconds on http clients to help slower endpoints
+
 ### Release v1.0.3
 
 - Fixed `response_types` property in register software from static to `response_types_supported` from .wellknown    
