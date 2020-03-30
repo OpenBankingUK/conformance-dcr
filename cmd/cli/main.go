@@ -62,7 +62,7 @@ func runCmd(flags flags) {
 	cfg, err := LoadConfig(flags.configFilePath)
 	exitOnError(err)
 
-	client := &http2.Client{Timeout: time.Second * 2}
+	client := &http2.Client{Timeout: time.Second * 5}
 	openIDConfig, err := openid.Get(cfg.WellknownEndpoint, client)
 	exitOnError(err)
 

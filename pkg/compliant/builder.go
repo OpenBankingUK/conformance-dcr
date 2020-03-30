@@ -49,7 +49,7 @@ func NewTestCaseBuilder(name string) *testCaseBuilder {
 }
 
 func newDefaultHttpClient() *http.Client {
-	return &http.Client{Timeout: time.Second * 5}
+	return &http.Client{Timeout: time.Second * 10}
 }
 
 const (
