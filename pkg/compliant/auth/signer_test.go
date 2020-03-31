@@ -170,12 +170,42 @@ func TestNewJwtSigner_OmitsEmptyResponseTypes(t *testing.T) {
 	assert.False(t, exists)
 }
 
-func TestValidResponseTypes(t *testing.T) {
-	assert.NoError(t, validResponseTypes(nil))
-	assert.NoError(t, validResponseTypes(&[]string{"code"}))
-	assert.NoError(t, validResponseTypes(&[]string{"code id_token"}))
-	assert.NoError(t, validResponseTypes(&[]string{"code", "code id_token"}))
+func TestNewJwtSigner_ResponseTypesFromResolver(t *testing.T) {
+	privateKey, err := certs.ParseRsaPrivateKeyFromPemFile("testdata/private-sign.key")
+	require.NoError(t, err)
+	signer := NewJwtSigner(
+		jwt.SigningMethodRS256,
+		"ssa",
+		"issuer",
+		"aud",
+		"kid",
+		"tls_client_auth",
+		"none",
+		[]string{"/redirect"},
 
-	assert.EqualError(t, validResponseTypes(&[]string{}), "response types exists but empty")
-	assert.EqualError(t, validResponseTypes(&[]string{"wrong"}), "response types must be `code` and/or `code id_token`")
+		// testing empty/nil
+		&[]string{"code", "token"},
+
+		privateKey,
+		time.Hour,
+		&x509.Certificate{Subject: pkix.Name{Organization: []string{"OB"}}},
+	)
+
+	signedClaims, err := signer.Claims()
+	require.NoError(t, err)
+
+	token, err := jwt.Parse(signedClaims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return privateKey.Public(), nil
+	})
+	require.NoError(t, err)
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	assert.True(t, ok)
+
+	responseTypes, exists := claims["response_types"]
+	assert.True(t, exists)
+	assert.Equal(t, []interface{}{"code"}, responseTypes)
 }
