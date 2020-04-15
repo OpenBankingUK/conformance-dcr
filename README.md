@@ -25,9 +25,10 @@ See the guide at [QUICK-START.md](https://bitbucket.org/openbankingteam/conforma
 
 ## Release Notes 
 
-### Release v1.0.5 (in progress)
+### Release v1.0.5
 
 - Token endpoint sign method now comes from wellknown and limited to PS256
+- Added missing license
 - Limit `response_type` to `code` and/or `code id_token` if more present in the .wellknown endpoint
 
 ### Release v1.0.4
