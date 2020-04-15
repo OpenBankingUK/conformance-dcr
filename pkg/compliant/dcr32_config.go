@@ -15,17 +15,18 @@ import (
 )
 
 type DCR32Config struct {
-	OpenIDConfig      openid.Configuration
-	SSA               string
-	KID               string
-	RedirectURIs      []string
-	PrivateKey        *rsa.PrivateKey
-	SecureClient      *http2.Client
-	GetImplemented    bool
-	PutImplemented    bool
-	DeleteImplemented bool
-	AuthoriserBuilder auth.AuthoriserBuilder
-	SchemaValidator   schema.Validator
+	OpenIDConfig       openid.Configuration
+	SSA                string
+	KID                string
+	RedirectURIs       []string
+	TokenSigningMethod jwt.SigningMethod
+	PrivateKey         *rsa.PrivateKey
+	SecureClient       *http2.Client
+	GetImplemented     bool
+	PutImplemented     bool
+	DeleteImplemented  bool
+	AuthoriserBuilder  auth.AuthoriserBuilder
+	SchemaValidator    schema.Validator
 }
 
 func NewDCR32Config(
@@ -61,6 +62,12 @@ func NewDCR32Config(
 		return DCR32Config{}, errors.Wrap(err, "creating DCR32 config")
 	}
 
+	tokenSignMethod, err := responseTokenSignMethod(openIDConfig.TokenEndpointSigningAlgSupported)
+	if err != nil {
+		return DCR32Config{}, errors.Wrap(err, "wellknown config")
+	}
+
+	// default authoriser
 	authoriserBuilder := auth.NewAuthoriserBuilder().
 		WithOpenIDConfig(openIDConfig).
 		WithSSA(ssa).
@@ -70,6 +77,7 @@ func NewDCR32Config(
 		WithRedirectURIs(redirectURIs).
 		WithResponseTypes(openIDConfig.ResponseTypesSupported).
 		WithPrivateKey(privateKey).
+		WithTokenEndpointAuthMethod(tokenSignMethod).
 		WithTransportCert(transportCert)
 
 	secureClient, err := http.NewBuilder().

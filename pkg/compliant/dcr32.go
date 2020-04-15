@@ -60,23 +60,30 @@ func DCR32CreateSoftwareClient(
 		"Dynamically create a new software client",
 		specLinkRegisterSoftware,
 	).
-		TestCase(
-			NewTestCaseBuilder("Register software client").
-				WithHttpClient(secureClient).
-				GenerateSignedClaims(authoriserBuilder).
-				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
-				AssertStatusCodeCreated().
-				ParseClientRegisterResponse(authoriserBuilder).
-				Build(),
-		).
-		TestCase(
-			NewTestCaseBuilder("Retrieve client credentials grant").
-				WithHttpClient(secureClient).
-				GetClientCredentialsGrant(cfg.OpenIDConfig.TokenEndpoint).
-				Build(),
-		).
+		TestCase(DCR32CreateSoftwareClientTestCases(cfg, secureClient, authoriserBuilder)...).
 		TestCase(TCDeleteSoftwareClient(cfg, secureClient)).
 		Build()
+}
+
+func DCR32CreateSoftwareClientTestCases(
+	cfg DCR32Config,
+	secureClient *http.Client,
+	authoriserBuilder auth.AuthoriserBuilder,
+) []TestCase {
+	return []TestCase{
+		NewTestCaseBuilder("Register software client").
+			WithHttpClient(secureClient).
+			GenerateSignedClaims(authoriserBuilder).
+			PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
+			AssertStatusCodeCreated().
+			ParseClientRegisterResponse(authoriserBuilder).
+			Build(),
+
+		NewTestCaseBuilder("Retrieve client credentials grant").
+			WithHttpClient(secureClient).
+			GetClientCredentialsGrant(cfg.OpenIDConfig.TokenEndpoint).
+			Build(),
+	}
 }
 
 func TCDeleteSoftwareClient(

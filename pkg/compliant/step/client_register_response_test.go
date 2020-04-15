@@ -3,6 +3,7 @@ package step
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -22,6 +23,7 @@ func TestNewClientRegisterResponse(t *testing.T) {
 		WithKID("kid").
 		WithSSA("ssa").
 		WithPrivateKey(generateKey(t)).
+		WithTokenEndpointAuthMethod(jwt.SigningMethodPS256).
 		WithOpenIDConfig(openIdConfig).
 		WithJwtExpiration(time.Hour)
 	ctx := NewContext()
@@ -68,6 +70,7 @@ func TestNewClientRegisterResponse_HandlesParsingResponseObject(t *testing.T) {
 		WithKID("kid").
 		WithSSA("ssa").
 		WithPrivateKey(generateKey(t)).
+		WithTokenEndpointAuthMethod(jwt.SigningMethodPS256).
 		WithOpenIDConfig(openIdConfig).
 		WithJwtExpiration(time.Hour)
 	ctx := NewContext()

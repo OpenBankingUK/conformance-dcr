@@ -18,7 +18,7 @@ type Authoriser interface {
 
 func NewAuthoriser(
 	config openid.Configuration,
-	ssa, aud, kid, issuer string, tokenEndpointAuthMethod jwt.SigningMethod,
+	ssa, aud, kid, issuer string, tokenEndpointSignMethod jwt.SigningMethod,
 	redirectURIs []string,
 	responseTypes *[]string,
 	privateKey *rsa.PrivateKey,
@@ -34,7 +34,7 @@ func NewAuthoriser(
 		return NewTlsClientAuth(
 			config.TokenEndpoint,
 			NewJwtSigner(
-				tokenEndpointAuthMethod,
+				tokenEndpointSignMethod,
 				ssa,
 				issuer,
 				aud,
@@ -52,9 +52,10 @@ func NewAuthoriser(
 	if sliceContains("private_key_jwt", config.TokenEndpointAuthMethodsSupported) {
 		return NewClientPrivateKeyJwt(
 			config.TokenEndpoint,
+			tokenEndpointSignMethod,
 			privateKey,
 			NewJwtSigner(
-				tokenEndpointAuthMethod,
+				tokenEndpointSignMethod,
 				ssa,
 				issuer,
 				aud,
@@ -73,7 +74,7 @@ func NewAuthoriser(
 		return NewClientSecretJWT(
 			config.TokenEndpoint,
 			NewJwtSigner(
-				tokenEndpointAuthMethod,
+				tokenEndpointSignMethod,
 				ssa,
 				issuer,
 				aud,
@@ -92,7 +93,7 @@ func NewAuthoriser(
 		return NewClientSecretBasic(
 			config.TokenEndpoint,
 			NewJwtSigner(
-				tokenEndpointAuthMethod,
+				tokenEndpointSignMethod,
 				ssa,
 				issuer,
 				aud,

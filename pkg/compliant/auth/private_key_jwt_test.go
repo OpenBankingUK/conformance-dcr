@@ -2,6 +2,7 @@ package auth
 
 import (
 	"crypto/rsa"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -9,7 +10,7 @@ import (
 
 func TestNewClientPrivateKeyJwt(t *testing.T) {
 	privateKey := &rsa.PrivateKey{}
-	a := NewClientPrivateKeyJwt("/token", privateKey, mockedSigner{})
+	a := NewClientPrivateKeyJwt("/token", jwt.SigningMethodPS256, privateKey, mockedSigner{})
 
 	data := []byte(`{"client_id": "12345"}`)
 	client, err := a.Client(data)
@@ -20,7 +21,7 @@ func TestNewClientPrivateKeyJwt(t *testing.T) {
 
 func TestNewClientPrivateKeyJwt_ClientHandlerMarshalError(t *testing.T) {
 	privateKey := &rsa.PrivateKey{}
-	a := NewClientPrivateKeyJwt("/token", privateKey, mockedSigner{})
+	a := NewClientPrivateKeyJwt("/token", jwt.SigningMethodPS256, privateKey, mockedSigner{})
 
 	data := []byte(`{`)
 	_, err := a.Client(data)
@@ -30,7 +31,7 @@ func TestNewClientPrivateKeyJwt_ClientHandlerMarshalError(t *testing.T) {
 
 func TestNewClientPrivateKeyJwt_GeneratesClaims(t *testing.T) {
 	privateKey := &rsa.PrivateKey{}
-	a := NewClientPrivateKeyJwt("/token", privateKey, mockedSigner{})
+	a := NewClientPrivateKeyJwt("/token", jwt.SigningMethodPS256, privateKey, mockedSigner{})
 
 	claims, err := a.Claims()
 

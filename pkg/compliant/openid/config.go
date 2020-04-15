@@ -14,6 +14,7 @@ type Configuration struct {
 	TokenEndpoint                     string    `json:"token_endpoint"`
 	RequestObjectSignAlgSupported     []string  `json:"request_object_signing_alg_values_supported"`
 	TokenEndpointAuthMethodsSupported []string  `json:"token_endpoint_auth_methods_supported"`
+	TokenEndpointSigningAlgSupported  *[]string `json:"token_endpoint_auth_signing_alg_values_supported"`
 	ResponseTypesSupported            *[]string `json:"response_types_supported"`
 }
 

@@ -25,8 +25,8 @@ func NewBuilder(id, name, spec string) *Builder {
 	}
 }
 
-func (b *Builder) TestCase(tc TestCase) *Builder {
-	b.tcs = append(b.tcs, tc)
+func (b *Builder) TestCase(tc ...TestCase) *Builder {
+	b.tcs = append(b.tcs, tc...)
 	return b
 }
 
