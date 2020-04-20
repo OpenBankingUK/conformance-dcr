@@ -111,6 +111,19 @@ func (t *testCaseBuilder) PostClientRegister(registrationEndpoint string) *testC
 	return t
 }
 
+func (t *testCaseBuilder) ClientUpdate(registrationEndpoint string) *testCaseBuilder {
+	nextStep := step.NewClientUpdate(
+		registrationEndpoint,
+		jwtClaimsCtxKey,
+		responseCtxKey,
+		clientCtxKey,
+		grantTokenCtxKey,
+		t.httpClient,
+	)
+	t.steps = append(t.steps, nextStep)
+	return t
+}
+
 func (t *testCaseBuilder) ClientDelete(registrationEndpoint string) *testCaseBuilder {
 	nextStep := step.NewClientDelete(registrationEndpoint, clientCtxKey, grantTokenCtxKey, t.httpClient)
 	t.steps = append(t.steps, nextStep)

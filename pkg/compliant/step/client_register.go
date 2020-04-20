@@ -50,7 +50,7 @@ func (s clientRegister) doJwtPostRequest(endpoint, jwtClaims string) (*http.Resp
 	body := bytes.NewBufferString(jwtClaims)
 	req, err := http.NewRequest(http.MethodPost, endpoint, body)
 	if err != nil {
-		return nil, errors.Wrap(err, "creating jwt post request")
+		return nil, errors.Wrap(err, "creating jose post request")
 	}
 	req.Header.Add("Content-Type", "application/jose")
 	req.Header.Add("Accept", "application/json")
@@ -59,7 +59,7 @@ func (s clientRegister) doJwtPostRequest(endpoint, jwtClaims string) (*http.Resp
 	s.debug.Log("making request")
 	response, err := s.client.Do(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "making jwt post request")
+		return nil, errors.Wrap(err, "making jose post request")
 	}
 	s.debug.Logf("request finished with response status code %d", response.StatusCode)
 

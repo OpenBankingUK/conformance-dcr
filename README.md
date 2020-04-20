@@ -27,6 +27,9 @@ See the guide at [QUICK-START.md](https://bitbucket.org/openbankingteam/conforma
 
 ### Release v1.0.5
 
+- New scenario for updating software client
+- New scenario for updating software client with wrong id
+- New scenario for retrieving software client with wrong id
 - Token endpoint sign method now comes from wellknown and limited to PS256
 - Added missing license
 - Limit `response_type` to `code` and/or `code id_token` if more present in the .wellknown endpoint

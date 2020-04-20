@@ -16,7 +16,7 @@ func TestNewDCR32(t *testing.T) {
 
 	assert.Equal(t, "1.0", manifest.Version())
 	assert.Equal(t, "DCR32", manifest.Name())
-	assert.Equal(t, 7, len(manifest.Scenarios()))
+	assert.Equal(t, 10, len(manifest.Scenarios()))
 }
 
 func TestDCR32ValidateOIDCConfigRegistrationURL(t *testing.T) {
@@ -174,4 +174,55 @@ func TestDCR32RetrieveWithInvalidCredentials(t *testing.T) {
 		"I send invalid credentials"
 	assert.Equal(t, name, scenario.Name())
 	assert.Equal(t, specLinkRetrieveSoftware, scenario.Spec())
+}
+
+func TestDCR32UpdateSoftwareClient(t *testing.T) {
+	scenario := DCR32UpdateSoftwareClient(
+		DCR32Config{PutImplemented: true},
+		&http.Client{},
+		auth.NewAuthoriserBuilder(),
+	)
+
+	assert.Equal(t, "DCR-008", scenario.Id())
+	name := "I should be able update a a registered software"
+	assert.Equal(t, name, scenario.Name())
+	assert.Equal(t, specLinkUpdateSoftware, scenario.Spec())
+}
+
+func TestDCR32UpdateSoftwareClientDisabled(t *testing.T) {
+	scenario := DCR32UpdateSoftwareClient(
+		DCR32Config{PutImplemented: false},
+		&http.Client{},
+		auth.NewAuthoriserBuilder(),
+	)
+
+	assert.Equal(t, "DCR-008", scenario.Id())
+	name := "(SKIP PUT endpoint not implemented) I should be able update a a registered software"
+	assert.Equal(t, name, scenario.Name())
+}
+
+func TestDCR32UpdateWrongId(t *testing.T) {
+	scenario := DCR32UpdateSoftwareClientWithWrongId(
+		DCR32Config{PutImplemented: true},
+		&http.Client{},
+		auth.NewAuthoriserBuilder(),
+	)
+
+	assert.Equal(t, "DCR-009", scenario.Id())
+	name := "When I try to update a non existing software client I should be unauthorized"
+	assert.Equal(t, name, scenario.Name())
+	assert.Equal(t, specLinkUpdateSoftware, scenario.Spec())
+}
+
+func TestDCR32RetrieveWrongId(t *testing.T) {
+	scenario := DCR32RetrieveSoftwareClientWrongId(
+		DCR32Config{},
+		&http.Client{},
+		auth.NewAuthoriserBuilder(),
+	)
+
+	assert.Equal(t, "DCR-010", scenario.Id())
+	name := "When I try to retrieve a non existing software client I should be unauthorized"
+	assert.Equal(t, name, scenario.Name())
+	assert.Equal(t, specLinkUpdateSoftware, scenario.Spec())
 }

@@ -52,5 +52,6 @@ func Get(url string, client *http.Client) (Configuration, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&config); err != nil {
 		return config, errors.Wrap(err, "invalid OpenIDConfiguration body content")
 	}
+
 	return config, nil
 }
