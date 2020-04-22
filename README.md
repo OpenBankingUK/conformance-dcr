@@ -25,7 +25,7 @@ See the guide at [QUICK-START.md](https://bitbucket.org/openbankingteam/conforma
 
 ## Release Notes 
 
-### Release v1.0.5
+### Release v1.1.0
 
 - New scenario for updating software client
 - New scenario for updating software client with wrong id
