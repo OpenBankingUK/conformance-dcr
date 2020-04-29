@@ -24,6 +24,8 @@ type Config struct {
 	GetImplemented      bool     `json:"get_implemented"`
 	PutImplemented      bool     `json:"put_implemented"`
 	DeleteImplemented   bool     `json:"delete_implemented"`
+	Environment         string   `json:"environment"`
+	Brand               string   `json:"brand"`
 }
 
 func LoadConfig(configFilePath string) (Config, error) {
@@ -32,7 +34,18 @@ func LoadConfig(configFilePath string) (Config, error) {
 		return Config{}, errors.Wrap(err, "load config")
 	}
 	defer f.Close()
-	return parseConfig(f)
+
+	config, err := parseConfig(f)
+	if err != nil {
+		return Config{}, errors.Wrap(err, "load config")
+	}
+
+	err = validateConfig(config)
+	if err != nil {
+		return Config{}, errors.Wrap(err, "load config")
+	}
+
+	return config, nil
 }
 
 func parseConfig(f io.Reader) (Config, error) {
@@ -45,4 +58,17 @@ func parseConfig(f io.Reader) (Config, error) {
 		return cfg, errors.Wrap(err, "unable to json decode file contents")
 	}
 	return cfg, nil
+}
+
+func validateConfig(config Config) error {
+	if config.WellknownEndpoint == "" {
+		return errors.New("missing config property Well-known Endpoint")
+	}
+	if config.Environment == "" {
+		return errors.New("missing config property Environment")
+	}
+	if config.Brand == "" {
+		return errors.New("missing config property Brand")
+	}
+	return nil
 }

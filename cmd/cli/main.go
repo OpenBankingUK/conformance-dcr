@@ -100,7 +100,7 @@ func runCmd(flags flags) {
 	doneSignal := make(chan bool)
 	serverAddr := serverAddress(flags.httpServerPort)
 	if flags.report {
-		reporterFunc := compliant.NewReporter(flags.debug, doneSignal, serverAddr)
+		reporterFunc := compliant.NewReporter(runConfig(cfg), flags.debug, doneSignal, serverAddr)
 		tester.AddListener(reporterFunc.Report)
 	}
 
@@ -113,6 +113,17 @@ func runCmd(flags flags) {
 
 	if !passes {
 		os.Exit(1)
+	}
+}
+
+func runConfig(config Config) compliant.RunConfig {
+	return compliant.RunConfig{
+		WellknownEndpoint: config.WellknownEndpoint,
+		GetImplemented:    config.GetImplemented,
+		PutImplemented:    config.PutImplemented,
+		DeleteImplemented: config.DeleteImplemented,
+		Environment:       config.Environment,
+		Brand:             config.Brand,
 	}
 }
 

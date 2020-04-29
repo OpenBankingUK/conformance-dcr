@@ -12,11 +12,21 @@ import (
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 )
 
-func NewReporter(debug bool, doneSignal chan<- bool, serverAddr string) reporter {
+type RunConfig struct {
+	WellknownEndpoint string
+	GetImplemented    bool
+	PutImplemented    bool
+	DeleteImplemented bool
+	Environment       string
+	Brand             string
+}
+
+func NewReporter(config RunConfig, debug bool, doneSignal chan<- bool, serverAddr string) reporter {
 	return reporter{
 		debug:          debug,
 		doneSignalChan: doneSignal,
 		serverAddr:     serverAddr,
+		config:         config,
 	}
 }
 
@@ -24,6 +34,7 @@ type reporter struct {
 	debug          bool
 	doneSignalChan chan<- bool
 	serverAddr     string
+	config         RunConfig
 }
 
 // Report marshals the result and debug into json, zips them, then starts a server to host the generated zip file.
@@ -45,6 +56,12 @@ func (r reporter) Report(result ManifestResult) error {
 
 		files = append(files, ReportFile{"debug.json", string(debugJson)})
 	}
+
+	config, err := json.MarshalIndent(r.config, "", " ")
+	if err != nil {
+		return err
+	}
+	files = append(files, ReportFile{"config.json", string(config)})
 
 	b, err := ZipReportFiles(files)
 	if err != nil {

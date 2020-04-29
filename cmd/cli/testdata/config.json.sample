@@ -11,5 +11,7 @@
   "transport_key": "transport key",
   "get_implemented": true,
   "put_implemented": true,
-  "delete_implemented": true
+  "delete_implemented": true,
+  "environment": "sandbox",
+  "brand": "Brand/product"
 }
