@@ -24,7 +24,7 @@ func TestNewJwtSigner(t *testing.T) {
 		"private_key_jwt",
 		"none",
 		[]string{"/redirect"},
-		&[]string{"code", "code id_token"},
+		[]string{"code", "code id_token"},
 		privateKey,
 		time.Hour,
 		&x509.Certificate{},
@@ -72,7 +72,7 @@ func TestNewJwtSigner_TlsClientAuthAddSubjectToClaims(t *testing.T) {
 		"tls_client_auth",
 		"none",
 		[]string{"/redirect"},
-		&[]string{"code", "code id_token"},
+		[]string{"code", "code id_token"},
 		privateKey,
 		time.Hour,
 		&x509.Certificate{Subject: pkix.Name{Organization: []string{"OB"}}},
@@ -120,7 +120,7 @@ func TestNewJwtSigner_TlsClientAuthDoesNotPanicOnMissingCert(t *testing.T) {
 		"tls_client_auth",
 		"none",
 		[]string{"/redirect"},
-		&[]string{"code", "code id_token"},
+		[]string{"code", "code id_token"},
 		privateKey,
 		time.Hour,
 		nil,
@@ -168,44 +168,4 @@ func TestNewJwtSigner_OmitsEmptyResponseTypes(t *testing.T) {
 
 	_, exists := claims["response_types"]
 	assert.False(t, exists)
-}
-
-func TestNewJwtSigner_ResponseTypesFromResolver(t *testing.T) {
-	privateKey, err := certs.ParseRsaPrivateKeyFromPemFile("testdata/private-sign.key")
-	require.NoError(t, err)
-	signer := NewJwtSigner(
-		jwt.SigningMethodRS256,
-		"ssa",
-		"issuer",
-		"aud",
-		"kid",
-		"tls_client_auth",
-		"none",
-		[]string{"/redirect"},
-
-		// testing empty/nil
-		&[]string{"code", "token"},
-
-		privateKey,
-		time.Hour,
-		&x509.Certificate{Subject: pkix.Name{Organization: []string{"OB"}}},
-	)
-
-	signedClaims, err := signer.Claims()
-	require.NoError(t, err)
-
-	token, err := jwt.Parse(signedClaims, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return privateKey.Public(), nil
-	})
-	require.NoError(t, err)
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	assert.True(t, ok)
-
-	responseTypes, exists := claims["response_types"]
-	assert.True(t, exists)
-	assert.Equal(t, []interface{}{"code"}, responseTypes)
 }

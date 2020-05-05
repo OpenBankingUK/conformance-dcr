@@ -15,7 +15,7 @@ type AuthoriserBuilder struct {
 	ssa, aud, kID, issuer   string
 	tokenEndpointSignMethod jwt.SigningMethod
 	redirectURIs            []string
-	responseTypes           *[]string
+	responseTypes           []string
 	privateKey              *rsa.PrivateKey
 	jwtExpiration           time.Duration
 	transportCert           *x509.Certificate
@@ -67,7 +67,7 @@ func (b AuthoriserBuilder) WithRedirectURIs(redirectURIs []string) AuthoriserBui
 	return b
 }
 
-func (b AuthoriserBuilder) WithResponseTypes(responseTypes *[]string) AuthoriserBuilder {
+func (b AuthoriserBuilder) WithResponseTypes(responseTypes []string) AuthoriserBuilder {
 	b.responseTypes = responseTypes
 	return b
 }

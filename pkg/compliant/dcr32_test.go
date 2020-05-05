@@ -16,7 +16,7 @@ func TestNewDCR32(t *testing.T) {
 
 	assert.Equal(t, "1.0", manifest.Version())
 	assert.Equal(t, "DCR32", manifest.Name())
-	assert.Equal(t, 10, len(manifest.Scenarios()))
+	assert.Equal(t, 11, len(manifest.Scenarios()))
 }
 
 func TestDCR32ValidateOIDCConfigRegistrationURL(t *testing.T) {
@@ -225,4 +225,17 @@ func TestDCR32RetrieveWrongId(t *testing.T) {
 	name := "When I try to retrieve a non existing software client I should be unauthorized"
 	assert.Equal(t, name, scenario.Name())
 	assert.Equal(t, specLinkUpdateSoftware, scenario.Spec())
+}
+
+func TestDCR32RegisterWrongResponseTypes(t *testing.T) {
+	scenario := DCR32RegisterSoftwareWrongResponseType(
+		DCR32Config{},
+		&http.Client{},
+		auth.NewAuthoriserBuilder(),
+	)
+
+	assert.Equal(t, "DCR-011", scenario.Id())
+	name := "When I try to register a software with invalid response_types it should be fail"
+	assert.Equal(t, name, scenario.Name())
+	assert.Equal(t, specLinkRegisterSoftware, scenario.Spec())
 }

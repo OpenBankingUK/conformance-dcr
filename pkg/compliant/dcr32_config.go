@@ -53,18 +53,19 @@ func NewDCR32Config(
 		return DCR32Config{}, errors.Wrap(err, "creating DCR32 config")
 	}
 
-	block, _ := pem.Decode([]byte(transportCertPEM))
-	if block == nil {
-		return DCR32Config{}, errors.New("failed to parse certificate PEM")
-	}
-	transportCert, err := x509.ParseCertificate(block.Bytes)
+	transportCert, err := certificate(transportCertPEM)
 	if err != nil {
 		return DCR32Config{}, errors.Wrap(err, "creating DCR32 config")
 	}
 
 	tokenSignMethod, err := responseTokenSignMethod(openIDConfig.TokenEndpointSigningAlgSupported)
 	if err != nil {
-		return DCR32Config{}, errors.Wrap(err, "wellknown config")
+		return DCR32Config{}, errors.Wrap(err, "creating DCR32 config")
+	}
+
+	responseTypes, err := responseTypeResolve(openIDConfig.ResponseTypesSupported)
+	if err != nil {
+		return DCR32Config{}, errors.Wrap(err, "creating DCR32 config")
 	}
 
 	// default authoriser
@@ -75,7 +76,7 @@ func NewDCR32Config(
 		WithKID(kid).
 		WithIssuer(issuer).
 		WithRedirectURIs(redirectURIs).
-		WithResponseTypes(openIDConfig.ResponseTypesSupported).
+		WithResponseTypes(responseTypes).
 		WithPrivateKey(privateKey).
 		WithTokenEndpointAuthMethod(tokenSignMethod).
 		WithTransportCert(transportCert)
@@ -102,4 +103,16 @@ func NewDCR32Config(
 		AuthoriserBuilder: authoriserBuilder,
 		SchemaValidator:   schemaValidator,
 	}, nil
+}
+
+func certificate(transportCertPEM string) (*x509.Certificate, error) {
+	block, _ := pem.Decode([]byte(transportCertPEM))
+	if block == nil {
+		return nil, errors.New("failed making certificate")
+	}
+	cert, err := x509.ParseCertificate(block.Bytes)
+	if err != nil {
+		return nil, errors.New("failed making certificate")
+	}
+	return cert, nil
 }

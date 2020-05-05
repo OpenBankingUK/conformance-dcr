@@ -77,7 +77,7 @@ func (s clientUpdate) doJwtPutRequest(endpoint, jwtClaims string, grantToken aut
 	if err != nil {
 		return nil, errors.Wrap(err, "creating jose put request")
 	}
-	req.Header.Add("Content-Type", "application/jwt")
+	req.Header.Add("Content-Type", "application/jose")
 	req.Header.Add("Accept", "application/json")
 
 	req.Header.Set("Authorization", "Bearer "+grantToken.AccessToken)

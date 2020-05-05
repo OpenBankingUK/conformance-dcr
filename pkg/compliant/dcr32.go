@@ -37,6 +37,7 @@ func NewDCR32(cfg DCR32Config) (Manifest, error) {
 		DCR32UpdateSoftwareClient(cfg, secureClient, authoriserBuilder),
 		DCR32UpdateSoftwareClientWithWrongId(cfg, secureClient, authoriserBuilder),
 		DCR32RetrieveSoftwareClientWrongId(cfg, secureClient, authoriserBuilder),
+		DCR32RegisterSoftwareWrongResponseType(cfg, secureClient, authoriserBuilder),
 	}
 
 	return NewManifest("DCR32", "1.0", scenarios)
@@ -372,4 +373,31 @@ func DCR32RetrieveSoftwareClientWrongId(
 				AssertStatusCodeUnauthorized().
 				Build(),
 		).Build()
+}
+
+func DCR32RegisterSoftwareWrongResponseType(
+	cfg DCR32Config,
+	secureClient *http.Client,
+	authoriserBuilder auth.AuthoriserBuilder,
+) Scenario {
+	id := "DCR-011"
+	const name = "When I try to register a software with invalid response_types it should be fail"
+
+	return NewBuilder(
+		id,
+		name,
+		specLinkRegisterSoftware,
+	).
+		TestCase(
+			NewTestCaseBuilder("Register software client").
+				WithHttpClient(secureClient).
+				GenerateSignedClaims(
+					authoriserBuilder.WithResponseTypes([]string{"id_token", "token"}),
+				).
+				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
+				AssertStatusCodeBadRequest().
+				ParseClientRegisterResponse(authoriserBuilder).
+				Build(),
+		).
+		Build()
 }

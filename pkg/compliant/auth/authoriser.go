@@ -20,7 +20,7 @@ func NewAuthoriser(
 	config openid.Configuration,
 	ssa, aud, kid, issuer string, tokenEndpointSignMethod jwt.SigningMethod,
 	redirectURIs []string,
-	responseTypes *[]string,
+	responseTypes []string,
 	privateKey *rsa.PrivateKey,
 	jwtExpiration time.Duration,
 	transportCert *x509.Certificate,

@@ -23,7 +23,7 @@ type jwtSigner struct {
 	tokenEndpointAuthMethod string
 	requestObjectSignAlg    string
 	redirectURIs            []string
-	responseTypes           *[]string
+	responseTypes           []string
 	privateKey              *rsa.PrivateKey
 	jwtExpiration           time.Duration
 	transportCert           *x509.Certificate
@@ -38,7 +38,7 @@ func NewJwtSigner(
 	tokenEndpointAuthMethod string,
 	requestObjectSignAlg string,
 	redirectURIs []string,
-	responseTypes *[]string,
+	responseTypes []string,
 	privateKey *rsa.PrivateKey,
 	jwtExpiration time.Duration,
 	transportCert *x509.Certificate,
@@ -101,12 +101,8 @@ func (s jwtSigner) Claims() (string, error) {
 		"id_token_signed_response_alg": s.signingAlgorithm.Alg(),
 	}
 
-	responseTypes, err := responseTypeResolve(s.responseTypes)
-	if err != nil {
-		return "", err
-	}
-	if responseTypes != nil {
-		claims["response_types"] = responseTypes
+	if s.responseTypes != nil {
+		claims["response_types"] = s.responseTypes
 	}
 
 	if s.tokenEndpointAuthMethod == "tls_client_auth" {

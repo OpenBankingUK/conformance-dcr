@@ -112,3 +112,9 @@ Dynamic Client Registration Conformance Tool cli
 		[31mFAIL[0m Software client delete: unable to find client grant token grant_token in context: key not found in context
 		[31mFAIL[0m Software client retrieve: unable to find grant token grant_token in context: key not found in context
 		[31mFAIL[0m Assert status code 401: Expecting status code 401 but got 400
+=== Scenario: DCR-011 - When I try to register a software with invalid response_types it should be fail
+	Test case: Register software client
+		[32mPASS[0m Generate signed software client claims
+		[32mPASS[0m Software client register
+		[32mPASS[0m Assert status code 400
+		[32mPASS[0m Decode client register response
