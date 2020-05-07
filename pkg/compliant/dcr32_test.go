@@ -16,7 +16,7 @@ func TestNewDCR32(t *testing.T) {
 
 	assert.Equal(t, "1.0", manifest.Version())
 	assert.Equal(t, "DCR32", manifest.Name())
-	assert.Equal(t, 11, len(manifest.Scenarios()))
+	assert.Equal(t, 10, len(manifest.Scenarios()))
 }
 
 func TestDCR32ValidateOIDCConfigRegistrationURL(t *testing.T) {
@@ -51,7 +51,7 @@ func TestDCR32DeleteSoftwareClient(t *testing.T) {
 	)
 
 	assert.Equal(t, "DCR-003", scenario.Id())
-	name := "Delete software statement is supported"
+	name := "Delete software is supported"
 	assert.Equal(t, name, scenario.Name())
 	assert.Equal(t, specLinkDeleteSoftware, scenario.Spec())
 }
@@ -66,7 +66,7 @@ func TestDCR32DeleteSoftwareClient_DeleteNotImplemented(t *testing.T) {
 	result := scenario.Run()
 
 	assert.Equal(t, "DCR-003", scenario.Id())
-	name := "(SKIP Delete endpoint not implemented) Delete software statement is supported"
+	name := "(SKIP Delete endpoint not implemented) Delete software is supported"
 	assert.Equal(t, name, scenario.Name())
 	assert.Equal(t, specLinkDeleteSoftware, scenario.Spec())
 	assert.False(t, result.Fail())
@@ -103,7 +103,7 @@ func TestDCR32RetrieveSoftwareClient(t *testing.T) {
 func TestTCRetrieveSoftwareClient(t *testing.T) {
 	validator, err := schema.NewValidator("3.2")
 	require.NoError(t, err)
-	tc := TCRetrieveSoftwareClient(
+	tc := DCR32RetrieveSoftwareClientTestCase(
 		DCR32Config{GetImplemented: true},
 		&http.Client{},
 		validator,
@@ -118,7 +118,7 @@ func TestTCRetrieveSoftwareClient(t *testing.T) {
 func TestTCRetrieveSoftwareClient_GetNotImplemented(t *testing.T) {
 	validator, err := schema.NewValidator("3.2")
 	require.NoError(t, err)
-	tc := TCRetrieveSoftwareClient(
+	tc := DCR32RetrieveSoftwareClientTestCase(
 		DCR32Config{GetImplemented: false},
 		&http.Client{},
 		validator,
@@ -131,37 +131,6 @@ func TestTCRetrieveSoftwareClient_GetNotImplemented(t *testing.T) {
 	assert.False(t, result.Fail())
 }
 
-func TestDCR32RegisterWithInvalidCredentials(t *testing.T) {
-	scenario := DCR32RegisterWithInvalidCredentials(
-		DCR32Config{GetImplemented: true},
-		&http.Client{},
-		auth.NewAuthoriserBuilder(),
-	)
-
-	assert.Equal(t, "DCR-006", scenario.Id())
-	name := "I should not be able to retrieve a registered software if " +
-		"I send invalid credentials"
-	assert.Equal(t, name, scenario.Name())
-	assert.Equal(t, specLinkRetrieveSoftware, scenario.Spec())
-}
-
-func TestDCR32RegisterWithInvalidCredentials_GeNotImplemented(t *testing.T) {
-	scenario := DCR32RegisterWithInvalidCredentials(
-		DCR32Config{GetImplemented: false},
-		&http.Client{},
-		auth.NewAuthoriserBuilder(),
-	)
-
-	result := scenario.Run()
-
-	assert.Equal(t, "DCR-006", scenario.Id())
-	name := "(SKIP Get endpoint not implemented) I should not be able to " +
-		"retrieve a registered software if I send invalid credentials"
-	assert.Equal(t, name, scenario.Name())
-	assert.Equal(t, specLinkRetrieveSoftware, scenario.Spec())
-	assert.False(t, result.Fail())
-}
-
 func TestDCR32RetrieveWithInvalidCredentials(t *testing.T) {
 	scenario := DCR32RetrieveWithInvalidCredentials(
 		DCR32Config{},
@@ -170,8 +139,7 @@ func TestDCR32RetrieveWithInvalidCredentials(t *testing.T) {
 	)
 
 	assert.Equal(t, "DCR-007", scenario.Id())
-	name := "I should not be able to retrieve a registered software if " +
-		"I send invalid credentials"
+	name := "I should not be able to retrieve a software client with invalid credentials"
 	assert.Equal(t, name, scenario.Name())
 	assert.Equal(t, specLinkRetrieveSoftware, scenario.Spec())
 }
@@ -184,7 +152,7 @@ func TestDCR32UpdateSoftwareClient(t *testing.T) {
 	)
 
 	assert.Equal(t, "DCR-008", scenario.Id())
-	name := "I should be able update a a registered software"
+	name := "I should be able update a registered software"
 	assert.Equal(t, name, scenario.Name())
 	assert.Equal(t, specLinkUpdateSoftware, scenario.Spec())
 }
@@ -197,7 +165,7 @@ func TestDCR32UpdateSoftwareClientDisabled(t *testing.T) {
 	)
 
 	assert.Equal(t, "DCR-008", scenario.Id())
-	name := "(SKIP PUT endpoint not implemented) I should be able update a a registered software"
+	name := "(SKIP PUT endpoint not implemented) I should be able update a registered software"
 	assert.Equal(t, name, scenario.Name())
 }
 

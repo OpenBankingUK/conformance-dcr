@@ -6,25 +6,25 @@ Dynamic Client Registration Conformance Tool cli
 	Test case: Register software client
 		[32mPASS[0m Generate signed software client claims
 		[32mPASS[0m Software client register
-		[31mFAIL[0m Assert status code 201: Expecting status code 201 but got 400
+		[32mPASS[0m Assert status code 201
 		[32mPASS[0m Decode client register response
 	Test case: Retrieve client credentials grant
-		[31mFAIL[0m Client credentials grant: unexpected status code 401, should be 200
+		[32mPASS[0m Client credentials grant
 	Test case: Delete software client
-		[31mFAIL[0m Software client delete: unable to find client grant token grant_token in context: key not found in context
-=== Scenario: DCR-003 - Delete software statement is supported
+		[32mPASS[0m Software client delete
+=== Scenario: DCR-003 - Delete software is supported
 	Test case: Register software client
 		[32mPASS[0m Generate signed software client claims
 		[32mPASS[0m Software client register
-		[31mFAIL[0m Assert status code 201: Expecting status code 201 but got 400
+		[32mPASS[0m Assert status code 201
 		[32mPASS[0m Decode client register response
 	Test case: Retrieve client credentials grant
-		[31mFAIL[0m Client credentials grant: unexpected status code 401, should be 200
+		[32mPASS[0m Client credentials grant
 	Test case: Delete software client
-		[31mFAIL[0m Software client delete: unable to find client grant token grant_token in context: key not found in context
+		[32mPASS[0m Software client delete
 	Test case: Retrieve delete software client should fail
-		[31mFAIL[0m Software client retrieve: unable to find grant token grant_token in context: key not found in context
-		[31mFAIL[0m Assert status code 401: Expecting status code 401 but got 400
+		[32mPASS[0m Software client retrieve
+		[32mPASS[0m Assert status code 401
 === Scenario: DCR-004 - Dynamically create a new software client will fail on invalid registration request
 	Test case: Register software client fails on expired claims
 		[32mPASS[0m Generate signed software client claims
@@ -42,76 +42,80 @@ Dynamic Client Registration Conformance Tool cli
 		[32mPASS[0m Generate signed software client claims
 		[32mPASS[0m Software client register
 		[32mPASS[0m Assert status code 400
-=== Scenario: DCR-005 - Dynamically retrieve a new software client
-	Test case: Register software client
-		[32mPASS[0m Generate signed software client claims
-		[32mPASS[0m Software client register
-		[31mFAIL[0m Assert status code 201: Expecting status code 201 but got 400
-		[32mPASS[0m Decode client register response
-	Test case: Retrieve client credentials grant
-		[31mFAIL[0m Client credentials grant: unexpected status code 401, should be 200
-	Test case: Retrieve software client
-		[31mFAIL[0m Software client retrieve: unable to find grant token grant_token in context: key not found in context
-		[31mFAIL[0m Assert status code 200: Expecting status code 200 but got 400
-		[31mFAIL[0m Validate client response schema: schema invalid: EOF, EOF
-		[31mFAIL[0m Decode client retrieve response: decoding response: EOF
-	Test case: Delete software client
-		[31mFAIL[0m Software client delete: unable to find client grant token grant_token in context: key not found in context
-=== Scenario: DCR-006 - I should not be able to retrieve a registered software if I send invalid credentials
-	Test case: Register software client
-		[32mPASS[0m Generate signed software client claims
-		[32mPASS[0m Software client register
-		[31mFAIL[0m Assert status code 201: Expecting status code 201 but got 400
-		[32mPASS[0m Decode client register response
-	Test case: Retrieve client credentials grant
-		[31mFAIL[0m Client credentials grant: unexpected status code 401, should be 200
-	Test case: Retrieve client credentials grant
-		[31mFAIL[0m Client credentials grant: unexpected status code 401, should be 200
-	Test case: Delete software client
-		[31mFAIL[0m Software client delete: unable to find client grant token grant_token in context: key not found in context
-=== Scenario: DCR-007 - I should not be able to retrieve a registered software if I send invalid credentials
 	Test case: Register software client will fail with token endpoint auth method RS256
 		[32mPASS[0m Generate signed software client claims
 		[32mPASS[0m Software client register
 		[32mPASS[0m Assert status code 400
-=== Scenario: DCR-008 - I should be able update a a registered software
+=== Scenario: DCR-005 - Dynamically retrieve a new software client
 	Test case: Register software client
 		[32mPASS[0m Generate signed software client claims
 		[32mPASS[0m Software client register
-		[31mFAIL[0m Assert status code 201: Expecting status code 201 but got 400
+		[32mPASS[0m Assert status code 201
 		[32mPASS[0m Decode client register response
 	Test case: Retrieve client credentials grant
-		[31mFAIL[0m Client credentials grant: unexpected status code 401, should be 200
+		[32mPASS[0m Client credentials grant
+	Test case: Retrieve software client
+		[32mPASS[0m Software client retrieve
+		[32mPASS[0m Assert status code 200
+		[31mFAIL[0m Validate client response schema: schema invalid: json: cannot unmarshal array into Go struct field OBClientRegistrationResponseSchema32.request_object_signing_alg of type string, json: cannot unmarshal array into Go struct field OBClientRegistrationResponseSchema32.request_object_signing_alg of type string
+		[32mPASS[0m Decode client retrieve response
+	Test case: Delete software client
+		[32mPASS[0m Software client delete
+=== Scenario: DCR-007 - I should not be able to retrieve a software client with invalid credentials
+	Test case: Register software client
+		[32mPASS[0m Generate signed software client claims
+		[32mPASS[0m Software client register
+		[32mPASS[0m Assert status code 201
+		[32mPASS[0m Decode client register response
+	Test case: Retrieve software client with invalid credentials grant
+		[32mPASS[0m Set invalid grant token
+		[32mPASS[0m Software client retrieve
+		[32mPASS[0m Assert status code 401
+	Test case: Retrieve client credentials grant
+		[32mPASS[0m Client credentials grant
+	Test case: Delete software client
+		[32mPASS[0m Software client delete
+=== Scenario: DCR-008 - I should be able update a registered software
+	Test case: Register software client
+		[32mPASS[0m Generate signed software client claims
+		[32mPASS[0m Software client register
+		[32mPASS[0m Assert status code 201
+		[32mPASS[0m Decode client register response
+	Test case: Retrieve client credentials grant
+		[32mPASS[0m Client credentials grant
 	Test case: Update an existing software client
 		[32mPASS[0m Generate signed software client claims
-		[31mFAIL[0m Software client update: unable to find client grant token grant_token in context: key not found in context
-		[31mFAIL[0m Assert status code 200: Expecting status code 200 but got 400
+		[32mPASS[0m Software client update
+		[32mPASS[0m Assert status code 200
+	Test case: Delete software client
+		[32mPASS[0m Software client delete
 === Scenario: DCR-009 - When I try to update a non existing software client I should be unauthorized
 	Test case: Register software client
 		[32mPASS[0m Generate signed software client claims
 		[32mPASS[0m Software client register
-		[31mFAIL[0m Assert status code 201: Expecting status code 201 but got 400
+		[32mPASS[0m Assert status code 201
 		[32mPASS[0m Decode client register response
 	Test case: Retrieve client credentials grant
-		[31mFAIL[0m Client credentials grant: unexpected status code 401, should be 200
-	Test case: Update an existing software client
+		[32mPASS[0m Client credentials grant
+	Test case: Delete software client
+		[32mPASS[0m Software client delete
+	Test case: Update a deleted software client
 		[32mPASS[0m Generate signed software client claims
-		[31mFAIL[0m Software client delete: unable to find client grant token grant_token in context: key not found in context
-		[31mFAIL[0m Software client update: unable to find client grant token grant_token in context: key not found in context
-		[31mFAIL[0m Assert status code 401: Expecting status code 401 but got 400
+		[32mPASS[0m Software client update
+		[32mPASS[0m Assert status code 401
 === Scenario: DCR-010 - When I try to retrieve a non existing software client I should be unauthorized
 	Test case: Register software client
 		[32mPASS[0m Generate signed software client claims
 		[32mPASS[0m Software client register
-		[31mFAIL[0m Assert status code 201: Expecting status code 201 but got 400
+		[32mPASS[0m Assert status code 201
 		[32mPASS[0m Decode client register response
 	Test case: Retrieve client credentials grant
-		[31mFAIL[0m Client credentials grant: unexpected status code 401, should be 200
-	Test case: Update an existing software client
-		[32mPASS[0m Generate signed software client claims
-		[31mFAIL[0m Software client delete: unable to find client grant token grant_token in context: key not found in context
-		[31mFAIL[0m Software client retrieve: unable to find grant token grant_token in context: key not found in context
-		[31mFAIL[0m Assert status code 401: Expecting status code 401 but got 400
+		[32mPASS[0m Client credentials grant
+	Test case: Delete software client
+		[32mPASS[0m Software client delete
+	Test case: Retrieve a deleted software client
+		[32mPASS[0m Software client retrieve
+		[32mPASS[0m Assert status code 401
 === Scenario: DCR-011 - When I try to register a software with invalid response_types it should be fail
 	Test case: Register software client
 		[32mPASS[0m Generate signed software client claims
