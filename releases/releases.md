@@ -1,4 +1,10 @@
-### Release v1.1.0
+### Release v1.2.0 (13th May 2020)
+
+New scenarios with wrong response types, added organisation details to report.
+
+[See full list changes](releases/v1.2.0.md) 
+
+### Release v1.1.0 (22nd April 2020)
 
 - New scenario for updating software client
 - New scenario for updating software client with wrong id
