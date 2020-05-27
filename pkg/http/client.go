@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
-	"fmt"
 	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
@@ -33,7 +32,6 @@ func NewMATLSClient(config MATLSConfig) (*http.Client, error) {
 
 	if len(config.RootCAs) > 0 {
 		tlsConfig.RootCAs = RootCAPoolFromCerts(config.RootCAs)
-		fmt.Println("empty")
 	}
 
 	tlsConfig.BuildNameToCertificate()
