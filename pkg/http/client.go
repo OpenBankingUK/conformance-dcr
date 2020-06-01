@@ -30,7 +30,7 @@ func NewMATLSClient(config MATLSConfig) (*http.Client, error) {
 		InsecureSkipVerify: config.InsecureSkipVerify,
 	}
 
-	if config.RootCAs != nil {
+	if len(config.RootCAs) > 0 {
 		tlsConfig.RootCAs = RootCAPoolFromCerts(config.RootCAs)
 	}
 
