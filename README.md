@@ -23,9 +23,9 @@ See the guide at [QUICK-START.md](https://bitbucket.org/openbankingteam/conforma
 * Dynamic Client Registration v3.2: <https://openbankinguk.github.io/dcr-docs-pub/v3.2/dynamic-client-registration.html>.
 * Dynamic Client Registration v3.1: <https://openbankinguk.github.io/dcr-docs-pub/v3.1/dynamic-client-registration.html>.
 
-## The Latest Release v1.2.0 (13th May 2020)
+# Release v1.2.1 (1st June 2020)
 
-[See changes](releases/v1.2.0.md)  
+[See full list changes](https://bitbucket.org/openbankingteam/conformance-dcr/src/develop/releases/v1.2.1.md) (v1.2.1.md)
 
 # Development
 

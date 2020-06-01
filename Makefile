@@ -9,7 +9,7 @@ BUILD_TIME			:= $(shell date -u)
 # => 227cea4
 COMMIT_HASH			:= $(shell git rev-list -1 HEAD)
 COMMIT_HASH_SHORT	:= $(shell git rev-parse --short HEAD)
-LATEST_VERSION      := v1.2.0
+LATEST_VERSION      := v1.2.1
 
 # Go build flags:
 LD_FLAGS := "-X main.version=${LATEST_VERSION} -X main.commitHash=${COMMIT_HASH} -X 'main.buildTime=${BUILD_TIME}'"
