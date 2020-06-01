@@ -3,6 +3,7 @@ package client
 import (
 	"crypto/rand"
 	"crypto/rsa"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
@@ -13,7 +14,7 @@ import (
 func TestPrivateKeyJwt(t *testing.T) {
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	assert.NoError(t, err)
-	client := NewPrivateKeyJwt("id", "token", key)
+	client := NewPrivateKeyJwt("id", "token", key, jwt.SigningMethodPS256)
 
 	request, err := client.CredentialsGrantRequest()
 	require.NoError(t, err)

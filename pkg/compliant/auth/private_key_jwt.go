@@ -4,22 +4,30 @@ import (
 	"bytes"
 	"crypto/rsa"
 	"encoding/json"
+	"github.com/dgrijalva/jwt-go"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
 	"github.com/pkg/errors"
 )
 
 type clientPrivateKeyJwt struct {
-	tokenEndpoint string
-	privateKey    *rsa.PrivateKey
-	signer        Signer
+	tokenEndpoint    string
+	signingAlgorithm jwt.SigningMethod
+	privateKey       *rsa.PrivateKey
+	signer           Signer
 }
 
-func NewClientPrivateKeyJwt(tokenEndpoint string, privateKey *rsa.PrivateKey, signer Signer) Authoriser {
+func NewClientPrivateKeyJwt(
+	tokenEndpoint string,
+	signingAlgorithm jwt.SigningMethod,
+	privateKey *rsa.PrivateKey,
+	signer Signer,
+) Authoriser {
 	return clientPrivateKeyJwt{
-		tokenEndpoint: tokenEndpoint,
-		privateKey:    privateKey,
-		signer:        signer,
+		tokenEndpoint:    tokenEndpoint,
+		signingAlgorithm: signingAlgorithm,
+		privateKey:       privateKey,
+		signer:           signer,
 	}
 }
 
@@ -33,6 +41,7 @@ func (c clientPrivateKeyJwt) Client(response []byte) (client.Client, error) {
 		registrationResponse.ClientID,
 		c.tokenEndpoint,
 		c.privateKey,
+		c.signingAlgorithm,
 	), nil
 }
 

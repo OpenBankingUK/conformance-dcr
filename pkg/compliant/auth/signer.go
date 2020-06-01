@@ -23,7 +23,7 @@ type jwtSigner struct {
 	tokenEndpointAuthMethod string
 	requestObjectSignAlg    string
 	redirectURIs            []string
-	responseTypes           *[]string
+	responseTypes           []string
 	privateKey              *rsa.PrivateKey
 	jwtExpiration           time.Duration
 	transportCert           *x509.Certificate
@@ -38,7 +38,7 @@ func NewJwtSigner(
 	tokenEndpointAuthMethod string,
 	requestObjectSignAlg string,
 	redirectURIs []string,
-	responseTypes *[]string,
+	responseTypes []string,
 	privateKey *rsa.PrivateKey,
 	jwtExpiration time.Duration,
 	transportCert *x509.Certificate,
@@ -101,11 +101,6 @@ func (s jwtSigner) Claims() (string, error) {
 		"id_token_signed_response_alg": s.signingAlgorithm.Alg(),
 	}
 
-	err = validResponseTypes(s.responseTypes)
-	if err != nil {
-		return "", errors.Wrap(err, "signing claims")
-	}
-
 	if s.responseTypes != nil {
 		claims["response_types"] = s.responseTypes
 	}
@@ -126,23 +121,4 @@ func (s jwtSigner) Claims() (string, error) {
 	}
 
 	return signedJwt, nil
-}
-
-// DCR 3.2 spec allows: nil, "code" or "code id_token"
-func validResponseTypes(types *[]string) error {
-	if types == nil {
-		return nil
-	}
-
-	if len(*types) == 0 {
-		return errors.New("response types exists but empty")
-	}
-
-	for _, value := range *types {
-		if value != "code" && value != "code id_token" {
-			return errors.New("response types must be `code` and/or `code id_token`")
-		}
-	}
-
-	return nil
 }

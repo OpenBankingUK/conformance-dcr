@@ -9,7 +9,7 @@ BUILD_TIME			:= $(shell date -u)
 # => 227cea4
 COMMIT_HASH			:= $(shell git rev-list -1 HEAD)
 COMMIT_HASH_SHORT	:= $(shell git rev-parse --short HEAD)
-LATEST_VERSION      := v1.0.4
+LATEST_VERSION      := v1.2.0
 
 # Go build flags:
 LD_FLAGS := "-X main.version=${LATEST_VERSION} -X main.commitHash=${COMMIT_HASH} -X 'main.buildTime=${BUILD_TIME}'"
@@ -29,7 +29,7 @@ run: build ## run binary directly without docker.
 
 .PHONY: build
 build: ## build the server binary directly.
-	@echo -e "\033[92m  ---> Building ... \033[0m"
+	@printf "%b" "\033[93m" "  ---> Building ... " "\033[0m" "\n"
 	go build -ldflags ${LD_FLAGS} -o dcr bitbucket.org/openbankingteam/conformance-dcr/cmd/cli
 
 .PHONY: build_image
@@ -66,21 +66,19 @@ clean: ## run the clean up
 
 .PHONY: test
 test: ## Run the test suite
+	@printf "%b" "\033[93m" "  ---> Unit tests ... " "\033[0m" "\n"
 	go test -count=1 ./...
 
 .PHONY: e2e
 e2e: build ## Run the test suite
+	@printf "%b" "\033[93m" "  ---> Building binary coverage check ... " "\033[0m" "\n"
 	./dcr -config-path configs/config.json > run.out || true
 	diff run.out cmd/cli/testdata/ozone.out
 
 .PHONY: code-coverage
 code-coverage: ## Generate code coverage
+	@printf "%b" "\033[93m" "  ---> Code coverage check ... " "\033[0m" "\n"
 	./coverage.sh
-
-.PHONY: fmt
-fmt: ## Run gofmt on all go files
-	gofmt -w -s .
-	goimports -w .
 
 .PHONY: lint
 lint: ## Basic linting and vetting of code
@@ -93,7 +91,6 @@ lint_fix: ## Basic linting and vetting of code with fix option enabled
 	golangci-lint run --fix --config ./.golangci.yml ./...
 
 .PHONY: pre_commit
-pre_commit: fmt lint build test e2e
-pre_commit: ## pre-commit checks
-	@echo -e "\033[92m  ---> pre-commit ... \033[0m"
-	go test -cover -count=1 ./...
+pre_commit: lint build test e2e code-coverage ## pre-commit checks
+	@echo -e "\033[92m  ---> Pre-commit done. \033[0m"
+

@@ -49,7 +49,7 @@ func TestNewReporter(t *testing.T) {
 
 	doneSignal := make(chan bool, 1)
 	serverAddr := "localhost:8001"
-	reporter := NewReporter(true, doneSignal, serverAddr)
+	reporter := NewReporter(RunConfig{}, true, doneSignal, serverAddr)
 
 	err := reporter.Report(result)
 	require.NoError(t, err)
@@ -82,7 +82,13 @@ func TestNewReporter(t *testing.T) {
 	file, err := os.Create(out)
 	require.NoError(t, err)
 	defer file.Close()
+
+	configPresent := false
 	for _, f := range zipReader.File {
+		if f.Name == "config.json" {
+			configPresent = true
+		}
+
 		if f.Name == "report.json" {
 			//write the contents of each file to out
 			var rc io.ReadCloser
@@ -113,6 +119,8 @@ func TestNewReporter(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, g, report)
+
+	assert.True(t, configPresent)
 }
 
 func Copy(src, dst string) error {

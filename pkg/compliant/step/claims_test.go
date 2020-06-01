@@ -3,6 +3,7 @@ package step
 import (
 	"crypto/rand"
 	"crypto/rsa"
+	"github.com/dgrijalva/jwt-go"
 	"testing"
 	"time"
 
@@ -20,6 +21,7 @@ func TestClaims_Run(t *testing.T) {
 		WithKID("kid").
 		WithSSA("ssa").
 		WithPrivateKey(generateKey(t)).
+		WithTokenEndpointAuthMethod(jwt.SigningMethodPS256).
 		WithOpenIDConfig(config).
 		WithJwtExpiration(time.Hour)
 	step := NewClaims("jwtClaimsCtxKey", authoriserBuilder)
@@ -42,6 +44,7 @@ func TestClaims_Run_FailsOnClaimsError(t *testing.T) {
 		WithKID("kid").
 		WithSSA("ssa").
 		WithPrivateKey(generateKey(t)).
+		WithTokenEndpointAuthMethod(jwt.SigningMethodPS256).
 		WithOpenIDConfig(config).
 		WithJwtExpiration(time.Hour)
 	step := NewClaims("jwtClaimsCtxKey", authoriserBuilder)

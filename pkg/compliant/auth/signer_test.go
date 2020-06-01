@@ -24,7 +24,7 @@ func TestNewJwtSigner(t *testing.T) {
 		"private_key_jwt",
 		"none",
 		[]string{"/redirect"},
-		&[]string{"code", "code id_token"},
+		[]string{"code", "code id_token"},
 		privateKey,
 		time.Hour,
 		&x509.Certificate{},
@@ -72,7 +72,7 @@ func TestNewJwtSigner_TlsClientAuthAddSubjectToClaims(t *testing.T) {
 		"tls_client_auth",
 		"none",
 		[]string{"/redirect"},
-		&[]string{"code", "code id_token"},
+		[]string{"code", "code id_token"},
 		privateKey,
 		time.Hour,
 		&x509.Certificate{Subject: pkix.Name{Organization: []string{"OB"}}},
@@ -120,7 +120,7 @@ func TestNewJwtSigner_TlsClientAuthDoesNotPanicOnMissingCert(t *testing.T) {
 		"tls_client_auth",
 		"none",
 		[]string{"/redirect"},
-		&[]string{"code", "code id_token"},
+		[]string{"code", "code id_token"},
 		privateKey,
 		time.Hour,
 		nil,
@@ -168,14 +168,4 @@ func TestNewJwtSigner_OmitsEmptyResponseTypes(t *testing.T) {
 
 	_, exists := claims["response_types"]
 	assert.False(t, exists)
-}
-
-func TestValidResponseTypes(t *testing.T) {
-	assert.NoError(t, validResponseTypes(nil))
-	assert.NoError(t, validResponseTypes(&[]string{"code"}))
-	assert.NoError(t, validResponseTypes(&[]string{"code id_token"}))
-	assert.NoError(t, validResponseTypes(&[]string{"code", "code id_token"}))
-
-	assert.EqualError(t, validResponseTypes(&[]string{}), "response types exists but empty")
-	assert.EqualError(t, validResponseTypes(&[]string{"wrong"}), "response types must be `code` and/or `code id_token`")
 }

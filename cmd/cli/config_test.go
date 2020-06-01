@@ -25,7 +25,7 @@ func Test_ParseConfig_Succeeds_WithValidConfig(t *testing.T) {
 	)
 	pkeyJson, err := json.Marshal(string(keyPem))
 	assert.NoError(t, err)
-	json := fmt.Sprintf(`{
+	configJson := fmt.Sprintf(`{
 		"wellknown_endpoint": "https://ob19-auth1-ui.o3bank.co.uk/.well-known/openid-configuration",
    		"ssa": "ssa",
     	"kid": "kid",
@@ -41,9 +41,11 @@ func Test_ParseConfig_Succeeds_WithValidConfig(t *testing.T) {
 		"transport_key": "-----BEGIN CERTIFICATE-----\n\n-----END CERTIFICATE-----",
 		"get_implemented": true,
 		"put_implemented": false,
-		"delete_implemented": true
+		"delete_implemented": true,
+		"environment": "environment",
+		"brand": "brand"
 	}`, pkeyJson)
-	cfg, err := parseConfig(bytes.NewReader([]byte(json)))
+	cfg, err := parseConfig(bytes.NewReader([]byte(configJson)))
 	expectedCfg := Config{
 		WellknownEndpoint: "https://ob19-auth1-ui.o3bank.co.uk/.well-known/openid-configuration",
 		SSA:               "ssa",
@@ -61,6 +63,8 @@ func Test_ParseConfig_Succeeds_WithValidConfig(t *testing.T) {
 		GetImplemented:    true,
 		PutImplemented:    false,
 		DeleteImplemented: true,
+		Environment:       "environment",
+		Brand:             "brand",
 	}
 	assert.NoError(t, err)
 	assert.Equal(t, expectedCfg, cfg)
@@ -91,6 +95,8 @@ func Test_ReadsConfigFromFile(t *testing.T) {
 	assert.True(t, config.GetImplemented)
 	assert.True(t, config.PutImplemented)
 	assert.True(t, config.DeleteImplemented)
+	assert.Equal(t, "sandbox", config.Environment)
+	assert.Equal(t, "Brand/product", config.Brand)
 }
 
 func Test_ReadsConfigFromFile_HandlesError(t *testing.T) {

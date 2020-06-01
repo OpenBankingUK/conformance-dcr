@@ -3,13 +3,12 @@ package compliant
 import (
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"net/http"
 	"time"
 
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/schema"
-	"github.com/dgrijalva/jwt-go"
-
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/schema"
 )
 
 // nolint:lll
@@ -18,6 +17,7 @@ const (
 	specLinkRegisterSoftware = "https://openbanking.atlassian.net/wiki/spaces/DZ/pages/1078034771/Dynamic+Client+Registration+-+v3.2#DynamicClientRegistration-v3.2-POST/register"
 	specLinkDeleteSoftware   = "https://openbanking.atlassian.net/wiki/spaces/DZ/pages/1078034771/Dynamic+Client+Registration+-+v3.2#DynamicClientRegistration-v3.2-DELETE/register/{ClientId}"
 	specLinkRetrieveSoftware = "https://openbanking.atlassian.net/wiki/spaces/DZ/pages/1078034771/Dynamic+Client+Registration+-+v3.2#DynamicClientRegistration-v3.2-GET/register/{ClientId}"
+	specLinkUpdateSoftware   = "https://openbanking.atlassian.net/wiki/spaces/DZ/pages/1078034771/Dynamic+Client+Registration+-+v3.2#DynamicClientRegistration-v3.2-PUT/register/{ClientId}"
 )
 
 func NewDCR32(cfg DCR32Config) (Manifest, error) {
@@ -31,8 +31,11 @@ func NewDCR32(cfg DCR32Config) (Manifest, error) {
 		DCR32DeleteSoftwareClient(cfg, secureClient, authoriserBuilder),
 		DCR32CreateInvalidRegistrationRequest(cfg, secureClient, authoriserBuilder),
 		DCR32RetrieveSoftwareClient(cfg, secureClient, authoriserBuilder, validator),
-		DCR32RegisterWithInvalidCredentials(cfg, secureClient, authoriserBuilder),
 		DCR32RetrieveWithInvalidCredentials(cfg, secureClient, authoriserBuilder),
+		DCR32UpdateSoftwareClient(cfg, secureClient, authoriserBuilder),
+		DCR32UpdateSoftwareClientWithWrongId(cfg, secureClient, authoriserBuilder),
+		DCR32RetrieveSoftwareClientWrongId(cfg, secureClient, authoriserBuilder),
+		DCR32RegisterSoftwareWrongResponseType(cfg, secureClient, authoriserBuilder),
 	}
 
 	return NewManifest("DCR32", "1.0", scenarios)
@@ -60,26 +63,32 @@ func DCR32CreateSoftwareClient(
 		"Dynamically create a new software client",
 		specLinkRegisterSoftware,
 	).
-		TestCase(
-			NewTestCaseBuilder("Register software client").
-				WithHttpClient(secureClient).
-				GenerateSignedClaims(authoriserBuilder).
-				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
-				AssertStatusCodeCreated().
-				ParseClientRegisterResponse(authoriserBuilder).
-				Build(),
-		).
-		TestCase(
-			NewTestCaseBuilder("Retrieve client credentials grant").
-				WithHttpClient(secureClient).
-				GetClientCredentialsGrant(cfg.OpenIDConfig.TokenEndpoint).
-				Build(),
-		).
-		TestCase(TCDeleteSoftwareClient(cfg, secureClient)).
+		TestCase(DCR32CreateSoftwareClientTestCases(cfg, secureClient, authoriserBuilder)...).
+		TestCase(DCR32DeleteSoftwareClientTestCase(cfg, secureClient)).
 		Build()
 }
 
-func TCDeleteSoftwareClient(
+func DCR32CreateSoftwareClientTestCases(
+	cfg DCR32Config,
+	secureClient *http.Client,
+	authoriserBuilder auth.AuthoriserBuilder,
+) []TestCase {
+	return []TestCase{
+		NewTestCaseBuilder("Register software client").
+			WithHttpClient(secureClient).
+			GenerateSignedClaims(authoriserBuilder).
+			PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
+			AssertStatusCodeCreated().
+			ParseClientRegisterResponse(authoriserBuilder).
+			Build(),
+		NewTestCaseBuilder("Retrieve client credentials grant").
+			WithHttpClient(secureClient).
+			GetClientCredentialsGrant(cfg.OpenIDConfig.TokenEndpoint).
+			Build(),
+	}
+}
+
+func DCR32DeleteSoftwareClientTestCase(
 	cfg DCR32Config,
 	secureClient *http.Client,
 ) TestCase {
@@ -102,7 +111,7 @@ func DCR32DeleteSoftwareClient(
 	authoriserBuilder auth.AuthoriserBuilder,
 ) Scenario {
 	id := "DCR-003"
-	name := "Delete software statement is supported"
+	name := "Delete software is supported"
 
 	if !cfg.DeleteImplemented {
 		return NewBuilder(
@@ -117,22 +126,8 @@ func DCR32DeleteSoftwareClient(
 		name,
 		specLinkDeleteSoftware,
 	).
-		TestCase(
-			NewTestCaseBuilder("Register software client").
-				WithHttpClient(secureClient).
-				GenerateSignedClaims(authoriserBuilder).
-				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
-				AssertStatusCodeCreated().
-				ParseClientRegisterResponse(authoriserBuilder).
-				Build(),
-		).
-		TestCase(
-			NewTestCaseBuilder("Retrieve client credentials grant").
-				WithHttpClient(secureClient).
-				GetClientCredentialsGrant(cfg.OpenIDConfig.TokenEndpoint).
-				Build(),
-		).
-		TestCase(TCDeleteSoftwareClient(cfg, secureClient)).
+		TestCase(DCR32CreateSoftwareClientTestCases(cfg, secureClient, authoriserBuilder)...).
+		TestCase(DCR32DeleteSoftwareClientTestCase(cfg, secureClient)).
 		TestCase(
 			NewTestCaseBuilder("Retrieve delete software client should fail").
 				WithHttpClient(secureClient).
@@ -195,6 +190,14 @@ func DCR32CreateInvalidRegistrationRequest(
 				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 				AssertStatusCodeBadRequest().
 				Build(),
+		).
+		TestCase(
+			NewTestCaseBuilder("Register software client will fail with token endpoint auth method RS256").
+				WithHttpClient(secureClient).
+				GenerateSignedClaims(authoriserBuilder.WithTokenEndpointAuthMethod(jwt.SigningMethodRS256)).
+				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
+				AssertStatusCodeBadRequest().
+				Build(),
 		).Build()
 }
 
@@ -209,27 +212,13 @@ func DCR32RetrieveSoftwareClient(
 		"Dynamically retrieve a new software client",
 		specLinkRetrieveSoftware,
 	).
-		TestCase(
-			NewTestCaseBuilder("Register software client").
-				WithHttpClient(secureClient).
-				GenerateSignedClaims(authoriserBuilder).
-				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
-				AssertStatusCodeCreated().
-				ParseClientRegisterResponse(authoriserBuilder).
-				Build(),
-		).
-		TestCase(
-			NewTestCaseBuilder("Retrieve client credentials grant").
-				WithHttpClient(secureClient).
-				GetClientCredentialsGrant(cfg.OpenIDConfig.TokenEndpoint).
-				Build(),
-		).
-		TestCase(TCRetrieveSoftwareClient(cfg, secureClient, validator)).
-		TestCase(TCDeleteSoftwareClient(cfg, secureClient)).
+		TestCase(DCR32CreateSoftwareClientTestCases(cfg, secureClient, authoriserBuilder)...).
+		TestCase(DCR32RetrieveSoftwareClientTestCase(cfg, secureClient, validator)).
+		TestCase(DCR32DeleteSoftwareClientTestCase(cfg, secureClient)).
 		Build()
 }
 
-func TCRetrieveSoftwareClient(
+func DCR32RetrieveSoftwareClientTestCase(
 	cfg DCR32Config,
 	secureClient *http.Client,
 	validator schema.Validator,
@@ -250,25 +239,14 @@ func TCRetrieveSoftwareClient(
 		Build()
 }
 
-func DCR32RegisterWithInvalidCredentials(
+func DCR32RetrieveWithInvalidCredentials(
 	cfg DCR32Config,
 	secureClient *http.Client,
 	authoriserBuilder auth.AuthoriserBuilder,
 ) Scenario {
-	id := "DCR-006"
-	const name = "I should not be able to retrieve a registered software if I send invalid credentials"
-
-	if !cfg.GetImplemented {
-		return NewBuilder(
-			id,
-			fmt.Sprintf("(SKIP Get endpoint not implemented) %s", name),
-			specLinkRetrieveSoftware,
-		).Build()
-	}
-
 	return NewBuilder(
-		id,
-		name,
+		"DCR-007",
+		"I should not be able to retrieve a software client with invalid credentials",
 		specLinkRetrieveSoftware,
 	).
 		TestCase(
@@ -281,7 +259,7 @@ func DCR32RegisterWithInvalidCredentials(
 				Build(),
 		).
 		TestCase(
-			NewTestCaseBuilder("Retrieve software client with invalid credentials should not succeed").
+			NewTestCaseBuilder("Retrieve software client with invalid credentials grant").
 				WithHttpClient(secureClient).
 				SetInvalidGrantToken().
 				ClientRetrieve(cfg.OpenIDConfig.RegistrationEndpointAsString()).
@@ -294,26 +272,124 @@ func DCR32RegisterWithInvalidCredentials(
 				GetClientCredentialsGrant(cfg.OpenIDConfig.TokenEndpoint).
 				Build(),
 		).
-		TestCase(TCDeleteSoftwareClient(cfg, secureClient)).
+		TestCase(DCR32DeleteSoftwareClientTestCase(cfg, secureClient)).
 		Build()
 }
 
-func DCR32RetrieveWithInvalidCredentials(
+func DCR32UpdateSoftwareClient(
 	cfg DCR32Config,
 	secureClient *http.Client,
 	authoriserBuilder auth.AuthoriserBuilder,
 ) Scenario {
+	id := "DCR-008"
+	const name = "I should be able update a registered software"
+
+	if !cfg.PutImplemented {
+		return NewBuilder(
+			id,
+			fmt.Sprintf("(SKIP PUT endpoint not implemented) %s", name),
+			specLinkRetrieveSoftware,
+		).Build()
+	}
+
 	return NewBuilder(
-		"DCR-007",
-		"I should not be able to retrieve a registered software if I send invalid credentials",
-		specLinkRetrieveSoftware,
+		id,
+		name,
+		specLinkUpdateSoftware,
 	).
+		TestCase(DCR32CreateSoftwareClientTestCases(cfg, secureClient, authoriserBuilder)...).
 		TestCase(
-			NewTestCaseBuilder("Register software client will fail with token endpoint auth method RS256").
+			NewTestCaseBuilder("Update an existing software client").
 				WithHttpClient(secureClient).
-				GenerateSignedClaims(authoriserBuilder.WithTokenEndpointAuthMethod(jwt.SigningMethodRS256)).
-				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
-				AssertStatusCodeBadRequest().
+				GenerateSignedClaims(authoriserBuilder).
+				ClientUpdate(cfg.OpenIDConfig.RegistrationEndpointAsString()).
+				AssertStatusCodeOk().
+				Build(),
+		).
+		TestCase(DCR32DeleteSoftwareClientTestCase(cfg, secureClient)).
+		Build()
+}
+
+func DCR32UpdateSoftwareClientWithWrongId(
+	cfg DCR32Config,
+	secureClient *http.Client,
+	authoriserBuilder auth.AuthoriserBuilder,
+) Scenario {
+	id := "DCR-009"
+	const name = "When I try to update a non existing software client I should be unauthorized"
+
+	if !cfg.PutImplemented {
+		return NewBuilder(
+			id,
+			fmt.Sprintf("(SKIP PUT endpoint not implemented) %s", name),
+			specLinkRetrieveSoftware,
+		).Build()
+	}
+
+	return NewBuilder(
+		id,
+		name,
+		specLinkUpdateSoftware,
+	).
+		TestCase(DCR32CreateSoftwareClientTestCases(cfg, secureClient, authoriserBuilder)...).
+		TestCase(DCR32DeleteSoftwareClientTestCase(cfg, secureClient)).
+		TestCase(
+			NewTestCaseBuilder("Update a deleted software client").
+				WithHttpClient(secureClient).
+				GenerateSignedClaims(authoriserBuilder).
+				ClientUpdate(cfg.OpenIDConfig.RegistrationEndpointAsString()).
+				AssertStatusCodeUnauthorized().
 				Build(),
 		).Build()
+}
+
+func DCR32RetrieveSoftwareClientWrongId(
+	cfg DCR32Config,
+	secureClient *http.Client,
+	authoriserBuilder auth.AuthoriserBuilder,
+) Scenario {
+	id := "DCR-010"
+	const name = "When I try to retrieve a non existing software client I should be unauthorized"
+
+	return NewBuilder(
+		id,
+		name,
+		specLinkUpdateSoftware,
+	).
+		TestCase(DCR32CreateSoftwareClientTestCases(cfg, secureClient, authoriserBuilder)...).
+		TestCase(DCR32DeleteSoftwareClientTestCase(cfg, secureClient)).
+		TestCase(
+			NewTestCaseBuilder("Retrieve a deleted software client").
+				WithHttpClient(secureClient).
+				ClientRetrieve(cfg.OpenIDConfig.RegistrationEndpointAsString()).
+				AssertStatusCodeUnauthorized().
+				Build(),
+		).Build()
+}
+
+func DCR32RegisterSoftwareWrongResponseType(
+	cfg DCR32Config,
+	secureClient *http.Client,
+	authoriserBuilder auth.AuthoriserBuilder,
+) Scenario {
+	id := "DCR-011"
+	const name = "When I try to register a software with invalid response_types it should be fail"
+
+	return NewBuilder(
+		id,
+		name,
+		specLinkRegisterSoftware,
+	).
+		TestCase(
+			NewTestCaseBuilder("Register software client").
+				WithHttpClient(secureClient).
+				GenerateSignedClaims(
+					authoriserBuilder.WithResponseTypes([]string{"id_token", "token"}),
+				).
+				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
+				AssertStatusCodeBadRequest().
+				ParseClientRegisterResponse(authoriserBuilder).
+				Build(),
+		).
+		Build()
 }

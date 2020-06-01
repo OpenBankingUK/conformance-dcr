@@ -41,7 +41,7 @@ func Test_AuthoriserBuilder_Success(t *testing.T) {
 		WithPrivateKey(&rsa.PrivateKey{}).
 		WithTokenEndpointAuthMethod(jwt.SigningMethodPS256).
 		WithRedirectURIs([]string{"/redirect"}).
-		WithResponseTypes(&[]string{"code", "code id_token"}).
+		WithResponseTypes([]string{"code", "code id_token"}).
 		WithTransportCert(cert).
 		Build()
 
@@ -54,7 +54,7 @@ func Test_AuthoriserBuilder_Success(t *testing.T) {
 		"issuer",
 		jwt.SigningMethodPS256,
 		[]string{"/redirect"},
-		&[]string{"code", "code id_token"},
+		[]string{"code", "code id_token"},
 		&rsa.PrivateKey{},
 		0,
 		cert,

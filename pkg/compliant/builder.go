@@ -25,8 +25,8 @@ func NewBuilder(id, name, spec string) *Builder {
 	}
 }
 
-func (b *Builder) TestCase(tc TestCase) *Builder {
-	b.tcs = append(b.tcs, tc)
+func (b *Builder) TestCase(tc ...TestCase) *Builder {
+	b.tcs = append(b.tcs, tc...)
 	return b
 }
 
@@ -107,6 +107,19 @@ func (t *testCaseBuilder) GenerateSignedClaims(authoriserBuilder auth.Authoriser
 
 func (t *testCaseBuilder) PostClientRegister(registrationEndpoint string) *testCaseBuilder {
 	nextStep := step.NewPostClientRegister(registrationEndpoint, jwtClaimsCtxKey, responseCtxKey, t.httpClient)
+	t.steps = append(t.steps, nextStep)
+	return t
+}
+
+func (t *testCaseBuilder) ClientUpdate(registrationEndpoint string) *testCaseBuilder {
+	nextStep := step.NewClientUpdate(
+		registrationEndpoint,
+		jwtClaimsCtxKey,
+		responseCtxKey,
+		clientCtxKey,
+		grantTokenCtxKey,
+		t.httpClient,
+	)
 	t.steps = append(t.steps, nextStep)
 	return t
 }

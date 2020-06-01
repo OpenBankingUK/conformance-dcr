@@ -32,6 +32,8 @@ A template configuration file can be found at [/config.json.sample](/config.json
 |get_implemented            | bool       | HTTP GET method implemented as per DCR specification|
 |put_implemented            | bool       | HTTP PUT method implemented as per DCR specification|
 |delete_implemented         | bool       | HTTP DELETE method implemented as per DCR specification|
+|environment                | string     | Environment where this tool is running against, ex: sandbox|
+|brand                      | string     | Brand name|
 
 Note that HTTP POST is the only HTTP method required by the specification, which will always be tested. If the implementation under test supports HTTP GET, PUT or DELETE, they can be specified using the booleans in the configuration as shown above.
 

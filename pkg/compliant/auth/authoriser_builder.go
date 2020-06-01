@@ -13,9 +13,9 @@ import (
 type AuthoriserBuilder struct {
 	config                  openid.Configuration
 	ssa, aud, kID, issuer   string
-	tokenEndpointAuthMethod jwt.SigningMethod
+	tokenEndpointSignMethod jwt.SigningMethod
 	redirectURIs            []string
-	responseTypes           *[]string
+	responseTypes           []string
 	privateKey              *rsa.PrivateKey
 	jwtExpiration           time.Duration
 	transportCert           *x509.Certificate
@@ -23,8 +23,7 @@ type AuthoriserBuilder struct {
 
 func NewAuthoriserBuilder() AuthoriserBuilder {
 	return AuthoriserBuilder{
-		tokenEndpointAuthMethod: jwt.SigningMethodPS256,
-		jwtExpiration:           time.Hour,
+		jwtExpiration: time.Hour,
 	}
 }
 
@@ -59,7 +58,7 @@ func (b AuthoriserBuilder) WithKID(kID string) AuthoriserBuilder {
 }
 
 func (b AuthoriserBuilder) WithTokenEndpointAuthMethod(alg jwt.SigningMethod) AuthoriserBuilder {
-	b.tokenEndpointAuthMethod = alg
+	b.tokenEndpointSignMethod = alg
 	return b
 }
 
@@ -68,7 +67,7 @@ func (b AuthoriserBuilder) WithRedirectURIs(redirectURIs []string) AuthoriserBui
 	return b
 }
 
-func (b AuthoriserBuilder) WithResponseTypes(responseTypes *[]string) AuthoriserBuilder {
+func (b AuthoriserBuilder) WithResponseTypes(responseTypes []string) AuthoriserBuilder {
 	b.responseTypes = responseTypes
 	return b
 }
@@ -93,13 +92,16 @@ func (b AuthoriserBuilder) Build() (Authoriser, error) {
 	if b.privateKey == nil {
 		return none{}, errors.New("missing privateKey from authoriser")
 	}
+	if b.tokenEndpointSignMethod == nil {
+		return none{}, errors.New("missing token endpoint signing method from authoriser")
+	}
 	return NewAuthoriser(
 		b.config,
 		b.ssa,
 		b.aud,
 		b.kID,
 		b.issuer,
-		b.tokenEndpointAuthMethod,
+		b.tokenEndpointSignMethod,
 		b.redirectURIs,
 		b.responseTypes,
 		b.privateKey,

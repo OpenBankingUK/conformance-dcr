@@ -32,16 +32,16 @@ func (s clientDelete) Run(ctx Context) Result {
 		return NewFailResult(s.stepName, fmt.Sprintf("unable to find client %s in context: %v", s.clientCtxKey, err))
 	}
 
-	grantToken, err := ctx.GetGrantToken(s.grantTokenCtxKey)
-	if err != nil {
-		msg := fmt.Sprintf("unable to find client grant token %s in context: %v", s.grantTokenCtxKey, err)
-		return NewFailResult(s.stepName, msg)
-	}
-
 	url := fmt.Sprintf("%s/%s", s.registrationEndpoint, client.Id())
 	req, err := http.NewRequest(http.MethodDelete, url, nil)
 	if err != nil {
 		return NewFailResult(s.stepName, fmt.Sprintf("unable to create request %s: %v", url, err))
+	}
+
+	grantToken, err := ctx.GetGrantToken(s.grantTokenCtxKey)
+	if err != nil {
+		msg := fmt.Sprintf("unable to find client grant token %s in context: %v", s.grantTokenCtxKey, err)
+		return NewFailResult(s.stepName, msg)
 	}
 	req.Header.Set("Authorization", "Bearer "+grantToken.AccessToken)
 

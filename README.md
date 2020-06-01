@@ -23,29 +23,9 @@ See the guide at [QUICK-START.md](https://bitbucket.org/openbankingteam/conforma
 * Dynamic Client Registration v3.2: <https://openbankinguk.github.io/dcr-docs-pub/v3.2/dynamic-client-registration.html>.
 * Dynamic Client Registration v3.1: <https://openbankinguk.github.io/dcr-docs-pub/v3.1/dynamic-client-registration.html>.
 
-## Release Notes 
+## The Latest Release v1.2.0 (13th May 2020)
 
-### Release v1.0.4
-
-- Increase timeout to 10 seconds on http clients to help slower endpoints
-
-### Release v1.0.3
-
-- Fixed `response_types` property in register software from static to `response_types_supported` from .wellknown    
-
-### Release v1.0.2
-
-- Removed unused RS256 flag
-- Fixed `request_object_signing_alg` claims value from `none` to first found in .wellknown  
-- Fixed missing `scope` in client credentials grant call  
-- Fixed wrong header token value calculation for `client_secret_basic` token endpoint auth method   
-
-### Release v1.0.1
-
-- Support report download via http
-- Patch to fix 3rd party library bug jwt-go
-- Fix content type sent on client register to application/jose
-- Added debug file to report zip 
+[See changes](releases/v1.2.0.md)  
 
 # Development
 

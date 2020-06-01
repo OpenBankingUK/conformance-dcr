@@ -51,7 +51,7 @@ func TestNewClientRegister_HandlesHttpErrors(t *testing.T) {
 	result := step.Run(ctx)
 
 	assert.False(t, result.Pass)
-	assert.Equal(t, "making jwt post request: Post invalid%20url: unsupported protocol scheme \"\"", result.FailReason)
+	assert.Equal(t, "making jose post request: Post invalid%20url: unsupported protocol scheme \"\"", result.FailReason)
 }
 
 func TestNewClientRegister_HandlesCreateRequestError(t *testing.T) {
@@ -64,7 +64,7 @@ func TestNewClientRegister_HandlesCreateRequestError(t *testing.T) {
 	assert.False(t, result.Pass)
 	assert.Equal(
 		t,
-		"creating jwt post request: parse \u007f: net/url: invalid control character in URL",
+		"creating jose post request: parse \u007f: net/url: invalid control character in URL",
 		result.FailReason,
 	)
 }
