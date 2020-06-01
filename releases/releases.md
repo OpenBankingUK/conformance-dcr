@@ -1,3 +1,9 @@
+### Release v1.2.1 (1st June 2020)
+
+The release is called v1.2.1, a minor update that checks root system CA certs when not provided by the user.
+
+[See full list changes](https://bitbucket.org/openbankingteam/conformance-dcr/src/develop/releases/v1.2.1.md) (v1.2.1.md)
+
 ### Release v1.2.0 (13th May 2020)
 
 New scenarios with wrong response types, added organisation details to report.
