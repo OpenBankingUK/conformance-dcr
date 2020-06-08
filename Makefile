@@ -9,10 +9,10 @@ BUILD_TIME			:= $(shell date -u)
 # => 227cea4
 COMMIT_HASH			:= $(shell git rev-list -1 HEAD)
 COMMIT_HASH_SHORT	:= $(shell git rev-parse --short HEAD)
-LATEST_VERSION      := v1.2.1
+IMAGE_TAG           := v1.2.1
 
 # Go build flags:
-LD_FLAGS := "-X main.version=${LATEST_VERSION} -X main.commitHash=${COMMIT_HASH} -X 'main.buildTime=${BUILD_TIME}'"
+LD_FLAGS := "-X main.version=${IMAGE_TAG} -X main.commitHash=${COMMIT_HASH} -X 'main.buildTime=${BUILD_TIME}'"
 
 .PHONY: all
 all: fmt lint_fix test build e2e build_image
@@ -71,7 +71,7 @@ test: ## Run the test suite
 
 .PHONY: e2e
 e2e: build ## Run the test suite
-	@printf "%b" "\033[93m" "  ---> Building binary coverage check ... " "\033[0m" "\n"
+	@printf "%b" "\033[93m" "  ---> End to end tests ... " "\033[0m" "\n"
 	./dcr -config-path configs/config.json > run.out || true
 	diff run.out cmd/cli/testdata/ozone.out
 
@@ -89,8 +89,3 @@ lint: ## Basic linting and vetting of code
 lint_fix: ## Basic linting and vetting of code with fix option enabled
 	@printf "%b" "\033[93m" "  ---> Linting with fix enabled ... " "\033[0m" "\n"
 	golangci-lint run --fix --config ./.golangci.yml ./...
-
-.PHONY: pre_commit
-pre_commit: lint build test e2e code-coverage ## pre-commit checks
-	@echo -e "\033[92m  ---> Pre-commit done. \033[0m"
-

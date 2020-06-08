@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant"
 	"bytes"
 	"encoding/json"
 	"io"
@@ -11,6 +12,7 @@ import (
 )
 
 type Config struct {
+	SpecVersion         string   `json:"spec_version"`
 	WellknownEndpoint   string   `json:"wellknown_endpoint"`
 	SSA                 string   `json:"ssa"`
 	Kid                 string   `json:"kid"`
@@ -61,14 +63,17 @@ func parseConfig(f io.Reader) (Config, error) {
 }
 
 func validateConfig(config Config) error {
+	if !compliant.IsSupportedSpecVersion(config.SpecVersion) {
+		return errors.New("missing or invalid config property Specification version `spec_version`")
+	}
 	if config.WellknownEndpoint == "" {
-		return errors.New("missing config property Well-known Endpoint")
+		return errors.New("missing config property Well-known Endpoint `wellknown_endpoint`")
 	}
 	if config.Environment == "" {
-		return errors.New("missing config property Environment")
+		return errors.New("missing config property Environment `environment`")
 	}
 	if config.Brand == "" {
-		return errors.New("missing config property Brand")
+		return errors.New("missing config property Brand `brand`")
 	}
 	return nil
 }

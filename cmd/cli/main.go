@@ -84,7 +84,7 @@ func runCmd(flags flags) {
 	)
 	exitOnError(err)
 
-	manifest, err := compliant.NewDCR32(dcr32Cfg)
+	manifest, err := compliant.NewSpecManifest(cfg.SpecVersion, dcr32Cfg)
 	exitOnError(err)
 
 	if flags.filterExpression != "" {
