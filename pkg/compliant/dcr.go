@@ -11,7 +11,7 @@ func NewSpecManifest(version string, cfg DCR32Config) (Manifest, error) {
 	case "3.2":
 		return NewDCR32(cfg)
 	case "3.3":
-		return nil, errors.New("not implemented yet")
+		return NewDCR33(cfg)
 	}
 	return nil, errors.New("specification version  not supported")
 }

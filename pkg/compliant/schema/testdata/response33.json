@@ -1,0 +1,29 @@
+{
+  "_id": "5d823bee8e3a3b040d73453c",
+  "redirect_uris": [
+    "https://0.0.0.0:8443/conformancesuite/callback"
+  ],
+  "grant_types": [
+    "authorization_code",
+    "client_credentials",
+    "urn:openid:params:grant-type:ciba"
+  ],
+  "response_types": [
+    "code",
+    "code id_token"
+  ],
+  "scope": "accounts,openid",
+  "token_endpoint_auth_method": "private_key_jwt",
+  "token_endpoint_auth_signing_alg": "RS256",
+  "id_token_signed_response_alg": "RS256",
+  "request_object_signing_alg": "none",
+  "tls_client_auth_subject_dn": "CN=Qeyb9TC0IzLympA9mKoSQ0,OU=0015800001041RbAAI,O=OpenBanking,C=GB",
+  "jwks_uri": "https://keystore.openbankingtest.org.uk/0015800001041RbAAI/Qeyb9TC0IzLympA9mKoSQ0.jwks",
+  "client_id": "b424b6df-06a1-46e7-b86c-f1554b229e69",
+  "client_secret": "ea234764-87ab-4870-8e9e-af29430b316f",
+  "client_id_issued_at": 1568816110661,
+  "client_secret_expires_at": 0,
+  "bearer": "YjQyNGI2ZGYtMDZhMS00NmU3LWI4NmMtZjE1NTRiMjI5ZTY5OmVhMjM0NzY0LTg3YWItNDg3MC04ZTllLWFmMjk0MzBiMzE2Zg==",
+  "software_statement": "123",
+  "application_type": "web"
+}
