@@ -91,14 +91,15 @@ func (s jwtSigner) Claims() (string, error) {
 			"authorization_code",
 			"client_credentials",
 		},
-		"subject_type":                 "public",
-		"application_type":             "web",
-		"redirect_uris":                s.redirectURIs,
-		"token_endpoint_auth_method":   s.tokenEndpointAuthMethod,
-		"software_statement":           s.ssa,
-		"scope":                        "accounts openid",
-		"request_object_signing_alg":   s.requestObjectSignAlg,
-		"id_token_signed_response_alg": s.signingAlgorithm.Alg(),
+		"subject_type":                               "public",
+		"application_type":                           "web",
+		"redirect_uris":                              s.redirectURIs,
+		"token_endpoint_auth_method":                 s.tokenEndpointAuthMethod,
+		"software_statement":                         s.ssa,
+		"scope":                                      "accounts openid",
+		"request_object_signing_alg":                 s.requestObjectSignAlg,
+		"id_token_signed_response_alg":               s.signingAlgorithm.Alg(),
+		"tls_client_certificate_bound_access_tokens": true,
 	}
 
 	if s.responseTypes != nil {
