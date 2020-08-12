@@ -1,4 +1,4 @@
-# Release v1.3.0 (14th August 2020)
+# Release v1.3.0 (12th August 2020)
 
 The release is called v1.3.0, support for DCR 3.3
 
