@@ -41,14 +41,14 @@ func NewDCR32Config(
 	putImplemented bool,
 	deleteImplemented bool,
 	tlsSkipVerify bool,
+	specVersion string,
 ) (DCR32Config, error) {
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(signingKeyPEM))
 	if err != nil {
 		return DCR32Config{}, errors.Wrap(err, "creating DCR32 config")
 	}
 
-	const responseSchemaVersion = "3.2"
-	schemaValidator, err := schema.NewValidator(responseSchemaVersion)
+	schemaValidator, err := schema.NewValidator(specVersion)
 	if err != nil {
 		return DCR32Config{}, errors.Wrap(err, "creating DCR32 config")
 	}
