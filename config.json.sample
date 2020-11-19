@@ -1,4 +1,5 @@
 {
+  "version": "3.2",
   "wellknown_endpoint": "https://ob19-auth1-ui.o3bank.co.uk/.well-known/openid-configuration",
   "ssa": "",
   "kid": "",
@@ -11,5 +12,7 @@
   "transport_key": "",
   "get_implemented": true,
   "put_implemented": true,
-  "delete_implemented": true
+  "delete_implemented": true,
+  "environment": "sandbox",
+  "brand": "ob",
 }

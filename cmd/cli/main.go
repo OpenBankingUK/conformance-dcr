@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"crypto/rsa"
+	"crypto/tls"
 	"flag"
 	"fmt"
 	http2 "net/http"
@@ -62,7 +63,7 @@ func runCmd(flags flags) {
 	cfg, err := LoadConfig(flags.configFilePath)
 	exitOnError(err)
 
-	client := &http2.Client{Timeout: time.Second * 5}
+	client := makeWellknownHttpClient(flags.tlsSkipVerify)
 	openIDConfig, err := openid.Get(cfg.WellknownEndpoint, client)
 	exitOnError(err)
 
@@ -209,4 +210,13 @@ func patchJwtLibraryBug() {
 	jwt.SigningMethodPS256.Options.SaltLength = rsa.PSSSaltLengthEqualsHash
 	jwt.SigningMethodPS384.Options.SaltLength = rsa.PSSSaltLengthEqualsHash
 	jwt.SigningMethodPS512.Options.SaltLength = rsa.PSSSaltLengthEqualsHash
+}
+
+func makeWellknownHttpClient(tlsSkipVerify bool) *http2.Client {
+	return &http2.Client{
+		Transport: &http2.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: tlsSkipVerify},
+		},
+		Timeout: time.Second * 10,
+	}
 }
