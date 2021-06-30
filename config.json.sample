@@ -1,15 +1,18 @@
 {
+  "spec_version": "3.2",
   "wellknown_endpoint": "https://ob19-auth1-ui.o3bank.co.uk/.well-known/openid-configuration",
-  "ssa": "",
-  "kid": "",
-  "aud": "",
-  "issuer": "",
-  "redirect_uris": [""],
-  "private_key": "",
-  "transport_root_cas": [""],
-  "transport_cert": "",
-  "transport_key": "",
+  "ssa": "ssa",
+  "kid": "kid",
+  "aud": "aud",
+  "redirect_uris": ["https://redirect-as-defined-in-the-software-statement.com"],
+  "issuer": "softwareId",
+  "private_key": "private_key",
+  "transport_root_cas": ["cert 1", "cert 2"],
+  "transport_cert": "transport cert",
+  "transport_key": "transport key",
   "get_implemented": true,
   "put_implemented": true,
-  "delete_implemented": true
+  "delete_implemented": true,
+  "environment": "sandbox",
+  "brand": "Brand/product"
 }
