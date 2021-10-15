@@ -51,16 +51,16 @@ Sample json config (*Note* The json5 format with comments, see [/config.json.sam
 "aud": "aud", // Usually this is an OB Org Id of the ASPSP you are running DCR against
 "redirect_uris": ["https://redirect-as-defined-in-the-software-statement.com"], // As configured in the Software Statement
 "issuer": "ex: A67kE8qMNgz0F36clmFWbg", // Software Statement Id as defined in OB Directory
-"private_key": "ex: MIIEogIBAAKCAQEAj1chaA0Hx9...", // Private key that matches the signing certificate identified by `kid` above  
-"transport_root_cas": ["cert 1", "cert 2"], // Certificate chain for Transport certificate, used to validate TLS connection
-"transport_cert": "ex: MIIEdTCCA12gAwIBAgIJA5N", // PEM
-"transport_key": "transport key", //PEM
+"private_key": "-----BEGIN RSA PRIVATE KEY-----\nMIIEogIBAAKCAQEAj1chaA0Hx9...", // Private key that matches the signing certificate identified by `kid` above  
+"transport_root_cas": ["-----BEGIN CERTIFICATE-----\nMIIFYDCCA0igAwIBAgIEWcT89jANBgkqhkiG9w0BAQsFADBQMQswCQYDVQQGEwJH", "-----BEGIN CERTIFICATE-----\nMIIFYDCCA0igAwIBAgIEWcT89jANBgkqhkiG9w0BAQsFADBQMQswCQYDVQQGEwJH"], // Certificate chain for Transport certificate, used to validate TLS connection
+"transport_cert": "-----BEGIN CERTIFICATE-----\nMIIFYDCCA0igAwIBAgIEWcT89jANBgkqhkiG9w0BAQsFADBQMQswCQYDVQQGEwJH", // PEM
+"transport_key": "-----BEGIN RSA PRIVATE KEY-----\n", //PEM
 "get_implemented": true,
 "put_implemented": true,
 "delete_implemented": true,
 "environment": "sandbox",
 "brand": "Brand/product"
-}
+} 
 ```
 
 **Note** that HTTP `POST` is the *only* HTTP method required by the specification, which will always be tested.
