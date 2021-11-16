@@ -110,7 +110,7 @@ func (s jwtSigner) Claims() (string, error) {
 
 	// Instead of potentially custom ASN/OID parsing to get exact, expected value of Subject DN
 	// we use a config entry
-	if err := s.addTlsClientAuthClaims(claims); err != nil {
+	if err = s.addTlsClientAuthClaims(claims); err != nil {
 		return "", err
 	}
 
