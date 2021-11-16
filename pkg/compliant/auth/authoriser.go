@@ -24,6 +24,7 @@ func NewAuthoriser(
 	privateKey *rsa.PrivateKey,
 	jwtExpiration time.Duration,
 	transportCert *x509.Certificate,
+	transportSubjectDn string,
 ) Authoriser {
 	requestObjectSignAlg := "none"
 	if len(config.RequestObjectSignAlgSupported) > 0 {
@@ -46,6 +47,7 @@ func NewAuthoriser(
 				privateKey,
 				jwtExpiration,
 				transportCert,
+				transportSubjectDn,
 			),
 		)
 	}
@@ -67,6 +69,7 @@ func NewAuthoriser(
 				privateKey,
 				jwtExpiration,
 				transportCert,
+				transportSubjectDn,
 			),
 		)
 	}
@@ -86,6 +89,7 @@ func NewAuthoriser(
 				privateKey,
 				jwtExpiration,
 				transportCert,
+				transportSubjectDn,
 			),
 		)
 	}
@@ -105,6 +109,7 @@ func NewAuthoriser(
 				privateKey,
 				jwtExpiration,
 				transportCert,
+				transportSubjectDn,
 			),
 		)
 	}

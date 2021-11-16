@@ -27,6 +27,7 @@ type jwtSigner struct {
 	privateKey              *rsa.PrivateKey
 	jwtExpiration           time.Duration
 	transportCert           *x509.Certificate
+	transportSubjectDn      string
 }
 
 func NewJwtSigner(
@@ -42,6 +43,7 @@ func NewJwtSigner(
 	privateKey *rsa.PrivateKey,
 	jwtExpiration time.Duration,
 	transportCert *x509.Certificate,
+	transportSubjectDn string,
 ) Signer {
 	return jwtSigner{
 		signingAlgorithm:        signingAlgorithm,
@@ -56,6 +58,7 @@ func NewJwtSigner(
 		privateKey:              privateKey,
 		jwtExpiration:           jwtExpiration,
 		transportCert:           transportCert,
+		transportSubjectDn:      transportSubjectDn,
 	}
 }
 
@@ -86,31 +89,41 @@ func (s jwtSigner) Claims() (string, error) {
 		"iss": s.issuer,
 
 		// metadata
-		"token_endpoint_auth_signing_alg": s.signingAlgorithm.Alg(),
+
 		"grant_types": []string{
 			"authorization_code",
 			"client_credentials",
 		},
-		"subject_type":                               "public",
-		"application_type":                           "web",
-		"redirect_uris":                              s.redirectURIs,
-		"token_endpoint_auth_method":                 s.tokenEndpointAuthMethod,
-		"software_statement":                         s.ssa,
-		"scope":                                      "accounts openid",
-		"request_object_signing_alg":                 s.requestObjectSignAlg,
-		"id_token_signed_response_alg":               s.signingAlgorithm.Alg(),
-		"tls_client_certificate_bound_access_tokens": true,
+
+		"application_type":             "web",
+		"redirect_uris":                s.redirectURIs,
+		"token_endpoint_auth_method":   s.tokenEndpointAuthMethod,
+		"software_statement":           s.ssa,
+		"scope":                        "accounts openid",
+		"request_object_signing_alg":   s.requestObjectSignAlg,
+		"id_token_signed_response_alg": s.signingAlgorithm.Alg(),
 	}
 
 	if s.responseTypes != nil {
 		claims["response_types"] = s.responseTypes
 	}
 
+	// Instead of potentially custom ASN/OID parsing to get exact, expected value of Subject DN
+	// we use a config entry
 	if s.tokenEndpointAuthMethod == "tls_client_auth" {
 		if s.transportCert == nil {
-			return "", errors.New("transport cert not available to get Subject")
+			return "", errors.New("transport cert not available")
 		}
-		claims["tls_client_auth_subject_dn"] = s.transportCert.Subject.ToRDNSequence().String()
+		if s.transportSubjectDn != "" {
+			claims["tls_client_auth_subject_dn"] = s.transportSubjectDn
+		} else {
+			claims["tls_client_auth_subject_dn"] = s.transportCert.Subject.ToRDNSequence().String()
+		}
+	}
+
+	// We should only provide signing alg when it makes sense
+	if s.tokenEndpointAuthMethod == "private_key_jwt" || s.tokenEndpointAuthMethod == "client_secret_jwt" {
+		claims["token_endpoint_auth_signing_alg"] = s.signingAlgorithm.Alg()
 	}
 
 	token := jwt.NewWithClaims(s.signingAlgorithm, claims)
