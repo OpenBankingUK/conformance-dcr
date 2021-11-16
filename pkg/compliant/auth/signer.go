@@ -110,21 +110,11 @@ func (s jwtSigner) Claims() (string, error) {
 
 	// Instead of potentially custom ASN/OID parsing to get exact, expected value of Subject DN
 	// we use a config entry
-	if s.tokenEndpointAuthMethod == "tls_client_auth" {
-		if s.transportCert == nil {
-			return "", errors.New("transport cert not available")
-		}
-		if s.transportSubjectDn != "" {
-			claims["tls_client_auth_subject_dn"] = s.transportSubjectDn
-		} else {
-			claims["tls_client_auth_subject_dn"] = s.transportCert.Subject.ToRDNSequence().String()
-		}
+	if err := s.addTlsClientAuthClaims(claims); err != nil {
+		return "", err
 	}
 
-	// We should only provide signing alg when it makes sense
-	if s.tokenEndpointAuthMethod == "private_key_jwt" || s.tokenEndpointAuthMethod == "client_secret_jwt" {
-		claims["token_endpoint_auth_signing_alg"] = s.signingAlgorithm.Alg()
-	}
+	s.addSigningAlgClaims(claims)
 
 	token := jwt.NewWithClaims(s.signingAlgorithm, claims)
 	token.Header["kid"] = s.kID
@@ -135,4 +125,29 @@ func (s jwtSigner) Claims() (string, error) {
 	}
 
 	return signedJwt, nil
+}
+
+func (s jwtSigner) addSigningAlgClaims(claims jwt.MapClaims) {
+	// We should only provide signing alg when it makes sense
+	if s.tokenEndpointAuthMethod == "private_key_jwt" || s.tokenEndpointAuthMethod == "client_secret_jwt" {
+		claims["token_endpoint_auth_signing_alg"] = s.signingAlgorithm.Alg()
+	}
+}
+
+func (s jwtSigner) addTlsClientAuthClaims(claims jwt.MapClaims) error {
+	if s.tokenEndpointAuthMethod != "tls_client_auth" {
+		return nil
+	}
+
+	if s.transportCert == nil {
+		return errors.New("transport cert not available")
+	}
+
+	if s.transportSubjectDn != "" {
+		claims["tls_client_auth_subject_dn"] = s.transportSubjectDn
+	} else {
+		claims["tls_client_auth_subject_dn"] = s.transportCert.Subject.ToRDNSequence().String()
+	}
+
+	return nil
 }
