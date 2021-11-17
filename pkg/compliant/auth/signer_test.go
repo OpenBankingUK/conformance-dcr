@@ -2,6 +2,7 @@ package auth
 
 import (
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/certs"
+	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"fmt"
@@ -28,6 +29,7 @@ func TestNewJwtSigner(t *testing.T) {
 		privateKey,
 		time.Hour,
 		&x509.Certificate{},
+		"",
 	)
 
 	signedClaims, err := signer.Claims()
@@ -63,6 +65,7 @@ func TestNewJwtSigner(t *testing.T) {
 func TestNewJwtSigner_TlsClientAuthAddSubjectToClaims(t *testing.T) {
 	privateKey, err := certs.ParseRsaPrivateKeyFromPemFile("testdata/private-sign.key")
 	require.NoError(t, err)
+
 	signer := NewJwtSigner(
 		jwt.SigningMethodRS256,
 		"ssa",
@@ -76,21 +79,10 @@ func TestNewJwtSigner_TlsClientAuthAddSubjectToClaims(t *testing.T) {
 		privateKey,
 		time.Hour,
 		&x509.Certificate{Subject: pkix.Name{Organization: []string{"OB"}}},
+		"",
 	)
 
-	signedClaims, err := signer.Claims()
-	require.NoError(t, err)
-
-	token, err := jwt.Parse(signedClaims, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return privateKey.Public(), nil
-	})
-	require.NoError(t, err)
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	assert.True(t, ok)
+	token, claims := getJwtClaims(t, signer, privateKey)
 
 	assert.Equal(t, "web", claims["application_type"])
 	assert.Equal(t, "aud", claims["aud"])
@@ -106,6 +98,47 @@ func TestNewJwtSigner_TlsClientAuthAddSubjectToClaims(t *testing.T) {
 	assert.Equal(t, "ssa", claims["software_statement"])
 	assert.Equal(t, "tls_client_auth", claims["token_endpoint_auth_method"])
 	assert.Equal(t, "O=OB", claims["tls_client_auth_subject_dn"])
+}
+
+func TestNewJwtSigner_TlsClientAuthAddConfigurableSubjectToClaims(t *testing.T) {
+	privateKey, err := certs.ParseRsaPrivateKeyFromPemFile("testdata/private-sign.key")
+	require.NoError(t, err)
+	signer := NewJwtSigner(
+		jwt.SigningMethodRS256,
+		"ssa",
+		"issuer",
+		"aud",
+		"kid",
+		"tls_client_auth",
+		"none",
+		[]string{"/redirect"},
+		[]string{"code", "code id_token"},
+		privateKey,
+		time.Hour,
+		&x509.Certificate{Subject: pkix.Name{Organization: []string{"OB"}}},
+		"CN=Configured Subject DN",
+	)
+
+	_, claims := getJwtClaims(t, signer, privateKey)
+
+	assert.Equal(t, "CN=Configured Subject DN", claims["tls_client_auth_subject_dn"])
+}
+
+func getJwtClaims(t *testing.T, signer Signer, privateKey *rsa.PrivateKey) (*jwt.Token, jwt.MapClaims) {
+	signedClaims, err := signer.Claims()
+	require.NoError(t, err)
+
+	token, err := jwt.Parse(signedClaims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return privateKey.Public(), nil
+	})
+	require.NoError(t, err)
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	assert.True(t, ok)
+	return token, claims
 }
 
 func TestNewJwtSigner_TlsClientAuthDoesNotPanicOnMissingCert(t *testing.T) {
@@ -124,11 +157,12 @@ func TestNewJwtSigner_TlsClientAuthDoesNotPanicOnMissingCert(t *testing.T) {
 		privateKey,
 		time.Hour,
 		nil,
+		"",
 	)
 
 	_, err = signer.Claims()
 
-	assert.EqualError(t, err, "transport cert not available to get Subject")
+	assert.EqualError(t, err, "transport cert not available")
 }
 
 func TestNewJwtSigner_OmitsEmptyResponseTypes(t *testing.T) {
@@ -150,21 +184,9 @@ func TestNewJwtSigner_OmitsEmptyResponseTypes(t *testing.T) {
 		privateKey,
 		time.Hour,
 		&x509.Certificate{Subject: pkix.Name{Organization: []string{"OB"}}},
+		"",
 	)
-
-	signedClaims, err := signer.Claims()
-	require.NoError(t, err)
-
-	token, err := jwt.Parse(signedClaims, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return privateKey.Public(), nil
-	})
-	require.NoError(t, err)
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	assert.True(t, ok)
+	_, claims := getJwtClaims(t, signer, privateKey)
 
 	_, exists := claims["response_types"]
 	assert.False(t, exists)
