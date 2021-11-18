@@ -76,6 +76,7 @@ func runCmd(flags flags) {
 		cfg.SigningKeyPEM,
 		cfg.TransportKeyPEM,
 		cfg.TransportCertPEM,
+		cfg.TransportCertSubjectDN,
 		cfg.TransportRootCAsPEM,
 		cfg.GetImplemented,
 		cfg.PutImplemented,

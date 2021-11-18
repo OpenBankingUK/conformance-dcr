@@ -36,6 +36,7 @@ func NewDCR32Config(
 	signingKeyPEM string,
 	transportSigningKeyPEM string,
 	transportCertPEM string,
+	transportCertSubjectDn string,
 	transportRootCAs []string,
 	getImplemented bool,
 	putImplemented bool,
@@ -79,7 +80,8 @@ func NewDCR32Config(
 		WithResponseTypes(responseTypes).
 		WithPrivateKey(privateKey).
 		WithTokenEndpointAuthMethod(tokenSignMethod).
-		WithTransportCert(transportCert)
+		WithTransportCert(transportCert).
+		WithTransportCertSubjectDn(transportCertSubjectDn)
 
 	secureClient, err := http.NewBuilder().
 		WithRootCAs(transportRootCAs).

@@ -19,7 +19,7 @@ type AuthoriserBuilder struct {
 	privateKey              *rsa.PrivateKey
 	jwtExpiration           time.Duration
 	transportCert           *x509.Certificate
-	transportSubjectDn      string
+	transportCertSubjectDn  string
 }
 
 func NewAuthoriserBuilder() AuthoriserBuilder {
@@ -30,6 +30,11 @@ func NewAuthoriserBuilder() AuthoriserBuilder {
 
 func (b AuthoriserBuilder) WithTransportCert(transportCert *x509.Certificate) AuthoriserBuilder {
 	b.transportCert = transportCert
+	return b
+}
+
+func (b AuthoriserBuilder) WithTransportCertSubjectDn(transportSubjectDn string) AuthoriserBuilder {
+	b.transportCertSubjectDn = transportSubjectDn
 	return b
 }
 
@@ -108,6 +113,6 @@ func (b AuthoriserBuilder) Build() (Authoriser, error) {
 		b.privateKey,
 		b.jwtExpiration,
 		b.transportCert,
-		b.transportSubjectDn,
+		b.transportCertSubjectDn,
 	), nil
 }
