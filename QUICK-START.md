@@ -33,6 +33,7 @@ A template configuration file can be found at [/config.json.sample](/config.json
 |private_key                | string     | Private key associated with client|
 |transport_root_cas         | []string   | Root CAs for transport cert|
 |transport_cert             | string     | Transport cert associated with client|
+|transport_cert_subject_dn  | string     | Transport cert Subject DN associated with client - use when DCR implementation has strict checks and current implementation provides unexpected results |
 |transport_key              | string     | Private key for transport|
 |get_implemented            | bool       | HTTP GET method implemented as per DCR specification? |
 |put_implemented            | bool       | HTTP PUT method implemented as per DCR specification? |
@@ -55,6 +56,7 @@ Sample json config (*Note* The json5 format with comments, see [/config.json.sam
 "transport_root_cas": ["cert 1", "cert 2"], // Certificate chain for Transport certificate, used to validate TLS connection
 "transport_cert": "ex: MIIEdTCCA12gAwIBAgIJA5N", // PEM
 "transport_key": "transport key", //PEM
+"transport_cert_subject_dn": "", //optional, used when standard Subject DN extraction is not returning expected string
 "get_implemented": true,
 "put_implemented": true,
 "delete_implemented": true,
