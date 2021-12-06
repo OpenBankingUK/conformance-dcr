@@ -36,6 +36,7 @@ func TestNewAuther_ReturnsClientSecretBasic(t *testing.T) {
 		&rsa.PrivateKey{},
 		time.Hour,
 		nil,
+		"",
 	)
 
 	assert.IsType(t, clientSecretBasic{}, auther)
@@ -58,6 +59,7 @@ func TestNewAuther_ReturnsPrivateKeyJwt(t *testing.T) {
 		&rsa.PrivateKey{},
 		time.Hour,
 		nil,
+		"",
 	)
 
 	assert.IsType(t, clientPrivateKeyJwt{}, auther)
@@ -80,6 +82,7 @@ func TestNewAuther_ReturnsTlsClientAuth(t *testing.T) {
 		&rsa.PrivateKey{},
 		time.Hour,
 		nil,
+		"",
 	)
 
 	assert.IsType(t, tlsClientAuth{}, auther)
@@ -102,6 +105,7 @@ func TestNewAuther_ReturnsNoAuther(t *testing.T) {
 		&rsa.PrivateKey{},
 		time.Hour,
 		nil,
+		"",
 	)
 
 	assert.IsType(t, none{}, auther)

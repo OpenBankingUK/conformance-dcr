@@ -1,3 +1,9 @@
+# Release v1.3.1 (6th December 2021)
+
+The release is called v1.3.1
+
+[See full list changes](https://bitbucket.org/openbankingteam/conformance-dcr/src/develop/releases/v1.3.1.md) (v1.3.1.md)
+
 # Release v1.3.0 (12th August 2020)
 
 The release is called v1.3.0, support for DCR 3.3

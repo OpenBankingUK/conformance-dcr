@@ -58,5 +58,6 @@ func Test_AuthoriserBuilder_Success(t *testing.T) {
 		&rsa.PrivateKey{},
 		0,
 		cert,
+		"",
 	), authoriser)
 }

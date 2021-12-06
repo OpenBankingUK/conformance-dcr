@@ -12,22 +12,23 @@ import (
 )
 
 type Config struct {
-	SpecVersion         string   `json:"spec_version"`
-	WellknownEndpoint   string   `json:"wellknown_endpoint"`
-	SSA                 string   `json:"ssa"`
-	Kid                 string   `json:"kid"`
-	Aud                 string   `json:"aud"`
-	RedirectURIs        []string `json:"redirect_uris"`
-	Issuer              string   `json:"issuer"`
-	SigningKeyPEM       string   `json:"private_key"`
-	TransportRootCAsPEM []string `json:"transport_root_cas"`
-	TransportCertPEM    string   `json:"transport_cert"`
-	TransportKeyPEM     string   `json:"transport_key"`
-	GetImplemented      bool     `json:"get_implemented"`
-	PutImplemented      bool     `json:"put_implemented"`
-	DeleteImplemented   bool     `json:"delete_implemented"`
-	Environment         string   `json:"environment"`
-	Brand               string   `json:"brand"`
+	SpecVersion            string   `json:"spec_version"`
+	WellknownEndpoint      string   `json:"wellknown_endpoint"`
+	SSA                    string   `json:"ssa"`
+	Kid                    string   `json:"kid"`
+	Aud                    string   `json:"aud"`
+	RedirectURIs           []string `json:"redirect_uris"`
+	Issuer                 string   `json:"issuer"`
+	SigningKeyPEM          string   `json:"private_key"`
+	TransportRootCAsPEM    []string `json:"transport_root_cas"`
+	TransportCertSubjectDN string   `json:"transport_cert_subject_dn"`
+	TransportCertPEM       string   `json:"transport_cert"`
+	TransportKeyPEM        string   `json:"transport_key"`
+	GetImplemented         bool     `json:"get_implemented"`
+	PutImplemented         bool     `json:"put_implemented"`
+	DeleteImplemented      bool     `json:"delete_implemented"`
+	Environment            string   `json:"environment"`
+	Brand                  string   `json:"brand"`
 }
 
 func LoadConfig(configFilePath string) (Config, error) {
