@@ -1,5 +1,10 @@
 ![Open Banking Logo](https://bitbucket.org/openbankingteam/conformance-suite/raw/99b76db5f60bb4d790d6f32bffae29cbe95a3661/docs/static_files/OBIE_logotype_blue_RGB.PNG)
 
+# THE REPOSITORY WAS MIGRATED TO GITHUB!
+[**NEW GITHUB REPOSITORY**](https://github.com/OpenBankingUK/conformance-dcr)  
+The BitBucket repository will be deleted in due time.
+---
+
 The **Dynamic Client Registration Conformance Tool** is an Open Source test tool provided
 by [Open Banking](https://www.openbanking.org.uk/).
 
