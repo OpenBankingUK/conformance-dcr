@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
-
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
 	"github.com/stretchr/testify/assert"
 )
@@ -65,14 +64,14 @@ func TestNewClientDelete_HandlesCreateRequestError(t *testing.T) {
 	ctx := NewContext()
 	ctx.SetClient("clientKey", softClient)
 	ctx.SetGrantToken("clientGrantKey", auth.GrantToken{})
-	step := NewClientDelete(string(0x7f), "clientKey", "clientGrantKey", &http.Client{})
+	step := NewClientDelete(string(rune(0x7f)), "clientKey", "clientGrantKey", &http.Client{})
 
 	result := step.Run(ctx)
 
 	assert.False(t, result.Pass)
 	assert.Equal(
 		t,
-		"unable to create request \u007f/foo: parse \u007f/foo: net/url: invalid control character in URL",
+		"unable to create request \u007f/foo: parse \"\\u007f/foo\": net/url: invalid control character in URL",
 		result.FailReason,
 	)
 }
@@ -89,7 +88,7 @@ func TestNewClientDelete_HandlesExecuteRequestError(t *testing.T) {
 	assert.False(t, result.Pass)
 	assert.Equal(
 		t,
-		"unable to call endpoint localhost/foo: Delete localhost/foo: unsupported protocol scheme \"\"",
+		"unable to call endpoint localhost/foo: Delete \"localhost/foo\": unsupported protocol scheme \"\"",
 		result.FailReason,
 	)
 }
