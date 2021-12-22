@@ -26,7 +26,7 @@ func (c tlsClient) Id() string {
 func (c tlsClient) CredentialsGrantRequest() (*http.Request, error) {
 	data := url.Values{}
 	data.Set("client_id", c.id)
-	data.Set("scope", "openid")
+	data.Set("scope", "")
 	data.Set("grant_type", "client_credentials")
 	reqBody := strings.NewReader(data.Encode())
 	r, err := http.NewRequest(http.MethodPost, c.tokenEndpoint, reqBody)

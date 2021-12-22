@@ -31,7 +31,7 @@ func (c clientSecretBasic) CredentialsGrantRequest() (*http.Request, error) {
 	token := fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte(c.authClientKey())))
 	data := url.Values{}
 	data.Set("grant_type", "client_credentials")
-	data.Set("scope", "openid")
+	data.Set("scope", "")
 	reqBody := strings.NewReader(data.Encode())
 	r, err := http.NewRequest(http.MethodPost, c.tokenEndpoint, reqBody)
 	if err != nil {
