@@ -8,7 +8,7 @@ jobs:
   go-test:
     name: go-test
     runs-on: ubuntu-latest
-    container: golang:1.15-alpine3.13
+    container: golang:1.17-alpine3.15
     env:
       CGO_ENABLED: 0
       GOOS: linux
@@ -31,7 +31,7 @@ jobs:
     name: code-coverage
     
     runs-on: ubuntu-latest
-    container: golang:1.13.6-alpine
+    container: golang:1.17-alpine3.15
     env:
       CGO_ENABLED: 0
     steps:
@@ -45,7 +45,7 @@ jobs:
   e2e:
     name: e2e
     runs-on: ubuntu-latest
-    container: golang:1.13.6-alpine
+    container: golang:1.17-alpine3.15
     env:
       CGO_ENABLED: 0
     steps:
