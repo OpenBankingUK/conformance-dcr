@@ -1,0 +1,72 @@
+name: build project
+
+on: 
+  [push, pull_request]
+
+jobs:
+
+  go-test:
+    name: go-test
+    runs-on: ubuntu-latest
+    container: golang:1.15-alpine3.13
+    env:
+      CGO_ENABLED: 0
+      GOOS: linux
+      GOARCH: amd64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install packages
+        run: apk update && apk add git make bash curl
+      - name: make tools
+        run: make tools
+      - name: Build
+        run: make build
+      - name: Test
+        run: make test
+      - name: Lint
+        run: make lint
+        
+  code-coverage:
+    name: code-coverage
+    
+    runs-on: ubuntu-latest
+    container: golang:1.13.6-alpine
+    env:
+      CGO_ENABLED: 0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install packages
+        run: apk update && apk add git make bash
+      - name: Code-coverage
+        run: make code-coverage
+        
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    container: golang:1.13.6-alpine
+    env:
+      CGO_ENABLED: 0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install packages
+        run: apk update && apk add git make bash curl
+      - name: Make configs directory
+        run: mkdir configs
+      - name: Setup Ozone config
+        run:  echo "${{ secrets.OZONE_CONFIG }}" | base64 -d  > configs/config.json
+      - name: Make e2e
+        run: make e2e
+        
+  build-image:
+     name: build-image
+     runs-on: ubuntu-latest
+     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build docker image
+        run: make build_image
+      - name: Show top level docker images
+        run: docker images
