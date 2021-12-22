@@ -35,7 +35,7 @@ func TestGetRequest_FailsIfHttpCallFails(t *testing.T) {
 	result := step.Run(ctx)
 
 	assert.False(t, result.Pass)
-	assert.Equal(t, "Get invalid_url: unsupported protocol scheme \"\"", result.FailReason)
+	assert.Equal(t, "Get \"invalid_url\": unsupported protocol scheme \"\"", result.FailReason)
 }
 
 func TestGetRequest_SetsResponseInContext(t *testing.T) {

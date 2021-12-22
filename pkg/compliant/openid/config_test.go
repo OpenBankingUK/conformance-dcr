@@ -1,11 +1,12 @@
 package openid
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetConfig(t *testing.T) {
@@ -74,7 +75,7 @@ func TestGet_HandlesErrorGet(t *testing.T) {
 	assert.EqualError(
 		t,
 		err,
-		"Failed to GET OpenIDConfiguration: url=-: Get -: unsupported protocol scheme \"\"",
+		"Failed to GET OpenIDConfiguration: url=-: Get \"-\": unsupported protocol scheme \"\"",
 	)
 }
 

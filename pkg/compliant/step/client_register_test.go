@@ -1,13 +1,14 @@
 package step
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewClientRegister(t *testing.T) {
@@ -51,27 +52,27 @@ func TestNewClientRegister_HandlesHttpErrors(t *testing.T) {
 	result := step.Run(ctx)
 
 	assert.False(t, result.Pass)
-	assert.Equal(t, "making jose post request: Post invalid%20url: unsupported protocol scheme \"\"", result.FailReason)
+	assert.Equal(t, "making jose post request: Post \"invalid%20url\": unsupported protocol scheme \"\"", result.FailReason)
 }
 
 func TestNewClientRegister_HandlesCreateRequestError(t *testing.T) {
 	ctx := NewContext()
 	ctx.SetString("jwtClaimsCtxKey", "jwt.Claims.xxxx")
-	step := NewPostClientRegister(string(0x7f), "jwtClaimsCtxKey", "responseCtxKey", &http.Client{})
+	step := NewPostClientRegister(string(rune(0x7f)), "jwtClaimsCtxKey", "responseCtxKey", &http.Client{})
 
 	result := step.Run(ctx)
 
 	assert.False(t, result.Pass)
 	assert.Equal(
 		t,
-		"creating jose post request: parse \u007f: net/url: invalid control character in URL",
+		"creating jose post request: parse \"\\u007f\": net/url: invalid control character in URL",
 		result.FailReason,
 	)
 }
 
 func TestNewClientRegister_HandlesJwtClaimsNotInContext(t *testing.T) {
 	ctx := NewContext()
-	registrationEndpoint := string(0x7f)
+	registrationEndpoint := string(rune(0x7f))
 	ctx.SetOpenIdConfig("openIdConfigCtxKey", openid.Configuration{
 		RegistrationEndpoint: &registrationEndpoint,
 		TokenEndpoint:        "",

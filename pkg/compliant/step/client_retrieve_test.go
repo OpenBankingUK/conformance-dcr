@@ -7,9 +7,9 @@ import (
 	"testing"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 
 	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -43,14 +43,14 @@ func TestNewClientRegister_HandlesMakeRequestError(t *testing.T) {
 	ctx := NewContext()
 	ctx.SetClient("clientKey", client.NewClientSecretBasic(clientID, "", clientSecret))
 	ctx.SetGrantToken("grantTokenKey", auth.GrantToken{})
-	step := NewClientRetrieve("responseCtxKey", string(0x7f), "clientKey", "grantTokenKey", &http.Client{})
+	step := NewClientRetrieve("responseCtxKey", string(rune(0x7f)), "clientKey", "grantTokenKey", &http.Client{})
 
 	result := step.Run(ctx)
 
 	assert.False(t, result.Pass)
 	assert.Equal(
 		t,
-		"unable to make request: parse \u007f/foo: net/url: invalid control character in URL",
+		"unable to make request: parse \"\\u007f/foo\": net/url: invalid control character in URL",
 		result.FailReason,
 	)
 }
@@ -66,14 +66,14 @@ func TestNewClientRegister_HandlesExecuteRequestError(t *testing.T) {
 	assert.False(t, result.Pass)
 	assert.Equal(
 		t,
-		"unable to call endpoint localhost/foo: Get localhost/foo: unsupported protocol scheme \"\"",
+		"unable to call endpoint localhost/foo: Get \"localhost/foo\": unsupported protocol scheme \"\"",
 		result.FailReason,
 	)
 }
 
 func TestNewClientRegister_HandlesErrorForClientNotFound(t *testing.T) {
 	ctx := NewContext()
-	registrationEndpoint := string(0x7f)
+	registrationEndpoint := string(rune(0x7f))
 	ctx.SetOpenIdConfig("openIdConfigCtxKey", openid.Configuration{
 		RegistrationEndpoint: &registrationEndpoint,
 		TokenEndpoint:        "",

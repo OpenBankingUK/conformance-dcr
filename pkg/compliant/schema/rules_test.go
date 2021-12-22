@@ -2,9 +2,10 @@ package schema
 
 import (
 	"errors"
+	"testing"
+
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestIsURL(t *testing.T) {
@@ -40,7 +41,7 @@ func TestIsURL(t *testing.T) {
 		},
 		{
 			name:  "invalid url",
-			url:   string(0x7f),
+			url:   string(rune(0x7f)),
 			valid: false,
 		},
 	}
