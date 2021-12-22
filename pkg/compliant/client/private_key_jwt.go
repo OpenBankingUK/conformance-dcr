@@ -55,7 +55,7 @@ func (c privateKeyJwt) CredentialsGrantRequest() (*http.Request, error) {
 	}
 	data := url.Values{}
 	data.Set("grant_type", "client_credentials")
-	data.Set("scope", "openid")
+	data.Set("scope", "")
 	data.Set("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
 	data.Set("client_assertion", token)
 	reqBody := strings.NewReader(data.Encode())
