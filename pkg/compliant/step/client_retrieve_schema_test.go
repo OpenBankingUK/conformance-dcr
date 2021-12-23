@@ -1,7 +1,7 @@
 package step
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/schema"
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/schema"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"io/ioutil"

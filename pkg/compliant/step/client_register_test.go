@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

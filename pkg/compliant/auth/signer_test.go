@@ -1,11 +1,11 @@
 package auth
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/certs"
 	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"fmt"
+	"github.com/OpenBankingUK/conformance-dcr/pkg/certs"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

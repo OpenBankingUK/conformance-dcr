@@ -1,8 +1,8 @@
 package compliant
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 	"errors"
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/step"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
