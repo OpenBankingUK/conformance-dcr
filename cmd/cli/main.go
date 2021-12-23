@@ -189,7 +189,7 @@ func exitOnError(err error) {
 // getUpdateMessage checks if there is an update available to the current software. An appropriate message is returned
 // in both cases of either update being available or not.
 func getUpdateMessage(v VersionInfo, bitbucketTagsEndpoint string) string {
-	vc := ver.NewBitBucket(bitbucketTagsEndpoint)
+	vc := ver.NewGitHub(bitbucketTagsEndpoint)
 	update, err := vc.UpdateAvailable(v.version)
 	if err != nil {
 		return fmt.Sprintf("error checking for updates: %s", err.Error())
