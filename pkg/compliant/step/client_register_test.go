@@ -1,14 +1,13 @@
 package step
 
 import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestNewClientRegister(t *testing.T) {

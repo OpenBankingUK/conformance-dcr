@@ -6,7 +6,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"github.com/dgrijalva/jwt-go"
 )
 

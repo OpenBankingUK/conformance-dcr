@@ -5,7 +5,7 @@ import (
 	"crypto/x509"
 	"testing"
 
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/assert"
 )

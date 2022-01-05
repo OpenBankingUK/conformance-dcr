@@ -1,12 +1,11 @@
 package version
 
 import (
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"sort"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestUpdateCheck_OutdatedVersionUpdateAvailable(t *testing.T) {
@@ -39,7 +38,7 @@ func TestUpdateCheck_OutdatedVersionUpdateAvailable(t *testing.T) {
 		}))
 	defer ts.Close()
 
-	bb := GitHubBucket(ts.URL)
+	bb := NewBitBucket(ts.URL)
 	version := "0.0.2"
 
 	upd, err := bb.UpdateAvailable(version)
@@ -59,7 +58,7 @@ func TestUpdateCheck_NoTagsAvailable(t *testing.T) {
 		}))
 	defer ts.Close()
 
-	bb := GitHubBucket(ts.URL)
+	bb := NewBitBucket(ts.URL)
 	version := "0.0.2"
 
 	upd, err := bb.UpdateAvailable(version)
@@ -97,7 +96,7 @@ func TestUpdateCheck_UpToDateVersionNoUpdateAvailable(t *testing.T) {
 		}))
 	defer ts.Close()
 
-	bb := GitHubBucket(ts.URL)
+	bb := NewBitBucket(ts.URL)
 	version := "1.3.0"
 
 	upd, err := bb.UpdateAvailable(version)
@@ -106,7 +105,7 @@ func TestUpdateCheck_UpToDateVersionNoUpdateAvailable(t *testing.T) {
 }
 
 func TestUpdateCheck_NoLocalVersionSet(t *testing.T) {
-	bb := GitHubBucket("")
+	bb := NewBitBucket("")
 	version := ""
 
 	update, err := bb.UpdateAvailable(version)
@@ -116,7 +115,7 @@ func TestUpdateCheck_NoLocalVersionSet(t *testing.T) {
 }
 
 func TestUpdateCheck_LocalVersionInvalid(t *testing.T) {
-	bb := GitHubBucket("")
+	bb := NewBitBucket("")
 	version := "foobar"
 
 	update, err := bb.UpdateAvailable(version)

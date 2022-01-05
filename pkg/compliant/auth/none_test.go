@@ -1,10 +1,9 @@
 package auth
 
 import (
-	"testing"
-
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/client"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestNone_Claims(t *testing.T) {

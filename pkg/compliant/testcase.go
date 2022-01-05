@@ -1,7 +1,7 @@
 package compliant
 
 import (
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/step"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 )
 
 type TestCase interface {

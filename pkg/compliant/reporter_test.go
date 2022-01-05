@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/step"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

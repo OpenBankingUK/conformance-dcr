@@ -1,6 +1,6 @@
 package compliant
 
-import "github.com/OpenBankingUK/conformance-dcr/pkg/compliant/step"
+import "bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 
 type Scenario interface {
 	Run() ScenarioResult

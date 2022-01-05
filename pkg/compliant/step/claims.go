@@ -1,7 +1,7 @@
 package step
 
 import (
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/auth"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
 )
 
 type claims struct {

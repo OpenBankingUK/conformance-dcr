@@ -3,16 +3,15 @@ package step
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
-
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/auth"
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -30,7 +30,7 @@ run: build ## run binary directly without docker.
 .PHONY: build
 build: ## build the server binary directly.
 	@printf "%b" "\033[93m" "  ---> Building ... " "\033[0m" "\n"
-	go build -ldflags ${LD_FLAGS} -o dcr github.com/OpenBankingUK/conformance-dcr/cmd/cli
+	go build -ldflags ${LD_FLAGS} -o dcr bitbucket.org/openbankingteam/conformance-dcr/cmd/cli
 
 .PHONY: build_image
 build_image: ## build the docker image. Use available args IMAGE_TAG=v1.x.y, ENABLE_IMAGE_SIGNING=1

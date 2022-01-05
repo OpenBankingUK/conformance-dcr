@@ -1,12 +1,11 @@
 package step
 
 import (
+	http2 "bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
 	"bytes"
 	"fmt"
-	"net/http"
-
-	http2 "github.com/OpenBankingUK/conformance-dcr/pkg/http"
 	"github.com/pkg/errors"
+	"net/http"
 )
 
 type clientRegister struct {

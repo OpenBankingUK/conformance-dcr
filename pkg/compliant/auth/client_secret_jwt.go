@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/client"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
 	"github.com/pkg/errors"
 )
 

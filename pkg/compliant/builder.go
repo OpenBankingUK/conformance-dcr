@@ -1,13 +1,12 @@
 package compliant
 
 import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/schema"
 	"net/http"
 	"time"
 
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/schema"
-
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/auth"
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/step"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 )
 
 type Builder struct {

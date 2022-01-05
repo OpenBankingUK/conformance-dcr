@@ -1,9 +1,8 @@
 package step
 
 import (
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
 	"fmt"
-
-	"github.com/OpenBankingUK/conformance-dcr/pkg/http"
 )
 
 type assertStatusCode struct {

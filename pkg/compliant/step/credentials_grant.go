@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/auth"
-	http2 "github.com/OpenBankingUK/conformance-dcr/pkg/http"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
+	http2 "bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
 )
 
 type clientCredentialsGrant struct {

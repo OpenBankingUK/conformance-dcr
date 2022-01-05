@@ -1,10 +1,9 @@
 package compliant
 
 import (
-	"testing"
-
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/step"
+	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestTestCaseResults_Fail_FalseIfPasses(t *testing.T) {
