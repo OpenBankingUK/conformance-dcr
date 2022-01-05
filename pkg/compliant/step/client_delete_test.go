@@ -6,9 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/auth"
 
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/client"
 	"github.com/stretchr/testify/assert"
 )
 

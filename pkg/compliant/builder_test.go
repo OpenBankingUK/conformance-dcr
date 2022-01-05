@@ -1,15 +1,16 @@
 package compliant
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/schema"
 	"crypto/rsa"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 	"time"
 
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/schema"
+	"github.com/stretchr/testify/require"
+
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/auth"
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
 	"github.com/stretchr/testify/assert"
 )
 

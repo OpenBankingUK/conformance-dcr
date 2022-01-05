@@ -3,12 +3,13 @@ package step
 import (
 	"crypto/rand"
 	"crypto/rsa"
-	"github.com/dgrijalva/jwt-go"
 	"testing"
 	"time"
 
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
+	"github.com/dgrijalva/jwt-go"
+
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/auth"
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

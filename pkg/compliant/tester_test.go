@@ -1,10 +1,11 @@
 package compliant
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/step"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestVerboseTester_Compliant(t *testing.T) {

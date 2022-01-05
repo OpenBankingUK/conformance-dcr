@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/auth"
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/client"
 )
 
 type clientRetrieveResponse struct {

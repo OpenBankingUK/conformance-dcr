@@ -1,6 +1,6 @@
 # Contributing
 
-When contributing to the DCR Conformance Tool please first discuss the change you wish to make via the [issue tracker](https://bitbucket.org/openbankingteam/conformance-dcr/issues) or via email.
+When contributing to the DCR Conformance Tool please first discuss the change you wish to make via email.
 
 # Questions
 

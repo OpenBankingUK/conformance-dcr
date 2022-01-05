@@ -1,12 +1,13 @@
 package main
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant"
 	"bytes"
 	"encoding/json"
 	"io"
 	"io/ioutil"
 	"os"
+
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant"
 
 	"github.com/pkg/errors"
 )

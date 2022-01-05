@@ -1,17 +1,18 @@
 package compliant
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/schema"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/pkg/errors"
 	http2 "net/http"
 
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/auth"
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/schema"
+	"github.com/OpenBankingUK/conformance-dcr/pkg/http"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/pkg/errors"
+
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
 )
 
 type DCR32Config struct {

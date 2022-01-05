@@ -3,11 +3,12 @@ package auth
 import (
 	"crypto/rsa"
 	"crypto/x509"
-	"github.com/dgrijalva/jwt-go"
 	"time"
 
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
+	"github.com/dgrijalva/jwt-go"
+
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/client"
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
 )
 
 // Double dispatch Signing method/Client abstract factory

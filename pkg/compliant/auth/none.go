@@ -1,8 +1,9 @@
 package auth
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
 	"errors"
+
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/client"
 )
 
 type none struct{}

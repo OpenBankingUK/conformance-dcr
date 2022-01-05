@@ -1,9 +1,10 @@
 package step
 
 import (
-	http2 "bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
 	"fmt"
 	"net/http"
+
+	http2 "github.com/OpenBankingUK/conformance-dcr/pkg/http"
 )
 
 type clientRetrieve struct {

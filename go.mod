@@ -1,8 +1,9 @@
-module bitbucket.org/openbankingteam/conformance-dcr
+module github.com/OpenBankingUK/conformance-dcr
 
 go 1.13
 
 require (
+	bitbucket.org/openbankingteam/conformance-dcr v1.3.1
 	github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible

@@ -1,13 +1,14 @@
 package step
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/schema"
-	"github.com/stretchr/testify/assert"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"testing"
+
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/schema"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewClientRetrieveSchema(t *testing.T) {

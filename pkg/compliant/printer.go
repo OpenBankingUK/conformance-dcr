@@ -1,11 +1,12 @@
 package compliant
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/step"
 	"fmt"
-	"github.com/logrusorgru/aurora"
 	"io"
 	"os"
+
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/step"
+	"github.com/logrusorgru/aurora"
 )
 
 func NewPrinter(debug bool) printer {

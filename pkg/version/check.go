@@ -23,8 +23,8 @@ type bitBucket struct {
 	bitBucketAPIRepository string
 }
 
-// NewBitBucket returns a new instance of Checker.
-func NewBitBucket(bitBucketAPIRepository string) Checker {
+// GitHubBucket returns a new instance of Checker.
+func GitHubBucket(bitBucketAPIRepository string) Checker {
 	return bitBucket{
 		bitBucketAPIRepository: bitBucketAPIRepository,
 	}

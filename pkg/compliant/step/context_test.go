@@ -1,10 +1,11 @@
 package step
 
 import (
-	dcr "bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/client"
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/openid"
 	"net/http"
 	"testing"
+
+	dcr "github.com/OpenBankingUK/conformance-dcr/pkg/compliant/client"
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
 
 	"github.com/stretchr/testify/assert"
 )
