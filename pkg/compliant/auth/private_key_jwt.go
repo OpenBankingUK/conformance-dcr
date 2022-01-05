@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/rsa"
 	"encoding/json"
+
 	"github.com/dgrijalva/jwt-go"
 
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/client"

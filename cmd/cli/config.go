@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant"
+
 	"github.com/pkg/errors"
 )
 

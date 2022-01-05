@@ -3,8 +3,9 @@ package auth
 import (
 	"crypto/rsa"
 	"crypto/x509"
-	"github.com/dgrijalva/jwt-go"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
 
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/client"
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
