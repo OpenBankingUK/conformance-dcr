@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/certs"
+	"github.com/OpenBankingUK/conformance-dcr/pkg/certs"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

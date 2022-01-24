@@ -1,8 +1,8 @@
 package step
 
 import (
-	http2 "bitbucket.org/openbankingteam/conformance-dcr/pkg/http"
 	"fmt"
+	http2 "github.com/OpenBankingUK/conformance-dcr/pkg/http"
 	"net/http"
 )
 

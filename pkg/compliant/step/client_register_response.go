@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/auth"
 )
 
 type clientRegisterResponse struct {

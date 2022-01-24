@@ -1,7 +1,7 @@
 package step
 
 import (
-	"bitbucket.org/openbankingteam/conformance-dcr/pkg/compliant/auth"
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/auth"
 )
 
 type setInvalidGrantToken struct {
