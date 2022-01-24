@@ -17,16 +17,16 @@ type Checker interface {
 	UpdateAvailable(currentVersion string) (bool, error)
 }
 
-// bitBucket helper with capability to get release versions from source control repository
-type bitBucket struct {
-	// bitBucketAPIRepository full URL of the TAG API 2.0 for the Conformance Suite.
-	bitBucketAPIRepository string
+// gitHub helper with capability to get release versions from source control repository
+type gitHub struct {
+	// gitHubAPIRepository full URL of the TAG API 2.0 for the Conformance Suite.
+	gitHubAPIRepository string
 }
 
-// NewBitBucket returns a new instance of Checker.
-func NewBitBucket(bitBucketAPIRepository string) Checker {
-	return bitBucket{
-		bitBucketAPIRepository: bitBucketAPIRepository,
+// NewGitHub returns a new instance of Checker.
+func NewGitHub(gitHubAPIRepository string) Checker {
+	return gitHub{
+		gitHubAPIRepository: gitHubAPIRepository,
 	}
 }
 
@@ -37,7 +37,7 @@ type tag struct {
 
 // tagsAPIResponse structure to map response.
 type tagsAPIResponse struct {
-	TagList []tag `json:"values"`
+	TagList []tag
 }
 
 func (t tag) LessThan(subject string) bool {
@@ -68,15 +68,16 @@ func (t tagList) Swap(i, j int) {
 }
 
 func getTags(body []byte) (*tagsAPIResponse, error) {
-	var s = new(tagsAPIResponse)
-	err := json.Unmarshal(body, &s)
+	var tags = new([]tag)
+	err := json.Unmarshal(body, &tags)
+	s := &tagsAPIResponse{*tags}
 	return s, err
 }
 
 // UpdateAvailable checks the current version against the
 // latest tag version on Bitbucket, if a newer version is found true is returned,
 // for all other cases, false is returned.
-func (v bitBucket) UpdateAvailable(currentVersion string) (bool, error) {
+func (v gitHub) UpdateAvailable(currentVersion string) (bool, error) {
 	// Some basic validation, check we have a version,
 	if len(currentVersion) == 0 {
 		return false, errors.New("version not set")
@@ -115,13 +116,13 @@ func (v bitBucket) UpdateAvailable(currentVersion string) (bool, error) {
 	return false, nil
 }
 
-func (v *bitBucket) getTags() (tagList, error) {
+func (v *gitHub) getTags() (tagList, error) {
 	client := http.Client{
 		Timeout: time.Second * 30,
 	}
 
 	// Try to get the latest tag using the BitBucket API.
-	resp, err := client.Get(v.bitBucketAPIRepository)
+	resp, err := client.Get(v.gitHubAPIRepository)
 	if err != nil {
 		return nil, errors.Wrap(err, "HTTP on GET to BitBucket API")
 	}
