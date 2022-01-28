@@ -6,10 +6,6 @@ import (
 	dcr "github.com/OpenBankingUK/conformance-dcr/pkg/compliant/client"
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
 	"net/http"
-
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/auth"
-	dcr "github.com/OpenBankingUK/conformance-dcr/pkg/compliant/client"
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
 )
 
 type Context interface {

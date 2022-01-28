@@ -4,8 +4,6 @@ import (
 	"fmt"
 	http2 "github.com/OpenBankingUK/conformance-dcr/pkg/http"
 	"net/http"
-
-	http2 "github.com/OpenBankingUK/conformance-dcr/pkg/http"
 )
 
 type clientRetrieve struct {
