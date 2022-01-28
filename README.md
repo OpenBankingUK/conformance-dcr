@@ -1,4 +1,4 @@
-![Open Banking Logo](https://bitbucket.org/openbankingteam/conformance-suite/raw/99b76db5f60bb4d790d6f32bffae29cbe95a3661/docs/static_files/OBIE_logotype_blue_RGB.PNG)
+![Open Banking Logo](https://github.com/OpenBankingUK/conformance-suite/blob/develop/docs/static_files/OBIE_logotype_blue_RGB.PNG)
 
 The **Dynamic Client Registration Conformance Tool** is an Open Source test tool provided
 by [Open Banking](https://www.openbanking.org.uk/).
@@ -13,7 +13,7 @@ the concepts is available via the [Open Banking Website](https://www.openbanking
 
 ## Quickstart
 
-See the guide at [QUICK-START.md](https://bitbucket.org/openbankingteam/conformance-dcr/src/develop/QUICK-START.md).
+See the guide at [QUICK-START.md](https://github.com/OpenBankingUK/conformance-dcr/blob/develop/QUICK-START.md).
 
 ### Specification
 
@@ -21,7 +21,7 @@ See the guide at [QUICK-START.md](https://bitbucket.org/openbankingteam/conforma
 
 # Release v1.3.1 (6th December 2021)
 
-[See full list changes](https://bitbucket.org/openbankingteam/conformance-dcr/src/develop/releases/v1.3.1.md) (v1.3.1.md)
+[See full list changes](https://github.com/OpenBankingUK/conformance-dcr/blob/develop/releases/v1.3.1.md) (v1.3.1.md)
 
 # Development
 

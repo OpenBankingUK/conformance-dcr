@@ -2,19 +2,19 @@
 
 The release is called v1.3.1
 
-[See full list changes](https://bitbucket.org/openbankingteam/conformance-dcr/src/develop/releases/v1.3.1.md) (v1.3.1.md)
+[See full list changes](https://github.com/OpenBankingUK/conformance-dcr/blob/develop/releases/v1.3.1.md) (v1.3.1.md)
 
 # Release v1.3.0 (12th August 2020)
 
 The release is called v1.3.0, support for DCR 3.3
 
-[See full list changes](https://bitbucket.org/openbankingteam/conformance-dcr/src/develop/releases/v1.3.0.md) (v1.3.0.md)
+[See full list changes](https://github.com/OpenBankingUK/conformance-dcr/blob/develop/releases/v1.3.0.md) (v1.3.0.md)
 
 ### Release v1.2.1 (1st June 2020)
 
 The release is called v1.2.1, a minor update that checks root system CA certs when not provided by the user.
 
-[See full list changes](https://bitbucket.org/openbankingteam/conformance-dcr/src/develop/releases/v1.2.1.md) (v1.2.1.md)
+[See full list changes](https://github.com/OpenBankingUK/conformance-dcr/blob/develop/releases/v1.2.1.md) (v1.2.1.md)
 
 ### Release v1.2.0 (13th May 2020)
 
