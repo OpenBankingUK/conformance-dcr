@@ -1,11 +1,13 @@
 package compliant
 
 import (
+	"errors"
 	"fmt"
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/step"
-	"github.com/dgrijalva/jwt-go"
 	"net/http"
 	"time"
+
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/step"
+	"github.com/dgrijalva/jwt-go"
 
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/auth"
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/schema"
@@ -18,6 +20,7 @@ const (
 	specLinkDeleteSoftware   = "https://openbanking.atlassian.net/wiki/spaces/DZ/pages/1078034771/Dynamic+Client+Registration+-+v3.2#DynamicClientRegistration-v3.2-DELETE/register/{ClientId}"
 	specLinkRetrieveSoftware = "https://openbanking.atlassian.net/wiki/spaces/DZ/pages/1078034771/Dynamic+Client+Registration+-+v3.2#DynamicClientRegistration-v3.2-GET/register/{ClientId}"
 	specLinkUpdateSoftware   = "https://openbanking.atlassian.net/wiki/spaces/DZ/pages/1078034771/Dynamic+Client+Registration+-+v3.2#DynamicClientRegistration-v3.2-PUT/register/{ClientId}"
+	expectedSSAsLen32        = 15
 )
 
 func NewDCR32(cfg DCR32Config) (Manifest, error) {
@@ -25,20 +28,33 @@ func NewDCR32(cfg DCR32Config) (Manifest, error) {
 	authoriserBuilder := cfg.AuthoriserBuilder
 	validator := cfg.SchemaValidator
 
+	ssas := &cfg.SSAs
+	if err := validateSSAsLen(*ssas, expectedSSAsLen32); err != nil {
+		return nil, err
+	}
+
 	scenarios := Scenarios{
 		DCR32ValidateOIDCConfigRegistrationURL(cfg),
-		DCR32CreateSoftwareClient(cfg, secureClient, authoriserBuilder),
-		DCR32DeleteSoftwareClient(cfg, secureClient, authoriserBuilder),
-		DCR32CreateInvalidRegistrationRequest(cfg, secureClient, authoriserBuilder),
-		DCR32RetrieveSoftwareClient(cfg, secureClient, authoriserBuilder, validator),
-		DCR32RetrieveWithInvalidCredentials(cfg, secureClient, authoriserBuilder),
-		DCR32UpdateSoftwareClient(cfg, secureClient, authoriserBuilder),
-		DCR32UpdateSoftwareClientWithWrongId(cfg, secureClient, authoriserBuilder),
-		DCR32RetrieveSoftwareClientWrongId(cfg, secureClient, authoriserBuilder),
-		DCR32RegisterSoftwareWrongResponseType(cfg, secureClient, authoriserBuilder),
+		DCR32CreateSoftwareClient(cfg, secureClient, authoriserBuilder, ssas),
+		DCR32DeleteSoftwareClient(cfg, secureClient, authoriserBuilder, ssas),
+		DCR32CreateInvalidRegistrationRequest(cfg, secureClient, authoriserBuilder, ssas),
+		DCR32RetrieveSoftwareClient(cfg, secureClient, authoriserBuilder, validator, ssas),
+		DCR32RetrieveWithInvalidCredentials(cfg, secureClient, authoriserBuilder, ssas),
+		DCR32UpdateSoftwareClient(cfg, secureClient, authoriserBuilder, ssas),
+		DCR32UpdateSoftwareClientWithWrongId(cfg, secureClient, authoriserBuilder, ssas),
+		DCR32RetrieveSoftwareClientWrongId(cfg, secureClient, authoriserBuilder, ssas),
+		DCR32RegisterSoftwareWrongResponseType(cfg, secureClient, authoriserBuilder, ssas),
 	}
 
 	return NewManifest("DCR32", "1.0", scenarios)
+}
+
+func validateSSAsLen(ssas []string, expectedLen int) error {
+	ssasLen := len(ssas)
+	if ssasLen != 0 && ssasLen < expectedLen {
+		return errors.New("invalid amout of SSAs provided in the config")
+	}
+	return nil
 }
 
 func DCR32ValidateOIDCConfigRegistrationURL(cfg DCR32Config) Scenario {
@@ -57,7 +73,9 @@ func DCR32CreateSoftwareClient(
 	cfg DCR32Config,
 	secureClient *http.Client,
 	authoriserBuilder auth.AuthoriserBuilder,
+	ssas *[]string,
 ) Scenario {
+	authoriserBuilder = authoriserBuilder.UpdateSsa(ssas)
 	return NewBuilder(
 		"DCR-002",
 		"Dynamically create a new software client",
@@ -109,6 +127,7 @@ func DCR32DeleteSoftwareClient(
 	cfg DCR32Config,
 	secureClient *http.Client,
 	authoriserBuilder auth.AuthoriserBuilder,
+	ssas *[]string,
 ) Scenario {
 	id := "DCR-003"
 	name := "Delete software is supported"
@@ -120,6 +139,8 @@ func DCR32DeleteSoftwareClient(
 			specLinkDeleteSoftware,
 		).Build()
 	}
+
+	authoriserBuilder = authoriserBuilder.UpdateSsa(ssas)
 
 	return NewBuilder(
 		id,
@@ -141,7 +162,14 @@ func DCR32CreateInvalidRegistrationRequest(
 	cfg DCR32Config,
 	secureClient *http.Client,
 	authoriserBuilder auth.AuthoriserBuilder,
+	ssas *[]string,
 ) Scenario {
+	authoriserBuilder0 := authoriserBuilder.UpdateSsa(ssas)
+	authoriserBuilder1 := authoriserBuilder0.UpdateSsa(ssas)
+	authoriserBuilder2 := authoriserBuilder1.UpdateSsa(ssas)
+	authoriserBuilder3 := authoriserBuilder2.UpdateSsa(ssas)
+	authoriserBuilder = authoriserBuilder3.UpdateSsa(ssas)
+
 	return NewBuilder(
 		"DCR-004",
 		"Dynamically create a new software client will fail on invalid registration request",
@@ -151,7 +179,7 @@ func DCR32CreateInvalidRegistrationRequest(
 			NewTestCaseBuilder("Register software client fails on expired claims").
 				WithHttpClient(secureClient).
 				GenerateSignedClaims(
-					authoriserBuilder.
+					authoriserBuilder0.
 						WithJwtExpiration(-time.Hour),
 				).
 				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
@@ -162,7 +190,7 @@ func DCR32CreateInvalidRegistrationRequest(
 			NewTestCaseBuilder("Register software client fails on invalid issuer").
 				WithHttpClient(secureClient).
 				GenerateSignedClaims(
-					authoriserBuilder.
+					authoriserBuilder1.
 						WithIssuer("foo.is/invalid"),
 				).
 				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
@@ -173,7 +201,7 @@ func DCR32CreateInvalidRegistrationRequest(
 			NewTestCaseBuilder("Register software client fails on invalid issuer too short").
 				WithHttpClient(secureClient).
 				GenerateSignedClaims(
-					authoriserBuilder.
+					authoriserBuilder2.
 						WithIssuer(""),
 				).
 				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
@@ -184,7 +212,7 @@ func DCR32CreateInvalidRegistrationRequest(
 			NewTestCaseBuilder("Register software client fails on invalid issuer too long").
 				WithHttpClient(secureClient).
 				GenerateSignedClaims(
-					authoriserBuilder.
+					authoriserBuilder3.
 						WithIssuer("123456789012345678901234567890"),
 				).
 				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
@@ -206,7 +234,10 @@ func DCR32RetrieveSoftwareClient(
 	secureClient *http.Client,
 	authoriserBuilder auth.AuthoriserBuilder,
 	validator schema.Validator,
+	ssas *[]string,
 ) Scenario {
+	authoriserBuilder = authoriserBuilder.UpdateSsa(ssas)
+
 	return NewBuilder(
 		"DCR-005",
 		"Dynamically retrieve a new software client",
@@ -243,7 +274,10 @@ func DCR32RetrieveWithInvalidCredentials(
 	cfg DCR32Config,
 	secureClient *http.Client,
 	authoriserBuilder auth.AuthoriserBuilder,
+	ssas *[]string,
 ) Scenario {
+	authoriserBuilder = authoriserBuilder.UpdateSsa(ssas)
+
 	return NewBuilder(
 		"DCR-007",
 		"I should not be able to retrieve a software client with invalid credentials",
@@ -280,7 +314,11 @@ func DCR32UpdateSoftwareClient(
 	cfg DCR32Config,
 	secureClient *http.Client,
 	authoriserBuilder auth.AuthoriserBuilder,
+	ssas *[]string,
 ) Scenario {
+	authoriserBuilder0 := authoriserBuilder.UpdateSsa(ssas)
+	authoriserBuilder = authoriserBuilder0.UpdateSsa(ssas)
+
 	id := "DCR-008"
 	const name = "I should be able update a registered software"
 
@@ -297,7 +335,7 @@ func DCR32UpdateSoftwareClient(
 		name,
 		specLinkUpdateSoftware,
 	).
-		TestCase(DCR32CreateSoftwareClientTestCases(cfg, secureClient, authoriserBuilder)...).
+		TestCase(DCR32CreateSoftwareClientTestCases(cfg, secureClient, authoriserBuilder0)...).
 		TestCase(
 			NewTestCaseBuilder("Update an existing software client").
 				WithHttpClient(secureClient).
@@ -314,7 +352,11 @@ func DCR32UpdateSoftwareClientWithWrongId(
 	cfg DCR32Config,
 	secureClient *http.Client,
 	authoriserBuilder auth.AuthoriserBuilder,
+	ssas *[]string,
 ) Scenario {
+	authoriserBuilder1 := authoriserBuilder.UpdateSsa(ssas)
+	authoriserBuilder = authoriserBuilder1.UpdateSsa(ssas)
+
 	id := "DCR-009"
 	const name = "When I try to update a non existing software client I should be unauthorized"
 
@@ -331,7 +373,7 @@ func DCR32UpdateSoftwareClientWithWrongId(
 		name,
 		specLinkUpdateSoftware,
 	).
-		TestCase(DCR32CreateSoftwareClientTestCases(cfg, secureClient, authoriserBuilder)...).
+		TestCase(DCR32CreateSoftwareClientTestCases(cfg, secureClient, authoriserBuilder1)...).
 		TestCase(DCR32DeleteSoftwareClientTestCase(cfg, secureClient)).
 		TestCase(
 			NewTestCaseBuilder("Update a deleted software client").
@@ -347,9 +389,12 @@ func DCR32RetrieveSoftwareClientWrongId(
 	cfg DCR32Config,
 	secureClient *http.Client,
 	authoriserBuilder auth.AuthoriserBuilder,
+	ssas *[]string,
 ) Scenario {
 	id := "DCR-010"
 	const name = "When I try to retrieve a non existing software client I should be unauthorized"
+
+	authoriserBuilder = authoriserBuilder.UpdateSsa(ssas)
 
 	return NewBuilder(
 		id,
@@ -371,9 +416,12 @@ func DCR32RegisterSoftwareWrongResponseType(
 	cfg DCR32Config,
 	secureClient *http.Client,
 	authoriserBuilder auth.AuthoriserBuilder,
+	ssas *[]string,
 ) Scenario {
 	id := "DCR-011"
 	const name = "When I try to register a software with invalid response_types it should be fail"
+
+	authoriserBuilder = authoriserBuilder.UpdateSsa(ssas)
 
 	return NewBuilder(
 		id,

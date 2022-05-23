@@ -20,6 +20,7 @@ type AuthoriserBuilder struct {
 	jwtExpiration           time.Duration
 	transportCert           *x509.Certificate
 	transportCertSubjectDn  string
+	ssas                    []string
 }
 
 func NewAuthoriserBuilder() AuthoriserBuilder {
@@ -45,6 +46,11 @@ func (b AuthoriserBuilder) WithOpenIDConfig(cfg openid.Configuration) Authoriser
 
 func (b AuthoriserBuilder) WithSSA(ssa string) AuthoriserBuilder {
 	b.ssa = ssa
+	return b
+}
+
+func (b AuthoriserBuilder) WithSSAs(ssas []string) AuthoriserBuilder {
+	b.ssas = ssas
 	return b
 }
 
@@ -86,6 +92,29 @@ func (b AuthoriserBuilder) WithPrivateKey(privateKey *rsa.PrivateKey) Authoriser
 func (b AuthoriserBuilder) WithJwtExpiration(jwtExpiration time.Duration) AuthoriserBuilder {
 	b.jwtExpiration = jwtExpiration
 	return b
+}
+
+func (b AuthoriserBuilder) popSsas(ssas *[]string) AuthoriserBuilder {
+	b.ssa = (*ssas)[0]
+	if len(*ssas) > 1 {
+		*ssas = (*ssas)[1:]
+	} else {
+		*ssas = []string{}
+	}
+	b.ssas = *ssas
+	return b
+}
+
+// UpdateSsa - update the main ssa of the AuthoriserBuilder by popping the first one from ssas
+func (b AuthoriserBuilder) UpdateSsa(ssas *[]string) AuthoriserBuilder {
+	// if ssas list is empty/doesn't exist then just return not modified AuthoriserBuilder
+	// if there are not enough ssas it's checked before at the early stage of dcr 32/33
+	if len(*ssas) == 0 {
+		return b
+	} else {
+		b = b.popSsas(ssas)
+		return b
+	}
 }
 
 func (b AuthoriserBuilder) Build() (Authoriser, error) {

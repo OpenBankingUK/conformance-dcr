@@ -1,17 +1,18 @@
 package compliant
 
 import (
+	"net/http"
+	"testing"
+
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/auth"
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/schema"
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/step"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"net/http"
-	"testing"
 )
 
 func TestNewDCR32(t *testing.T) {
-	manifest, err := NewDCR32(DCR32Config{})
+	manifest, err := NewDCR32(DCR32Config{SSA: "ssa"})
 	require.NoError(t, err)
 
 	assert.Equal(t, "1.0", manifest.Version())
@@ -35,6 +36,7 @@ func TestDCR32CreateSoftwareClient(t *testing.T) {
 		DCR32Config{DeleteImplemented: true},
 		&http.Client{},
 		auth.NewAuthoriserBuilder(),
+		&[]string{},
 	)
 
 	assert.Equal(t, "DCR-002", scenario.Id())
@@ -48,6 +50,7 @@ func TestDCR32DeleteSoftwareClient(t *testing.T) {
 		DCR32Config{DeleteImplemented: true},
 		&http.Client{},
 		auth.NewAuthoriserBuilder(),
+		&[]string{},
 	)
 
 	assert.Equal(t, "DCR-003", scenario.Id())
@@ -61,6 +64,7 @@ func TestDCR32DeleteSoftwareClient_DeleteNotImplemented(t *testing.T) {
 		DCR32Config{DeleteImplemented: false},
 		&http.Client{},
 		auth.NewAuthoriserBuilder(),
+		&[]string{},
 	)
 
 	result := scenario.Run()
@@ -77,6 +81,7 @@ func TestDCR32CreateInvalidRegistrationRequest(t *testing.T) {
 		DCR32Config{GetImplemented: true},
 		&http.Client{},
 		auth.NewAuthoriserBuilder(),
+		&[]string{},
 	)
 
 	assert.Equal(t, "DCR-004", scenario.Id())
@@ -93,6 +98,7 @@ func TestDCR32RetrieveSoftwareClient(t *testing.T) {
 		&http.Client{},
 		auth.NewAuthoriserBuilder(),
 		validator,
+		&[]string{},
 	)
 
 	assert.Equal(t, "DCR-005", scenario.Id())
@@ -136,6 +142,7 @@ func TestDCR32RetrieveWithInvalidCredentials(t *testing.T) {
 		DCR32Config{},
 		&http.Client{},
 		auth.NewAuthoriserBuilder(),
+		&[]string{},
 	)
 
 	assert.Equal(t, "DCR-007", scenario.Id())
@@ -149,6 +156,7 @@ func TestDCR32UpdateSoftwareClient(t *testing.T) {
 		DCR32Config{PutImplemented: true},
 		&http.Client{},
 		auth.NewAuthoriserBuilder(),
+		&[]string{},
 	)
 
 	assert.Equal(t, "DCR-008", scenario.Id())
@@ -162,6 +170,7 @@ func TestDCR32UpdateSoftwareClientDisabled(t *testing.T) {
 		DCR32Config{PutImplemented: false},
 		&http.Client{},
 		auth.NewAuthoriserBuilder(),
+		&[]string{},
 	)
 
 	assert.Equal(t, "DCR-008", scenario.Id())
@@ -174,6 +183,7 @@ func TestDCR32UpdateWrongId(t *testing.T) {
 		DCR32Config{PutImplemented: true},
 		&http.Client{},
 		auth.NewAuthoriserBuilder(),
+		&[]string{},
 	)
 
 	assert.Equal(t, "DCR-009", scenario.Id())
@@ -187,6 +197,7 @@ func TestDCR32RetrieveWrongId(t *testing.T) {
 		DCR32Config{},
 		&http.Client{},
 		auth.NewAuthoriserBuilder(),
+		&[]string{},
 	)
 
 	assert.Equal(t, "DCR-010", scenario.Id())
@@ -200,6 +211,7 @@ func TestDCR32RegisterWrongResponseTypes(t *testing.T) {
 		DCR32Config{},
 		&http.Client{},
 		auth.NewAuthoriserBuilder(),
+		&[]string{},
 	)
 
 	assert.Equal(t, "DCR-011", scenario.Id())
