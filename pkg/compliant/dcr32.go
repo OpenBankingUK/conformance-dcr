@@ -164,11 +164,7 @@ func DCR32CreateInvalidRegistrationRequest(
 	authoriserBuilder auth.AuthoriserBuilder,
 	ssas *[]string,
 ) Scenario {
-	authoriserBuilder0 := authoriserBuilder.UpdateSsa(ssas)
-	authoriserBuilder1 := authoriserBuilder0.UpdateSsa(ssas)
-	authoriserBuilder2 := authoriserBuilder1.UpdateSsa(ssas)
-	authoriserBuilder3 := authoriserBuilder2.UpdateSsa(ssas)
-	authoriserBuilder = authoriserBuilder3.UpdateSsa(ssas)
+	authoriserBuilders := authoriserBuilder.UpdateSsaAndGetSlice(5, ssas)
 
 	return NewBuilder(
 		"DCR-004",
@@ -179,7 +175,7 @@ func DCR32CreateInvalidRegistrationRequest(
 			NewTestCaseBuilder("Register software client fails on expired claims").
 				WithHttpClient(secureClient).
 				GenerateSignedClaims(
-					authoriserBuilder0.
+					authoriserBuilders[0].
 						WithJwtExpiration(-time.Hour),
 				).
 				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
@@ -190,7 +186,7 @@ func DCR32CreateInvalidRegistrationRequest(
 			NewTestCaseBuilder("Register software client fails on invalid issuer").
 				WithHttpClient(secureClient).
 				GenerateSignedClaims(
-					authoriserBuilder1.
+					authoriserBuilders[1].
 						WithIssuer("foo.is/invalid"),
 				).
 				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
@@ -201,7 +197,7 @@ func DCR32CreateInvalidRegistrationRequest(
 			NewTestCaseBuilder("Register software client fails on invalid issuer too short").
 				WithHttpClient(secureClient).
 				GenerateSignedClaims(
-					authoriserBuilder2.
+					authoriserBuilders[2].
 						WithIssuer(""),
 				).
 				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
@@ -212,7 +208,7 @@ func DCR32CreateInvalidRegistrationRequest(
 			NewTestCaseBuilder("Register software client fails on invalid issuer too long").
 				WithHttpClient(secureClient).
 				GenerateSignedClaims(
-					authoriserBuilder3.
+					authoriserBuilders[3].
 						WithIssuer("123456789012345678901234567890"),
 				).
 				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
@@ -222,7 +218,7 @@ func DCR32CreateInvalidRegistrationRequest(
 		TestCase(
 			NewTestCaseBuilder("Register software client will fail with token endpoint auth method RS256").
 				WithHttpClient(secureClient).
-				GenerateSignedClaims(authoriserBuilder.WithTokenEndpointAuthMethod(jwt.SigningMethodRS256)).
+				GenerateSignedClaims(authoriserBuilders[4].WithTokenEndpointAuthMethod(jwt.SigningMethodRS256)).
 				PostClientRegister(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 				AssertStatusCodeBadRequest().
 				Build(),
@@ -316,8 +312,7 @@ func DCR32UpdateSoftwareClient(
 	authoriserBuilder auth.AuthoriserBuilder,
 	ssas *[]string,
 ) Scenario {
-	authoriserBuilder0 := authoriserBuilder.UpdateSsa(ssas)
-	authoriserBuilder = authoriserBuilder0.UpdateSsa(ssas)
+	authoriserBuilders := authoriserBuilder.UpdateSsaAndGetSlice(2, ssas)
 
 	id := "DCR-008"
 	const name = "I should be able update a registered software"
@@ -335,11 +330,11 @@ func DCR32UpdateSoftwareClient(
 		name,
 		specLinkUpdateSoftware,
 	).
-		TestCase(DCR32CreateSoftwareClientTestCases(cfg, secureClient, authoriserBuilder0)...).
+		TestCase(DCR32CreateSoftwareClientTestCases(cfg, secureClient, authoriserBuilders[0])...).
 		TestCase(
 			NewTestCaseBuilder("Update an existing software client").
 				WithHttpClient(secureClient).
-				GenerateSignedClaims(authoriserBuilder).
+				GenerateSignedClaims(authoriserBuilders[1]).
 				ClientUpdate(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 				AssertStatusCodeOk().
 				Build(),
@@ -354,8 +349,7 @@ func DCR32UpdateSoftwareClientWithWrongId(
 	authoriserBuilder auth.AuthoriserBuilder,
 	ssas *[]string,
 ) Scenario {
-	authoriserBuilder1 := authoriserBuilder.UpdateSsa(ssas)
-	authoriserBuilder = authoriserBuilder1.UpdateSsa(ssas)
+	authoriserBuilders := authoriserBuilder.UpdateSsaAndGetSlice(2, ssas)
 
 	id := "DCR-009"
 	const name = "When I try to update a non existing software client I should be unauthorized"
@@ -373,12 +367,12 @@ func DCR32UpdateSoftwareClientWithWrongId(
 		name,
 		specLinkUpdateSoftware,
 	).
-		TestCase(DCR32CreateSoftwareClientTestCases(cfg, secureClient, authoriserBuilder1)...).
+		TestCase(DCR32CreateSoftwareClientTestCases(cfg, secureClient, authoriserBuilders[0])...).
 		TestCase(DCR32DeleteSoftwareClientTestCase(cfg, secureClient)).
 		TestCase(
 			NewTestCaseBuilder("Update a deleted software client").
 				WithHttpClient(secureClient).
-				GenerateSignedClaims(authoriserBuilder).
+				GenerateSignedClaims(authoriserBuilders[1]).
 				ClientUpdate(cfg.OpenIDConfig.RegistrationEndpointAsString()).
 				AssertStatusCodeUnauthorized().
 				Build(),

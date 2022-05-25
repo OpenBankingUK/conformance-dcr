@@ -117,6 +117,16 @@ func (b AuthoriserBuilder) UpdateSsa(ssas *[]string) AuthoriserBuilder {
 	}
 }
 
+// UpdateSsaAndGetSlice - UpdateSsa n times and return the generated slice of AuthoriserBuilders
+func (b AuthoriserBuilder) UpdateSsaAndGetSlice(n int, ssas *[]string) []AuthoriserBuilder {
+	var authoriserBuilders []AuthoriserBuilder
+	for i := 0; i < n; i++ {
+		newAuthoriserBuilder := b.UpdateSsa(ssas)
+		authoriserBuilders = append(authoriserBuilders, newAuthoriserBuilder)
+	}
+	return authoriserBuilders
+}
+
 func (b AuthoriserBuilder) Build() (Authoriser, error) {
 	if b.ssa == "" {
 		return none{}, errors.New("missing ssa from authoriser")
