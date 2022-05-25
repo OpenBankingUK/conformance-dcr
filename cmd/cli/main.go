@@ -83,6 +83,7 @@ func runCmd(flags flags) {
 		cfg.DeleteImplemented,
 		flags.tlsSkipVerify,
 		cfg.SpecVersion,
+		cfg.SSAs,
 	)
 	exitOnError(err)
 

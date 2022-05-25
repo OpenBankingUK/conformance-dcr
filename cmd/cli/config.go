@@ -3,10 +3,11 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant"
 	"io"
 	"io/ioutil"
 	"os"
+
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant"
 
 	"github.com/pkg/errors"
 )
@@ -29,6 +30,7 @@ type Config struct {
 	DeleteImplemented      bool     `json:"delete_implemented"`
 	Environment            string   `json:"environment"`
 	Brand                  string   `json:"brand"`
+	SSAs                   []string `json:"ssas"`
 }
 
 func LoadConfig(configFilePath string) (Config, error) {

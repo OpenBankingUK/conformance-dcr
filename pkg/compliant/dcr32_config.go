@@ -4,19 +4,20 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	http2 "net/http"
+
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/auth"
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/schema"
 	"github.com/OpenBankingUK/conformance-dcr/pkg/http"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
-	http2 "net/http"
 
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
 )
 
 type DCR32Config struct {
 	OpenIDConfig       openid.Configuration
-	SSA                string
+	SSAs               []string
 	KID                string
 	RedirectURIs       []string
 	TokenSigningMethod jwt.SigningMethod
@@ -27,6 +28,7 @@ type DCR32Config struct {
 	DeleteImplemented  bool
 	AuthoriserBuilder  auth.AuthoriserBuilder
 	SchemaValidator    schema.Validator
+	SSA                string
 }
 
 func NewDCR32Config(
@@ -43,6 +45,7 @@ func NewDCR32Config(
 	deleteImplemented bool,
 	tlsSkipVerify bool,
 	specVersion string,
+	ssas []string,
 ) (DCR32Config, error) {
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(signingKeyPEM))
 	if err != nil {
@@ -81,7 +84,8 @@ func NewDCR32Config(
 		WithPrivateKey(privateKey).
 		WithTokenEndpointAuthMethod(tokenSignMethod).
 		WithTransportCert(transportCert).
-		WithTransportCertSubjectDn(transportCertSubjectDn)
+		WithTransportCertSubjectDn(transportCertSubjectDn).
+		WithSSAs(ssas)
 
 	secureClient, err := http.NewBuilder().
 		WithRootCAs(transportRootCAs).
@@ -104,6 +108,7 @@ func NewDCR32Config(
 		DeleteImplemented: deleteImplemented,
 		AuthoriserBuilder: authoriserBuilder,
 		SchemaValidator:   schemaValidator,
+		SSAs:              ssas,
 	}, nil
 }
 
