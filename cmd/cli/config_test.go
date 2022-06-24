@@ -8,8 +8,9 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -25,6 +26,7 @@ func Test_ParseConfig_Succeeds_WithValidConfig(t *testing.T) {
 	)
 	pkeyJson, err := json.Marshal(string(keyPem))
 	assert.NoError(t, err)
+	// The config should contain SSA or SSAs (list of SSAs). This test is about checking the parsing.
 	configJson := fmt.Sprintf(`{
 		"wellknown_endpoint": "https://ob19-auth1-ui.o3bank.co.uk/.well-known/openid-configuration",
    		"ssa": "ssa",
@@ -43,7 +45,8 @@ func Test_ParseConfig_Succeeds_WithValidConfig(t *testing.T) {
 		"put_implemented": false,
 		"delete_implemented": true,
 		"environment": "environment",
-		"brand": "brand"
+		"brand": "brand",
+		"ssas": ["ssa1", "ssa2"]
 	}`, pkeyJson)
 	cfg, err := parseConfig(bytes.NewReader([]byte(configJson)))
 	expectedCfg := Config{
@@ -65,6 +68,7 @@ func Test_ParseConfig_Succeeds_WithValidConfig(t *testing.T) {
 		DeleteImplemented: true,
 		Environment:       "environment",
 		Brand:             "brand",
+		SSAs:              []string{"ssa1", "ssa2"},
 	}
 	assert.NoError(t, err)
 	assert.Equal(t, expectedCfg, cfg)
@@ -97,6 +101,15 @@ func Test_ReadsConfigFromFile(t *testing.T) {
 	assert.True(t, config.DeleteImplemented)
 	assert.Equal(t, "sandbox", config.Environment)
 	assert.Equal(t, "Brand/product", config.Brand)
+	assert.Equal(t, []string([]string(nil)), config.SSAs)
+}
+
+func Test_ReadsConfigFromSSAsFile(t *testing.T) {
+	config, err := LoadConfig("testdata/config.json.ssas.sample")
+	require.NoError(t, err)
+
+	assert.Equal(t, "", config.SSA)
+	assert.Equal(t, []string{"ssa1", "ssa2"}, config.SSAs)
 }
 
 func Test_ReadsConfigFromFile_HandlesError(t *testing.T) {

@@ -4,6 +4,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
@@ -21,6 +22,8 @@ type AuthoriserBuilder struct {
 	transportCert           *x509.Certificate
 	transportCertSubjectDn  string
 	ssas                    []string
+	ssasPresence            bool
+	missingSSAs             int
 }
 
 func NewAuthoriserBuilder() AuthoriserBuilder {
@@ -94,37 +97,53 @@ func (b AuthoriserBuilder) WithJwtExpiration(jwtExpiration time.Duration) Author
 	return b
 }
 
-func (b AuthoriserBuilder) popSsas(ssas *[]string) AuthoriserBuilder {
-	b.ssa = (*ssas)[0]
-	if len(*ssas) > 1 {
-		*ssas = (*ssas)[1:]
-	} else {
-		*ssas = []string{}
-	}
-	b.ssas = *ssas
+func (b AuthoriserBuilder) WithSSAsPresence(ssasPresence bool) AuthoriserBuilder {
+	b.ssasPresence = ssasPresence
 	return b
 }
 
-// UpdateSsa - update the main ssa of the AuthoriserBuilder by popping the first one from ssas
-func (b AuthoriserBuilder) UpdateSsa(ssas *[]string) AuthoriserBuilder {
-	// if ssas list is empty/doesn't exist then just return not modified AuthoriserBuilder
-	// if there are not enough ssas it's checked before at the early stage of dcr 32/33
-	if len(*ssas) == 0 {
-		return b
+func (b *AuthoriserBuilder) popSSAs() {
+	b.ssa = (b.ssas)[0]
+	if len(b.ssas) > 1 {
+		b.ssas = (b.ssas)[1:]
 	} else {
-		b = b.popSsas(ssas)
-		return b
+		b.ssas = []string{}
 	}
 }
 
-// UpdateSsaAndGetSlice - UpdateSsa n times and return the generated slice of AuthoriserBuilders
-func (b AuthoriserBuilder) UpdateSsaAndGetSlice(n int, ssas *[]string) []AuthoriserBuilder {
-	var authoriserBuilders []AuthoriserBuilder
-	for i := 0; i < n; i++ {
-		newAuthoriserBuilder := b.UpdateSsa(ssas)
-		authoriserBuilders = append(authoriserBuilders, newAuthoriserBuilder)
+// UpdateSSA - update the main ssa of the AuthoriserBuilder by popping the first one from ssas
+func (b *AuthoriserBuilder) UpdateSSA() error {
+	if len(b.ssas) == 0 && b.ssasPresence { // return error if there is not enogh SSAs
+		b.missingSSAs += 1
+		return errors.New("not enough SSAs")
+	} else if len(b.ssas) > 0 && b.ssasPresence { // pop if there is multiple SSAs option
+		b.popSSAs()
 	}
-	return authoriserBuilders
+	return nil
+}
+
+// UpdateSSAAndGetSlice - UpdateSsa n times and return the generated slice of AuthoriserBuilders
+func (b *AuthoriserBuilder) UpdateSSAAndGetSlice(n int) ([]AuthoriserBuilder, error) {
+	var authoriserBuilders []AuthoriserBuilder
+
+	for i := 0; i < n; i++ {
+		err := b.UpdateSSA()
+		if err != nil {
+			b.missingSSAs += n - i - 1
+			return nil, err
+		}
+
+		authoriserBuilders = append(authoriserBuilders, *b)
+	}
+	return authoriserBuilders, nil
+}
+
+// CheckMissingSSAs - Check if b.missingSSAs was updated (default = 0)
+func (b AuthoriserBuilder) CheckMissingSSAs() error {
+	if b.missingSSAs > 0 {
+		return errors.New(fmt.Sprintf("invalid amout of SSAs provided in the config - missing: %d", b.missingSSAs))
+	}
+	return nil
 }
 
 func (b AuthoriserBuilder) Build() (Authoriser, error) {

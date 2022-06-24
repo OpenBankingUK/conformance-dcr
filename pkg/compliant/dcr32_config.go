@@ -29,6 +29,7 @@ type DCR32Config struct {
 	AuthoriserBuilder  auth.AuthoriserBuilder
 	SchemaValidator    schema.Validator
 	SSA                string
+	SSAsPresence       bool
 }
 
 func NewDCR32Config(
@@ -72,6 +73,8 @@ func NewDCR32Config(
 		return DCR32Config{}, errors.Wrap(err, "creating DCR32 config")
 	}
 
+	SSAsPresents := checkMultipleSSAsPresence(ssas)
+
 	// default authoriser
 	authoriserBuilder := auth.NewAuthoriserBuilder().
 		WithOpenIDConfig(openIDConfig).
@@ -85,7 +88,8 @@ func NewDCR32Config(
 		WithTokenEndpointAuthMethod(tokenSignMethod).
 		WithTransportCert(transportCert).
 		WithTransportCertSubjectDn(transportCertSubjectDn).
-		WithSSAs(ssas)
+		WithSSAs(ssas).
+		WithSSAsPresence(SSAsPresents)
 
 	secureClient, err := http.NewBuilder().
 		WithRootCAs(transportRootCAs).
@@ -109,6 +113,7 @@ func NewDCR32Config(
 		AuthoriserBuilder: authoriserBuilder,
 		SchemaValidator:   schemaValidator,
 		SSAs:              ssas,
+		SSAsPresence:      SSAsPresents,
 	}, nil
 }
 
@@ -122,4 +127,12 @@ func certificate(transportCertPEM string) (*x509.Certificate, error) {
 		return nil, errors.New("failed making certificate")
 	}
 	return cert, nil
+}
+
+func checkMultipleSSAsPresence(ssas []string) bool {
+	var cond bool
+	if len(ssas) > 0 {
+		cond = true
+	}
+	return cond
 }

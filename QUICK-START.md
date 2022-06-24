@@ -19,13 +19,16 @@ Enterprise versions. Please refer to this guide for more information.
 
 ### Configuration
 
-A template configuration file can be found at [/config.json.sample](/config.json.sample).
+A template configuration file can be found at:
+- [/config.json.sample](/config.json.sample) for the single SSA
+- [/config.json.ssas.sample](/config.json.ssas.sample) for the multiple SSAs.
 
 |Name                       |Type        |Description                                     |
 |---------------------------|------------|------------------------------------------------|
 |spec_version               | string     | Specification version                          |
 |wellknown_endpoint         | string     | Open ID Connect `.well-known` endpoint for DCR |
 |ssa                        | string     | Software Statement Assertion for client        |
+|ssas                       | []string   | Software Statement Assertions for client (list)|
 |kid                        | string     | Key ID - Identifies your key pair              |
 |aud                        | string     | Audience - The intended audience that the client is being registered with. Typically the unique identifier of the organisation.|
 |redirect_uris              | []string   | URIs used to callback to your application during registration, consent acquisition|
