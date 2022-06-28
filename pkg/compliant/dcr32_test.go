@@ -21,13 +21,13 @@ func TestNewDCR32(t *testing.T) {
 }
 
 func TestNewDCR32SSAs(t *testing.T) {
-	a := auth.NewAuthoriserBuilder().WithSSAs([]string{"ssa1", "ssa2", "ssa3", "ssa4", "ssa5", "ssa6", "ssa7", "ssa8", "ssa9", "ssa10"}).WithSSAsPresence(true)
+	a := auth.NewAuthoriserBuilder().WithSSAs([]string{"ssa1", "ssa2", "ssa3", "ssa4", "ssa5", "ssa6", "ssa7", "ssa8", "ssa9", "ssa10"}).WithSSAsPresent(true)
 	_, err := NewDCR32(DCR32Config{AuthoriserBuilder: a})
 	require.NoError(t, err)
 }
 
 func TestNewDCR32SSAsFail(t *testing.T) {
-	a := auth.NewAuthoriserBuilder().WithSSAs([]string{"ssa1"}).WithSSAsPresence(true)
+	a := auth.NewAuthoriserBuilder().WithSSAs([]string{"ssa1"}).WithSSAsPresent(true)
 	_, err := NewDCR32(DCR32Config{AuthoriserBuilder: a})
 	require.Error(t, err)
 }

@@ -22,7 +22,7 @@ type AuthoriserBuilder struct {
 	transportCert           *x509.Certificate
 	transportCertSubjectDn  string
 	ssas                    []string
-	ssasPresence            bool
+	ssasPresent             bool
 	missingSSAs             int
 }
 
@@ -54,6 +54,7 @@ func (b AuthoriserBuilder) WithSSA(ssa string) AuthoriserBuilder {
 
 func (b AuthoriserBuilder) WithSSAs(ssas []string) AuthoriserBuilder {
 	b.ssas = ssas
+	b = b.checkSSAsPresent()
 	return b
 }
 
@@ -97,8 +98,15 @@ func (b AuthoriserBuilder) WithJwtExpiration(jwtExpiration time.Duration) Author
 	return b
 }
 
-func (b AuthoriserBuilder) WithSSAsPresence(ssasPresence bool) AuthoriserBuilder {
-	b.ssasPresence = ssasPresence
+func (b AuthoriserBuilder) WithSSAsPresent(ssasPresent bool) AuthoriserBuilder {
+	b.ssasPresent = ssasPresent
+	return b
+}
+
+func (b AuthoriserBuilder) checkSSAsPresent() AuthoriserBuilder {
+	if len(b.ssas) > 0 {
+		b.ssasPresent = true
+	}
 	return b
 }
 
@@ -113,12 +121,19 @@ func (b *AuthoriserBuilder) popSSAs() {
 
 // UpdateSSA - update the main ssa of the AuthoriserBuilder by popping the first one from ssas
 func (b *AuthoriserBuilder) UpdateSSA() error {
-	if len(b.ssas) == 0 && b.ssasPresence { // return error if there is not enogh SSAs
+	if !b.ssasPresent {
+		return nil
+	}
+
+	if len(b.ssas) == 0 {
 		b.missingSSAs += 1
 		return errors.New("not enough SSAs")
-	} else if len(b.ssas) > 0 && b.ssasPresence { // pop if there is multiple SSAs option
+	}
+
+	if len(b.ssas) > 0 {
 		b.popSSAs()
 	}
+
 	return nil
 }
 
@@ -141,7 +156,7 @@ func (b *AuthoriserBuilder) UpdateSSAAndGetSlice(n int) ([]AuthoriserBuilder, er
 // CheckMissingSSAs - Check if b.missingSSAs was updated (default = 0)
 func (b AuthoriserBuilder) CheckMissingSSAs() error {
 	if b.missingSSAs > 0 {
-		return errors.New(fmt.Sprintf("invalid amout of SSAs provided in the config - missing: %d", b.missingSSAs))
+		return errors.New(fmt.Sprintf("invalid amount of SSAs provided in the config - missing: %d", b.missingSSAs))
 	}
 	return nil
 }

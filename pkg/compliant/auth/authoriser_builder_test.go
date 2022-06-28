@@ -87,7 +87,7 @@ func TestPopSSAs(t *testing.T) {
 }
 
 func TestUpdateSSASuccessForSSAsSuccess(t *testing.T) {
-	b := AuthoriserBuilder{ssas: []string{"ssa1", "ssa2"}, ssasPresence: true}
+	b := AuthoriserBuilder{ssas: []string{"ssa1", "ssa2"}, ssasPresent: true}
 
 	err := b.UpdateSSA()
 	assert.NoError(t, err)
@@ -101,7 +101,7 @@ func TestUpdateSSASuccessForSSAsSuccess(t *testing.T) {
 }
 
 func TestUpdateSSASuccessForSSAsFail(t *testing.T) {
-	b := AuthoriserBuilder{ssas: []string{}, ssasPresence: true}
+	b := AuthoriserBuilder{ssas: []string{}, ssasPresent: true}
 
 	err := b.UpdateSSA()
 	assert.Error(t, err)
@@ -116,20 +116,20 @@ func TestUpdateSSASuccessForSSA(t *testing.T) {
 }
 
 func TestUpdateSSAAndGetSliceSuccess(t *testing.T) {
-	b := AuthoriserBuilder{ssas: []string{"ssa1", "ssa2"}, ssasPresence: true}
+	b := AuthoriserBuilder{ssas: []string{"ssa1", "ssa2"}, ssasPresent: true}
 	bSlice, err := b.UpdateSSAAndGetSlice(2)
 
 	assert.NoError(t, err)
 	assert.Equal(t, b.ssa, "ssa2")
 	assert.Equal(t, b.ssas, []string{})
 
-	assert.Equal(t, bSlice[0], AuthoriserBuilder{ssa: "ssa1", ssas: []string{"ssa2"}, ssasPresence: true})
-	assert.Equal(t, bSlice[1], AuthoriserBuilder{ssa: "ssa2", ssas: []string{}, ssasPresence: true})
+	assert.Equal(t, bSlice[0], AuthoriserBuilder{ssa: "ssa1", ssas: []string{"ssa2"}, ssasPresent: true})
+	assert.Equal(t, bSlice[1], AuthoriserBuilder{ssa: "ssa2", ssas: []string{}, ssasPresent: true})
 	assert.Equal(t, len(bSlice), 2)
 }
 
 func TestUpdateSSAAndGetSliceFail(t *testing.T) {
-	b := AuthoriserBuilder{ssas: []string{"ssa1"}, ssasPresence: true}
+	b := AuthoriserBuilder{ssas: []string{"ssa1"}, ssasPresent: true}
 	_, err := b.UpdateSSAAndGetSlice(2)
 
 	assert.Error(t, err)

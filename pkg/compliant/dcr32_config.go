@@ -29,7 +29,6 @@ type DCR32Config struct {
 	AuthoriserBuilder  auth.AuthoriserBuilder
 	SchemaValidator    schema.Validator
 	SSA                string
-	SSAsPresence       bool
 }
 
 func NewDCR32Config(
@@ -48,6 +47,10 @@ func NewDCR32Config(
 	specVersion string,
 	ssas []string,
 ) (DCR32Config, error) {
+	if err := checkSSA(ssa, ssas); err != nil {
+		return DCR32Config{}, errors.Wrap(err, "creating DCR32 config")
+	}
+
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(signingKeyPEM))
 	if err != nil {
 		return DCR32Config{}, errors.Wrap(err, "creating DCR32 config")
@@ -73,8 +76,6 @@ func NewDCR32Config(
 		return DCR32Config{}, errors.Wrap(err, "creating DCR32 config")
 	}
 
-	SSAsPresents := checkMultipleSSAsPresence(ssas)
-
 	// default authoriser
 	authoriserBuilder := auth.NewAuthoriserBuilder().
 		WithOpenIDConfig(openIDConfig).
@@ -88,8 +89,7 @@ func NewDCR32Config(
 		WithTokenEndpointAuthMethod(tokenSignMethod).
 		WithTransportCert(transportCert).
 		WithTransportCertSubjectDn(transportCertSubjectDn).
-		WithSSAs(ssas).
-		WithSSAsPresence(SSAsPresents)
+		WithSSAs(ssas)
 
 	secureClient, err := http.NewBuilder().
 		WithRootCAs(transportRootCAs).
@@ -113,7 +113,6 @@ func NewDCR32Config(
 		AuthoriserBuilder: authoriserBuilder,
 		SchemaValidator:   schemaValidator,
 		SSAs:              ssas,
-		SSAsPresence:      SSAsPresents,
 	}, nil
 }
 
@@ -129,10 +128,17 @@ func certificate(transportCertPEM string) (*x509.Certificate, error) {
 	return cert, nil
 }
 
-func checkMultipleSSAsPresence(ssas []string) bool {
-	var cond bool
-	if len(ssas) > 0 {
-		cond = true
+func checkSSA(ssa string, ssas []string) error {
+	ssaLen := len(ssa)
+	ssasLen := len(ssas)
+
+	if ssaLen > 0 && ssasLen > 0 {
+		return errors.New("failed because of having the single SSA and multiple SSAs provided")
 	}
-	return cond
+
+	if ssaLen == 0 && ssasLen == 0 {
+		return errors.New("failed because of not having the single SSA nor multiple SSAs provided")
+	}
+
+	return nil
 }
