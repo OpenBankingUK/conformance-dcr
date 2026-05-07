@@ -24,8 +24,8 @@ help: ## Displays this help.
 ##@ Building & Running:
 
 .PHONY: run
-run: build ## run binary directly without docker.
-	./dcr -config-path configs/config.json
+run: build ## run binary directly without docker. Override with: make run CONFIG=path/to/config.json ARGS=-tlsskipverify
+	./dcr -config-path $(or $(CONFIG),configs/config.json) $(ARGS)
 
 .PHONY: build
 build: ## build the server binary directly.

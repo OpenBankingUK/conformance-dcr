@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"crypto/rsa"
+	"crypto/tls"
 	"flag"
 	"fmt"
 	http2 "net/http"
@@ -46,8 +47,8 @@ func versionCmd(v VersionInfo) {
 
 func updateCheckCmd(v VersionInfo) {
 	// Check for updates and print message
-	bitbucketTagsEndpoint := "https://api.bitbucket.org/2.0/repositories/openbankingteam/conformance-dcr/refs/tags"
-	updMessage := getUpdateMessage(v, bitbucketTagsEndpoint)
+	githubTagsEndpoint := "https://api.github.com/repos/OpenBankingUK/conformance-dcr/tags"
+	updMessage := getUpdateMessage(v, githubTagsEndpoint)
 	if updMessage != "" {
 		fmt.Println(updMessage)
 	}
@@ -62,7 +63,7 @@ func runCmd(flags flags) {
 	cfg, err := LoadConfig(flags.configFilePath)
 	exitOnError(err)
 
-	client := &http2.Client{Timeout: time.Second * 5}
+	client := makeWellknownHTTPClient(flags.tlsSkipVerify)
 	openIDConfig, err := openid.Get(cfg.WellknownEndpoint, client)
 	exitOnError(err)
 
@@ -204,6 +205,15 @@ func getUpdateMessage(v VersionInfo, bitbucketTagsEndpoint string) string {
 	}
 
 	return ""
+}
+
+func makeWellknownHTTPClient(tlsSkipVerify bool) *http2.Client {
+	return &http2.Client{
+		Transport: &http2.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: tlsSkipVerify}, // #nosec G402 -- controlled by explicit user flag
+		},
+		Timeout: time.Second * 10,
+	}
 }
 
 func patchJwtLibraryBug() {
