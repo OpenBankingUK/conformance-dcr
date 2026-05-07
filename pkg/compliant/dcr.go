@@ -3,7 +3,7 @@ package compliant
 import "github.com/pkg/errors"
 
 func IsSupportedSpecVersion(version string) bool {
-	return version == "3.2" || version == "3.3"
+	return version == "3.2" || version == "3.3" || version == "3.4"
 }
 
 func NewSpecManifest(version string, cfg DCR32Config) (Manifest, error) {
@@ -12,6 +12,8 @@ func NewSpecManifest(version string, cfg DCR32Config) (Manifest, error) {
 		return NewDCR32(cfg)
 	case "3.3":
 		return NewDCR33(cfg)
+	case "3.4":
+		return NewDCR34(cfg)
 	}
 	return nil, errors.New("specification version  not supported")
 }
