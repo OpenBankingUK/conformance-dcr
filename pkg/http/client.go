@@ -4,15 +4,17 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
-	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 type MATLSConfig struct {
 	ClientCerts        []tls.Certificate
 	InsecureSkipVerify bool
+	DisableKeepAlives  bool
 	RootCAs            []*x509.Certificate
 	TLSMinVersion      uint16
 }
@@ -35,7 +37,10 @@ func NewMATLSClient(config MATLSConfig) (*http.Client, error) {
 	}
 
 	tlsConfig.BuildNameToCertificate()
-	transport := &http.Transport{TLSClientConfig: tlsConfig}
+	transport := &http.Transport{
+		TLSClientConfig:   tlsConfig,
+		DisableKeepAlives: config.DisableKeepAlives,
+	}
 
 	return &http.Client{Transport: transport, Timeout: time.Second * 10}, nil
 }

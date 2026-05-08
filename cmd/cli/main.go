@@ -83,6 +83,7 @@ func runCmd(flags flags) {
 		cfg.PutImplemented,
 		cfg.DeleteImplemented,
 		flags.tlsSkipVerify,
+		flags.disableKeepAlives,
 		cfg.SpecVersion,
 	)
 	exitOnError(err)
@@ -148,18 +149,19 @@ func serverAddress(port string) string {
 }
 
 type flags struct {
-	versionCmd       bool
-	configFilePath   string
-	filterExpression string
-	debug            bool
-	report           bool
-	tlsSkipVerify    bool
-	httpServerPort   string
+	versionCmd        bool
+	configFilePath    string
+	filterExpression  string
+	debug             bool
+	report            bool
+	tlsSkipVerify     bool
+	disableKeepAlives bool
+	httpServerPort    string
 }
 
 func mustParseFlags() flags {
 	var configFilePath, filterExpression, httpServerPort string
-	var debug, report, versionFlag, tlsSkipVerify bool
+	var debug, report, versionFlag, tlsSkipVerify, disableKeepAlives bool
 	flag.StringVar(&configFilePath, "config-path", "", "Config file path")
 	flag.StringVar(&filterExpression, "filter", "", "Filter scenarios containing value")
 	flag.StringVar(&httpServerPort, "port", "8080", "Http server port for report download")
@@ -167,16 +169,18 @@ func mustParseFlags() flags {
 	flag.BoolVar(&report, "report", false, "Enable report output defaults to disabled")
 	flag.BoolVar(&versionFlag, "version", false, "Print the version details of conformance-dcr")
 	flag.BoolVar(&tlsSkipVerify, "tlsskipverify", false, "Skip ssl cert verify")
+	flag.BoolVar(&disableKeepAlives, "disablekeepalives", false, "Disable HTTP keep-alives, forcing a new TLS handshake per request (required for some mTLS servers)")
 	flag.Parse()
 
 	return flags{
-		configFilePath:   configFilePath,
-		filterExpression: filterExpression,
-		debug:            debug,
-		report:           report,
-		versionCmd:       versionFlag,
-		tlsSkipVerify:    tlsSkipVerify,
-		httpServerPort:   httpServerPort,
+		configFilePath:    configFilePath,
+		filterExpression:  filterExpression,
+		debug:             debug,
+		report:            report,
+		versionCmd:        versionFlag,
+		tlsSkipVerify:     tlsSkipVerify,
+		disableKeepAlives: disableKeepAlives,
+		httpServerPort:    httpServerPort,
 	}
 }
 
