@@ -46,9 +46,9 @@ build_image: ## build the docker image. Use available args IMAGE_TAG=v1.x.y, ENA
 .PHONY: tools
 tools: ## install go tools (goimports, golangci-lint)
 	@echo -e "\033[92m  ---> Installing Go Tools ... \033[0m"
-	go get -u golang.org/x/tools/cmd/goimports
-	@printf "%b" "\033[93m" "  ---> Installing golangci-lint@v1.16.0 (https://github.com/golangci/golangci-lint) ... " "\033[0m" "\n"
-	curl -sfL "https://install.goreleaser.com/github.com/golangci/golangci-lint.sh" | sh -s -- -b $(shell go env GOPATH)/bin v1.21.0
+	go install golang.org/x/tools/cmd/goimports@latest
+	@printf "%b" "\033[93m" "  ---> Installing golangci-lint@v2.12.2 (https://github.com/golangci/golangci-lint) ... " "\033[0m" "\n"
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v2.12.2
 
 .PHONY: deps
 deps: ## download dependencies
