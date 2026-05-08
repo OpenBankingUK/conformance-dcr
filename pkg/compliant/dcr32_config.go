@@ -42,7 +42,6 @@ func NewDCR32Config(
 	getImplemented bool,
 	putImplemented bool,
 	deleteImplemented bool,
-	tlsSkipVerify bool,
 	disableKeepAlives bool,
 	specVersion string,
 ) (DCR32Config, error) {
@@ -88,7 +87,6 @@ func NewDCR32Config(
 	secureClient, err := http.NewBuilder().
 		WithRootCAs(transportRootCAs).
 		WithTransportKeyPair(transportCertPEM, transportSigningKeyPEM).
-		WithTlsSkipVerify(tlsSkipVerify).
 		WithDisableKeepAlives(disableKeepAlives).
 		Build()
 	if err != nil {

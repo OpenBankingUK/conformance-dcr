@@ -82,7 +82,6 @@ func runCmd(flags flags) {
 		cfg.GetImplemented,
 		cfg.PutImplemented,
 		cfg.DeleteImplemented,
-		flags.tlsSkipVerify,
 		flags.disableKeepAlives,
 		cfg.SpecVersion,
 	)
