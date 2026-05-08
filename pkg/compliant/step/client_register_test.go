@@ -65,7 +65,7 @@ func TestNewClientRegister_HandlesCreateRequestError(t *testing.T) {
 	assert.False(t, result.Pass)
 	assert.Equal(
 		t,
-		"creating jose post request: parse \"\\u007f\": net/url: invalid control character in URL",
+		"creating jose post request: parse \"\\x7f\": net/url: invalid control character in URL",
 		result.FailReason,
 	)
 }

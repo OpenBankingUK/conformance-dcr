@@ -1,11 +1,12 @@
 package compliant
 
 import (
+	"io/ioutil"
+	"testing"
+
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"io/ioutil"
-	"testing"
 )
 
 func TestNewDCR32Config(t *testing.T) {
@@ -31,6 +32,7 @@ func TestNewDCR32Config(t *testing.T) {
 		"",
 		[]string{string(certRootPEM)},
 		true,
+		false,
 		false,
 		false,
 		false,

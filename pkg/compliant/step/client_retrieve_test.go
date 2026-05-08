@@ -50,7 +50,7 @@ func TestNewClientRegister_HandlesMakeRequestError(t *testing.T) {
 	assert.False(t, result.Pass)
 	assert.Equal(
 		t,
-		"unable to make request: parse \"\\u007f/foo\": net/url: invalid control character in URL",
+		"unable to make request: parse \"\\x7f/foo\": net/url: invalid control character in URL",
 		result.FailReason,
 	)
 }
