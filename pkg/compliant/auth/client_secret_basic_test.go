@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/OpenBankingUK/conformance-dcr/pkg/certs"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

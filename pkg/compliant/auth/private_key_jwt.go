@@ -5,7 +5,7 @@ import (
 	"crypto/rsa"
 	"encoding/json"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/client"
 	"github.com/pkg/errors"

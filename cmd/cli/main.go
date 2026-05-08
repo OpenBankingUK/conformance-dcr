@@ -14,7 +14,7 @@ import (
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant"
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
 	ver "github.com/OpenBankingUK/conformance-dcr/pkg/version"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 func main() {

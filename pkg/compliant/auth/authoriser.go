@@ -5,7 +5,7 @@ import (
 	"crypto/x509"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/client"
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"

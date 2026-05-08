@@ -3,7 +3,7 @@ package compliant
 import (
 	"fmt"
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/step"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"net/http"
 	"time"
 
