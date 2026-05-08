@@ -1,6 +1,6 @@
 module github.com/OpenBankingUK/conformance-dcr
 
-go 1.17
+go 1.24
 
 require (
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
