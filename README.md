@@ -3,13 +3,9 @@
 The **Dynamic Client Registration Conformance Tool** is an Open Source test tool provided
 by [Open Banking](https://www.openbanking.org.uk/).
 
-The [Dynamic Client Registration](https://openbanking.atlassian.net/wiki/spaces/DZ/pages/1078034771/Dynamic+Client+Registration+-+v3.2)
-APIs allow TPPs to register one or more clients with a ASPSPs in a manner that offers very low friction and removes
-hurdles and barriers to entry. The goal of the DCR Conformance Tool is to allow implementers of DCR to test an interface
-against the DCR standard.
+The [Dynamic Client Registration](https://openbankinguk.github.io/dcr-docs-pub/v3.4/dynamic-client-registration.html) APIs allow TPPs to register one or more clients with ASPSPs in a manner that offers very low friction and removes hurdles and barriers to entry. The goal of the DCR Conformance Tool is to allow implementers of DCR to test an interface against the DCR standard.
 
-The supporting documentation assumes technical understanding of the Open Banking ecosystem and DCR. An introduction to
-the concepts is available via the [Open Banking Website](https://www.openbanking.org.uk/).
+The supporting documentation assumes technical understanding of the Open Banking ecosystem and DCR. An introduction to the concepts is available via the [Open Banking Website](https://www.openbanking.org.uk/).
 
 ## Quickstart
 
@@ -19,9 +15,9 @@ See the guide at [QUICK-START.md](https://github.com/OpenBankingUK/conformance-d
 
 * Dynamic Client Registration Specifications: <https://openbankinguk.github.io/dcr-docs-pub/>
 
-# Release v1.3.1 (6th December 2021)
+# Release v1.4.0 (11th May 2026)
 
-[See full list changes](https://github.com/OpenBankingUK/conformance-dcr/blob/develop/releases/v1.3.1.md) (v1.3.1.md)
+[See full list changes](https://github.com/OpenBankingUK/conformance-dcr/blob/develop/releases/v1.4.0.md) (v1.4.0.md)
 
 # Development
 
