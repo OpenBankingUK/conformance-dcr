@@ -3,12 +3,13 @@ package step
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/golang-jwt/jwt/v4"
 
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/auth"
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
@@ -27,7 +28,7 @@ func TestNewClientRegisterResponse(t *testing.T) {
 		WithOpenIDConfig(openIdConfig).
 		WithJwtExpiration(time.Hour)
 	ctx := NewContext()
-	body := ioutil.NopCloser(strings.NewReader(`{"client_id": "12345", "client_secret": "54321"}`))
+	body := io.NopCloser(strings.NewReader(`{"client_id": "12345", "client_secret": "54321"}`))
 	ctx.SetResponse("response", &http.Response{Body: body})
 	step := NewClientRegisterResponse("response", "clientCtxKey", authoriserBuilder)
 
@@ -74,7 +75,7 @@ func TestNewClientRegisterResponse_HandlesParsingResponseObject(t *testing.T) {
 		WithOpenIDConfig(openIdConfig).
 		WithJwtExpiration(time.Hour)
 	ctx := NewContext()
-	body := ioutil.NopCloser(strings.NewReader(`invalid json`))
+	body := io.NopCloser(strings.NewReader(`invalid json`))
 	ctx.SetResponse("response", &http.Response{Body: body})
 	step := NewClientRegisterResponse("response", "clientCtxKey", authoriserBuilder)
 

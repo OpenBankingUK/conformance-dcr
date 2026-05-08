@@ -1,7 +1,7 @@
 package step
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -19,7 +19,7 @@ func TestNewClientRegister(t *testing.T) {
 		require.Equal(t, "application/jose", req.Header.Get("Content-Type"))
 
 		// does it have the JOSE body?
-		body, err := ioutil.ReadAll(req.Body)
+		body, err := io.ReadAll(req.Body)
 		require.NoError(t, err)
 		assert.Equal(t, "jwt.Claims.xxxx", string(body))
 
@@ -52,7 +52,8 @@ func TestNewClientRegister_HandlesHttpErrors(t *testing.T) {
 	result := step.Run(ctx)
 
 	assert.False(t, result.Pass)
-	assert.Equal(t, "making jose post request: Post \"invalid%20url\": unsupported protocol scheme \"\"", result.FailReason)
+	assert.Equal(t, "making jose post request: Post \"invalid%20url\": "+
+		"unsupported protocol scheme \"\"", result.FailReason)
 }
 
 func TestNewClientRegister_HandlesCreateRequestError(t *testing.T) {
@@ -65,7 +66,7 @@ func TestNewClientRegister_HandlesCreateRequestError(t *testing.T) {
 	assert.False(t, result.Pass)
 	assert.Equal(
 		t,
-		"creating jose post request: parse \"\\u007f\": net/url: invalid control character in URL",
+		"creating jose post request: parse \"\\x7f\": net/url: invalid control character in URL",
 		result.FailReason,
 	)
 }

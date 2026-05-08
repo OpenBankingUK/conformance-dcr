@@ -1,21 +1,22 @@
 package compliant
 
 import (
+	"os"
+	"testing"
+
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"io/ioutil"
-	"testing"
 )
 
 func TestNewDCR32Config(t *testing.T) {
-	privateKeyPEM, err := ioutil.ReadFile("testdata/client-sample-key.key")
+	privateKeyPEM, err := os.ReadFile("testdata/client-sample-key.key")
 	require.NoError(t, err)
 
-	certPEM, err := ioutil.ReadFile("testdata/client-sample-cert.pem")
+	certPEM, err := os.ReadFile("testdata/client-sample-cert.pem")
 	require.NoError(t, err)
 
-	certRootPEM, err := ioutil.ReadFile("testdata/client-sample-root-ca.pem")
+	certRootPEM, err := os.ReadFile("testdata/client-sample-root-ca.pem")
 	require.NoError(t, err)
 
 	config, err := NewDCR32Config(

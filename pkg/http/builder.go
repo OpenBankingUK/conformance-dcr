@@ -2,8 +2,9 @@ package http
 
 import (
 	"crypto/tls"
-	"github.com/pkg/errors"
 	"net/http"
+
+	"github.com/pkg/errors"
 )
 
 type MATLSClientBuilder interface {
@@ -16,14 +17,16 @@ type mTLSClientBuilder struct {
 	certPEMBlock, keyPEMBlock *string
 	rootCAs                   *[]string
 	tlsSkipVerify             bool
+	disableKeepAlives         bool
 }
 
 func NewBuilder() *mTLSClientBuilder {
 	return &mTLSClientBuilder{
-		certPEMBlock:  nil,
-		keyPEMBlock:   nil,
-		rootCAs:       nil,
-		tlsSkipVerify: false,
+		certPEMBlock:      nil,
+		keyPEMBlock:       nil,
+		rootCAs:           nil,
+		tlsSkipVerify:     false,
+		disableKeepAlives: false,
 	}
 }
 
@@ -34,6 +37,11 @@ func (b *mTLSClientBuilder) WithRootCAs(rootCAs []string) *mTLSClientBuilder {
 
 func (b *mTLSClientBuilder) WithTlsSkipVerify(tlsSkipVerify bool) *mTLSClientBuilder {
 	b.tlsSkipVerify = tlsSkipVerify
+	return b
+}
+
+func (b *mTLSClientBuilder) WithDisableKeepAlives(disableKeepAlives bool) *mTLSClientBuilder {
+	b.disableKeepAlives = disableKeepAlives
 	return b
 }
 
@@ -65,6 +73,7 @@ func (b *mTLSClientBuilder) Build() (*http.Client, error) {
 	config := MATLSConfig{
 		ClientCerts:        clientCerts,
 		InsecureSkipVerify: b.tlsSkipVerify,
+		DisableKeepAlives:  b.disableKeepAlives,
 		RootCAs:            rootCAs,
 		TLSMinVersion:      tls.VersionTLS12,
 	}

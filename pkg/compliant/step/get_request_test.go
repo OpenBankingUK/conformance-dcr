@@ -1,7 +1,7 @@
 package step
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -53,7 +53,7 @@ func TestGetRequest_SetsResponseInContext(t *testing.T) {
 	r, err := ctx.GetResponse("response")
 
 	require.NoError(t, err)
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	require.NoError(t, err)
 	assert.Equal(t, []byte(`OK`), body)
 }

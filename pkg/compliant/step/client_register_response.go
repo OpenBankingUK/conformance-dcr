@@ -2,7 +2,7 @@ package step
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/auth"
 )
@@ -32,7 +32,7 @@ func (s clientRegisterResponse) Run(ctx Context) Result {
 		return s.failResult(fmt.Sprintf("getting response object from context: %s", err.Error()))
 	}
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return s.failResult(fmt.Sprintf("client register: %s", err.Error()))
 	}

@@ -3,12 +3,13 @@ package compliant
 import (
 	"bytes"
 	"flag"
+	"os"
+	"path/filepath"
+	"testing"
+
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/step"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"io/ioutil"
-	"path/filepath"
-	"testing"
 )
 
 // nolint:gochecknoglobals
@@ -55,11 +56,11 @@ func TestNewPrinter(t *testing.T) {
 
 	if *update {
 		t.Log("update golden file")
-		err = ioutil.WriteFile(gp, w.Bytes(), 0644)
+		err = os.WriteFile(gp, w.Bytes(), 0600)
 		require.NoError(t, err)
 	}
 
-	g, err := ioutil.ReadFile(gp)
+	g, err := os.ReadFile(gp)
 	require.NoError(t, err)
 
 	assert.Equal(t, g, w.Bytes())

@@ -3,7 +3,7 @@ package version
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"sort"
 	"time"
@@ -131,9 +131,9 @@ func (v *gitHub) getTags() (tagList, error) {
 		return nil, fmt.Errorf("HTTP status %d received", resp.StatusCode)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot read body API error.")
+		return nil, errors.Wrap(err, "cannot read body api error")
 	}
 
 	err = resp.Body.Close()

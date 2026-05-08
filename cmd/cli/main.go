@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"crypto/rsa"
+	"crypto/tls"
 	"flag"
 	"fmt"
 	http2 "net/http"
@@ -13,7 +14,7 @@ import (
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant"
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
 	ver "github.com/OpenBankingUK/conformance-dcr/pkg/version"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 func main() {
@@ -46,8 +47,8 @@ func versionCmd(v VersionInfo) {
 
 func updateCheckCmd(v VersionInfo) {
 	// Check for updates and print message
-	bitbucketTagsEndpoint := "https://api.bitbucket.org/2.0/repositories/openbankingteam/conformance-dcr/refs/tags"
-	updMessage := getUpdateMessage(v, bitbucketTagsEndpoint)
+	githubTagsEndpoint := "https://api.github.com/repos/OpenBankingUK/conformance-dcr/tags"
+	updMessage := getUpdateMessage(v, githubTagsEndpoint)
 	if updMessage != "" {
 		fmt.Println(updMessage)
 	}
@@ -62,7 +63,7 @@ func runCmd(flags flags) {
 	cfg, err := LoadConfig(flags.configFilePath)
 	exitOnError(err)
 
-	client := &http2.Client{Timeout: time.Second * 5}
+	client := makeWellknownHTTPClient(flags.tlsSkipVerify)
 	openIDConfig, err := openid.Get(cfg.WellknownEndpoint, client)
 	exitOnError(err)
 
@@ -81,7 +82,7 @@ func runCmd(flags flags) {
 		cfg.GetImplemented,
 		cfg.PutImplemented,
 		cfg.DeleteImplemented,
-		flags.tlsSkipVerify,
+		flags.disableKeepAlives,
 		cfg.SpecVersion,
 	)
 	exitOnError(err)
@@ -147,18 +148,19 @@ func serverAddress(port string) string {
 }
 
 type flags struct {
-	versionCmd       bool
-	configFilePath   string
-	filterExpression string
-	debug            bool
-	report           bool
-	tlsSkipVerify    bool
-	httpServerPort   string
+	versionCmd        bool
+	configFilePath    string
+	filterExpression  string
+	debug             bool
+	report            bool
+	tlsSkipVerify     bool
+	disableKeepAlives bool
+	httpServerPort    string
 }
 
 func mustParseFlags() flags {
 	var configFilePath, filterExpression, httpServerPort string
-	var debug, report, versionFlag, tlsSkipVerify bool
+	var debug, report, versionFlag, tlsSkipVerify, disableKeepAlives bool
 	flag.StringVar(&configFilePath, "config-path", "", "Config file path")
 	flag.StringVar(&filterExpression, "filter", "", "Filter scenarios containing value")
 	flag.StringVar(&httpServerPort, "port", "8080", "Http server port for report download")
@@ -166,16 +168,19 @@ func mustParseFlags() flags {
 	flag.BoolVar(&report, "report", false, "Enable report output defaults to disabled")
 	flag.BoolVar(&versionFlag, "version", false, "Print the version details of conformance-dcr")
 	flag.BoolVar(&tlsSkipVerify, "tlsskipverify", false, "Skip ssl cert verify")
+	flag.BoolVar(&disableKeepAlives, "disablekeepalives", false,
+		"Disable HTTP keep-alives, forcing a new TLS handshake per request (required for some mTLS servers)")
 	flag.Parse()
 
 	return flags{
-		configFilePath:   configFilePath,
-		filterExpression: filterExpression,
-		debug:            debug,
-		report:           report,
-		versionCmd:       versionFlag,
-		tlsSkipVerify:    tlsSkipVerify,
-		httpServerPort:   httpServerPort,
+		configFilePath:    configFilePath,
+		filterExpression:  filterExpression,
+		debug:             debug,
+		report:            report,
+		versionCmd:        versionFlag,
+		tlsSkipVerify:     tlsSkipVerify,
+		disableKeepAlives: disableKeepAlives,
+		httpServerPort:    httpServerPort,
 	}
 }
 
@@ -204,6 +209,15 @@ func getUpdateMessage(v VersionInfo, bitbucketTagsEndpoint string) string {
 	}
 
 	return ""
+}
+
+func makeWellknownHTTPClient(tlsSkipVerify bool) *http2.Client {
+	return &http2.Client{
+		Transport: &http2.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: tlsSkipVerify}, // #nosec G402 -- controlled by explicit user flag
+		},
+		Timeout: time.Second * 10,
+	}
 }
 
 func patchJwtLibraryBug() {

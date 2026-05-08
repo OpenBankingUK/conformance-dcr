@@ -2,6 +2,11 @@ package compliant
 
 import "errors"
 
+const (
+	responseTypeCode        = "code"
+	responseTypeCodeIDToken = "code id_token"
+)
+
 // resolves what response type to use on register claims based on a list of supported from .wellknown
 // DCR 3.2 spec allows: "code", "code id_token" or nil (defaults to "code id_token)
 func responseTypeResolve(types *[]string) ([]string, error) {
@@ -14,10 +19,10 @@ func responseTypeResolve(types *[]string) ([]string, error) {
 	// other values will be ignored
 	var responseTypes []string
 	for _, value := range *types {
-		if value == "code" {
+		if value == responseTypeCode {
 			responseTypes = append(responseTypes, value)
 		}
-		if value == "code id_token" {
+		if value == responseTypeCodeIDToken {
 			responseTypes = append(responseTypes, value)
 		}
 	}

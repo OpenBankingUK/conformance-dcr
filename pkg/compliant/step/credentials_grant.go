@@ -23,7 +23,7 @@ func NewClientCredentialsGrant(grantTokenCtxKey, clientCtxKey, tokenEndpoint str
 		grantTokenCtxKey: grantTokenCtxKey,
 		clientCtxKey:     clientCtxKey,
 		tokenEndpoint:    tokenEndpoint,
-		stepName:         fmt.Sprintf("Client credentials grant"),
+		stepName:         "Client credentials grant",
 	}
 }
 

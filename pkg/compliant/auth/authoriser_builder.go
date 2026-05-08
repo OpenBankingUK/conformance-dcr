@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 type AuthoriserBuilder struct {

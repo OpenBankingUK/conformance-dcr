@@ -4,12 +4,13 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	http2 "net/http"
+
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/auth"
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/schema"
 	"github.com/OpenBankingUK/conformance-dcr/pkg/http"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/pkg/errors"
-	http2 "net/http"
 
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/openid"
 )
@@ -41,7 +42,7 @@ func NewDCR32Config(
 	getImplemented bool,
 	putImplemented bool,
 	deleteImplemented bool,
-	tlsSkipVerify bool,
+	disableKeepAlives bool,
 	specVersion string,
 ) (DCR32Config, error) {
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(signingKeyPEM))
@@ -86,7 +87,7 @@ func NewDCR32Config(
 	secureClient, err := http.NewBuilder().
 		WithRootCAs(transportRootCAs).
 		WithTransportKeyPair(transportCertPEM, transportSigningKeyPEM).
-		WithTlsSkipVerify(tlsSkipVerify).
+		WithDisableKeepAlives(disableKeepAlives).
 		Build()
 	if err != nil {
 		return DCR32Config{}, errors.Wrap(err, "creating DCR32 config")

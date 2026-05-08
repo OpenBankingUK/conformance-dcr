@@ -2,13 +2,14 @@ package certs
 
 import (
 	"crypto/rsa"
-	"github.com/dgrijalva/jwt-go"
+	"os"
+
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/pkg/errors"
-	"io/ioutil"
 )
 
 func ParseRsaPrivateKeyFromPemFile(privFile string) (*rsa.PrivateKey, error) {
-	fileContents, err := ioutil.ReadFile(privFile)
+	fileContents, err := os.ReadFile(privFile)
 	if err != nil {
 		return nil, errors.Wrap(err, "parsing rsa private key from file")
 	}

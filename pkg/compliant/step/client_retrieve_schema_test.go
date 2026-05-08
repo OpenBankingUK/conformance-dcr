@@ -1,19 +1,19 @@
 package step
 
 import (
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/schema"
-	"github.com/stretchr/testify/assert"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 	"testing"
+
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/schema"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewClientRetrieveSchema(t *testing.T) {
 	validator := &stubValidator{}
 	ctx := NewContext()
-	body := ioutil.NopCloser(strings.NewReader(`{}`))
+	body := io.NopCloser(strings.NewReader(`{}`))
 	ctx.SetResponse("responseCtxKey", &http.Response{Body: body})
 	step := NewClientRetrieveSchema("responseCtxKey", validator)
 
@@ -39,7 +39,7 @@ func TestNewClientRetrieveSchema_FailsMissingCtxResponse(t *testing.T) {
 func TestNewClientRetrieveSchema_MapsErrors(t *testing.T) {
 	validator := &stubValidator{failures: []schema.Failure{"ups"}}
 	ctx := NewContext()
-	body := ioutil.NopCloser(strings.NewReader(`{}`))
+	body := io.NopCloser(strings.NewReader(`{}`))
 	ctx.SetResponse("responseCtxKey", &http.Response{Body: body})
 	step := NewClientRetrieveSchema("responseCtxKey", validator)
 

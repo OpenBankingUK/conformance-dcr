@@ -17,6 +17,8 @@ func NewValidator(version string) (Validator, error) {
 		return responseValidator32{}, nil
 	case "3.3":
 		return responseValidator33{}, nil
+	case "3.4":
+		return responseValidator34{}, nil
 	}
 	return nil, fmt.Errorf("unknown spec version to validate schema %s", version)
 }

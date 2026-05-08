@@ -6,3 +6,5 @@ debug.json
 conformance-dcr_debug.log
 conformance-dcr_report.json
 .idea/
+newmodelbank.json
+.DS_Store

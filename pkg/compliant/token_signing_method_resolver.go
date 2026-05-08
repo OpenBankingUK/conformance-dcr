@@ -2,7 +2,7 @@ package compliant
 
 import (
 	"errors"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 // resolves what token signing method to use based on .wellknown and supported

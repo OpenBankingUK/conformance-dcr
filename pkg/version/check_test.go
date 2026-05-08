@@ -114,7 +114,7 @@ func TestUpdateCheck_LocalVersionInvalid(t *testing.T) {
 	version := "foobar"
 
 	update, err := bb.UpdateAvailable(version)
-	expError := "parse version: Malformed version: foobar"
+	expError := "parse version: malformed version: foobar"
 	assert.Equal(t, expError, err.Error())
 	assert.False(t, update)
 }

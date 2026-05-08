@@ -1,13 +1,14 @@
 package compliant
 
 import (
+	"net/http"
+	"testing"
+
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/auth"
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/schema"
 	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant/step"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"net/http"
-	"testing"
 )
 
 func TestNewDCR32(t *testing.T) {
@@ -127,7 +128,7 @@ func TestTCRetrieveSoftwareClient_GetNotImplemented(t *testing.T) {
 	result := tc.Run(step.NewContext())
 
 	assert.Equal(t, "(SKIP Get endpoint not implemented) Retrieve software client", result.Name)
-	assert.Equal(t, step.Results(nil), result.Results)
+	assert.Equal(t, step.Results{}, result.Results)
 	assert.False(t, result.Fail())
 }
 

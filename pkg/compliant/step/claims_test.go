@@ -3,7 +3,7 @@ package step
 import (
 	"crypto/rand"
 	"crypto/rsa"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"testing"
 	"time"
 

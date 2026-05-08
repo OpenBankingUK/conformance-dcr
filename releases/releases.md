@@ -1,3 +1,9 @@
+# Release v1.4.0 (11th May 2026)
+
+The release is called v1.4.0
+
+[See full list changes](https://github.com/OpenBankingUK/conformance-dcr/blob/develop/releases/v1.4.0.md) (v1.4.0.md)
+
 # Release v1.3.1 (6th December 2021)
 
 The release is called v1.3.1

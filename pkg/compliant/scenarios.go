@@ -59,7 +59,7 @@ func (s scenario) Spec() string {
 
 func (s scenario) Run() ScenarioResult {
 	ctx := step.NewContext()
-	var results TestCaseResults
+	results := make(TestCaseResults, 0, len(s.tcs))
 	for _, tc := range s.tcs {
 		tcResult := tc.Run(ctx)
 		results = append(results, tcResult)

@@ -71,7 +71,7 @@ func TestNewClientDelete_HandlesCreateRequestError(t *testing.T) {
 	assert.False(t, result.Pass)
 	assert.Equal(
 		t,
-		"unable to create request \u007f/foo: parse \"\\u007f/foo\": net/url: invalid control character in URL",
+		"unable to create request \x7f/foo: parse \"\\x7f/foo\": net/url: invalid control character in URL",
 		result.FailReason,
 	)
 }

@@ -3,10 +3,11 @@ package http
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRootCASCertificate(t *testing.T) {
@@ -87,7 +88,7 @@ func TestNewMATLSClient(t *testing.T) {
 	assert.Equal(t, trsExpected.TLSClientConfig.Renegotiation, trsActual.TLSClientConfig.Renegotiation)
 	assert.Equal(t, trsExpected.TLSClientConfig.Certificates, trsActual.TLSClientConfig.Certificates)
 
-	expectedRootCAs := trsExpected.TLSClientConfig.RootCAs.Subjects()
-	actualRootCAs := trsActual.TLSClientConfig.RootCAs.Subjects()
+	expectedRootCAs := trsExpected.TLSClientConfig.RootCAs.Subjects() //nolint:staticcheck
+	actualRootCAs := trsActual.TLSClientConfig.RootCAs.Subjects()     //nolint:staticcheck
 	assert.Equal(t, expectedRootCAs, actualRootCAs)
 }
