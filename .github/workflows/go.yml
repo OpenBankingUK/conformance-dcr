@@ -8,14 +8,14 @@ jobs:
   go-test:
     name: go-test
     runs-on: ubuntu-latest
-    container: golang:1.17-alpine3.15
+    container: golang:1.24-alpine
     env:
       CGO_ENABLED: 0
       GOOS: linux
       GOARCH: amd64
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Install packages
         run: apk update && apk add git make bash curl
       - name: make tools
@@ -31,12 +31,12 @@ jobs:
     name: code-coverage
     
     runs-on: ubuntu-latest
-    container: golang:1.17-alpine3.15
+    container: golang:1.24-alpine
     env:
       CGO_ENABLED: 0
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Install packages
         run: apk update && apk add git make bash
       - name: Code-coverage
@@ -45,12 +45,12 @@ jobs:
   e2e:
     name: e2e
     runs-on: ubuntu-latest
-    container: golang:1.17-alpine3.15
+    container: golang:1.24-alpine
     env:
       CGO_ENABLED: 0
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Install packages
         run: apk update && apk add git make bash curl
       - name: Make configs directory
@@ -65,7 +65,7 @@ jobs:
      runs-on: ubuntu-latest
      steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Build docker image
         run: make build_image
       - name: Show top level docker images
