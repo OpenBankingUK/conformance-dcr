@@ -4,8 +4,8 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/pkg/errors"
@@ -36,7 +36,6 @@ func NewMATLSClient(config MATLSConfig) (*http.Client, error) {
 		tlsConfig.RootCAs = RootCAPoolFromCerts(config.RootCAs)
 	}
 
-	tlsConfig.BuildNameToCertificate()
 	transport := &http.Transport{
 		TLSClientConfig:   tlsConfig,
 		DisableKeepAlives: config.DisableKeepAlives,
@@ -54,11 +53,11 @@ func TlsClientCert(certPEMBlock, keyPEMBlock []byte) ([]tls.Certificate, error) 
 }
 
 func TlsCertFromFile(keyPath, certPath string) ([]tls.Certificate, error) {
-	keyBlock, err := ioutil.ReadFile(keyPath)
+	keyBlock, err := os.ReadFile(keyPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "tls cert from file")
 	}
-	certBlock, err := ioutil.ReadFile(certPath)
+	certBlock, err := os.ReadFile(certPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "tls cert from file")
 	}
@@ -83,7 +82,7 @@ func RootCASCertificate(pemBytes []byte) (*x509.Certificate, error) {
 }
 
 func RootCASFromFile(path string) (*x509.Certificate, error) {
-	pemBytes, err := ioutil.ReadFile(path)
+	pemBytes, err := os.ReadFile(path)
 	if err != nil {
 		return nil, errors.Wrap(err, "rootCAs from file")
 	}

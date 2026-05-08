@@ -3,7 +3,7 @@ package openid
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/pkg/errors"
@@ -36,7 +36,7 @@ func Get(url string, client *http.Client) (Configuration, error) {
 		return Configuration{}, errorFromResponse(r, url)
 	}
 
-	defer r.Body.Close()
+	defer r.Body.Close() //nolint:errcheck
 	config := Configuration{}
 	if err := json.NewDecoder(r.Body).Decode(&config); err != nil {
 		return Configuration{}, errors.Wrap(err, "invalid OpenIDConfiguration body content")
@@ -46,7 +46,7 @@ func Get(url string, client *http.Client) (Configuration, error) {
 }
 
 func errorFromResponse(response *http.Response, url string) error {
-	responseBody, err := ioutil.ReadAll(response.Body)
+	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		return errors.Wrap(err, "error reading error response from GET OpenIDConfiguration")
 	}

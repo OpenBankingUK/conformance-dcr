@@ -1,3 +1,5 @@
+version: "2"
+
 run:
   tests: true
   modules-download-mode: readonly
@@ -7,13 +9,9 @@ linters:
   enable:
     - errcheck       # Check for unchecked errors
     - govet          # Reports suspicious constructs
-    - staticcheck    # Static analysis (includes former gosimple + unused checks)
-    - gosimple       # Simplification suggestions
-    - unused         # Unused code
+    - staticcheck    # Static analysis (includes gosimple + unused checks)
     - ineffassign    # Detects unused assignments
-    - typecheck      # Parses and type-checks Go code
     - revive         # Replaces deprecated golint
-    - gofmt          # Checks gofmt formatting
     - gosec          # Security checks
     - unconvert      # Removes unnecessary type conversions
     - dupl           # Code clone detection
@@ -27,39 +25,60 @@ linters:
     - gochecknoinits # Checks that no init functions are present
     - gochecknoglobals # Checks that no globals are present
 
-# all available settings of specific linters
-linters-settings:
-  govet:
-    enable:
-      - shadow
-  errcheck:
-    # report about not checking of errors in type assertions
-    check-type-assertions: true
-    # report about assignment of errors to blank identifier
-    check-blank: true
-  revive:
-    min-confidence: 1.0
-  gofmt:
-    # simplify code: gofmt with `-s` option
-    simplify: true
-  misspell:
-    locale: UK
-  gocyclo:
-    min-complexity: 7
-  lll:
-    line-length: 120
-  goimports:
-    local-prefixes: github.com/OpenBankingUK/conformance-dcr
+  settings:
+    govet:
+      enable:
+        - shadow
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+    gocyclo:
+      min-complexity: 7
+    lll:
+      line-length: 120
+    goconst:
+      min-occurrences: 4  # Suppress 3-occurrence matches common in multi-version schema files
+    revive:
+      rules:
+        # Disable rules that would require extensive API-breaking changes to pre-existing code
+        - name: var-naming
+          disabled: true
+        - name: exported
+          disabled: true
+        - name: package-comments
+          disabled: true
+        - name: unused-parameter
+          disabled: true
+        - name: unexported-return
+          disabled: true
+
+  exclusions:
+    rules:
+      # Suppress gosec, errcheck, and goconst noise in test files
+      - path: "_test\\.go"
+        linters:
+          - gosec
+          - errcheck
+          - goconst
+      # G304: File path from variable - legitimate for loading user-specified cert/config files
+      - linters:
+          - gosec
+        text: "G304"
+      # goconst: schema field names are intentionally repeated across v3.2/3.3/3.4 version files
+      - path: "pkg/compliant/schema"
+        linters:
+          - goconst
+
+formatters:
+  enable:
+    - gofmt          # Checks gofmt formatting
+
+  settings:
+    gofmt:
+      simplify: true
 
 output:
   formats:
-    - format: colored-line-number
-  print-issued-lines: false
-  print-linter-name: true
-
-issues:
-  # Maximum issues count per one linter. Set to 0 to disable. Default is 50.
-  max-per-linter: 0
-
-  # Maximum count of issues with the same text. Set to 0 to disable. Default is 3.
-  max-same-issues: 0
+    text:
+      print-issued-lines: false
+      print-linter-name: true

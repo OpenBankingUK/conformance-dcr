@@ -21,7 +21,7 @@ func (v registrationEndpointValidate) Run(ctx Context) Result {
 	if v.registrationEndpoint == nil {
 		return NewFailResult(
 			v.stepName,
-			fmt.Sprintf("registration endpoint is missing"),
+			"registration endpoint is missing",
 		)
 	}
 	_, err := url.ParseRequestURI(*v.registrationEndpoint)

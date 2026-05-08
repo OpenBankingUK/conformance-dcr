@@ -168,7 +168,8 @@ func mustParseFlags() flags {
 	flag.BoolVar(&report, "report", false, "Enable report output defaults to disabled")
 	flag.BoolVar(&versionFlag, "version", false, "Print the version details of conformance-dcr")
 	flag.BoolVar(&tlsSkipVerify, "tlsskipverify", false, "Skip ssl cert verify")
-	flag.BoolVar(&disableKeepAlives, "disablekeepalives", false, "Disable HTTP keep-alives, forcing a new TLS handshake per request (required for some mTLS servers)")
+	flag.BoolVar(&disableKeepAlives, "disablekeepalives", false,
+		"Disable HTTP keep-alives, forcing a new TLS handshake per request (required for some mTLS servers)")
 	flag.Parse()
 
 	return flags{

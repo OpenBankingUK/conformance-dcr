@@ -3,10 +3,10 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant"
 	"io"
-	"io/ioutil"
 	"os"
+
+	"github.com/OpenBankingUK/conformance-dcr/pkg/compliant"
 
 	"github.com/pkg/errors"
 )
@@ -36,7 +36,7 @@ func LoadConfig(configFilePath string) (Config, error) {
 	if err != nil {
 		return Config{}, errors.Wrap(err, "load config")
 	}
-	defer f.Close()
+	defer f.Close() //nolint:errcheck
 
 	config, err := parseConfig(f)
 	if err != nil {
@@ -53,7 +53,7 @@ func LoadConfig(configFilePath string) (Config, error) {
 
 func parseConfig(f io.Reader) (Config, error) {
 	var cfg Config
-	rawCfg, err := ioutil.ReadAll(f)
+	rawCfg, err := io.ReadAll(f)
 	if err != nil {
 		return cfg, errors.Wrap(err, "unable to read config file contents")
 	}

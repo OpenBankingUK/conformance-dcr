@@ -1,19 +1,20 @@
 package http
 
 import (
+	"net/http"
+	"os"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"io/ioutil"
-	"net/http"
-	"testing"
 )
 
 func TestNewBuilder(t *testing.T) {
-	rootCA, err := ioutil.ReadFile("testdata/client-sample-root-ca.pem")
+	rootCA, err := os.ReadFile("testdata/client-sample-root-ca.pem")
 	require.NoError(t, err)
-	privateKey, err := ioutil.ReadFile("testdata/client-sample-key.key")
+	privateKey, err := os.ReadFile("testdata/client-sample-key.key")
 	require.NoError(t, err)
-	cert, err := ioutil.ReadFile("testdata/client-sample-cert.pem")
+	cert, err := os.ReadFile("testdata/client-sample-cert.pem")
 	require.NoError(t, err)
 
 	client, err := NewBuilder().
@@ -26,7 +27,7 @@ func TestNewBuilder(t *testing.T) {
 }
 
 func TestNewBuilder_ErrorsIfNoCertOrKey(t *testing.T) {
-	rootCA, err := ioutil.ReadFile("testdata/client-sample-root-ca.pem")
+	rootCA, err := os.ReadFile("testdata/client-sample-root-ca.pem")
 	require.NoError(t, err)
 
 	client, err := NewBuilder().
@@ -38,7 +39,7 @@ func TestNewBuilder_ErrorsIfNoCertOrKey(t *testing.T) {
 }
 
 func TestNewBuilder_ErrorsIfNoCertOrKeyIsInvalid(t *testing.T) {
-	rootCA, err := ioutil.ReadFile("testdata/client-sample-root-ca.pem")
+	rootCA, err := os.ReadFile("testdata/client-sample-root-ca.pem")
 	require.NoError(t, err)
 
 	client, err := NewBuilder().
@@ -55,9 +56,9 @@ func TestNewBuilder_ErrorsIfNoCertOrKeyIsInvalid(t *testing.T) {
 }
 
 func TestNewBuilder_ErrorsIfNoRootCA(t *testing.T) {
-	privateKey, err := ioutil.ReadFile("testdata/client-sample-key.key")
+	privateKey, err := os.ReadFile("testdata/client-sample-key.key")
 	require.NoError(t, err)
-	cert, err := ioutil.ReadFile("testdata/client-sample-cert.pem")
+	cert, err := os.ReadFile("testdata/client-sample-cert.pem")
 	require.NoError(t, err)
 
 	client, err := NewBuilder().
@@ -69,9 +70,9 @@ func TestNewBuilder_ErrorsIfNoRootCA(t *testing.T) {
 }
 
 func TestNewBuilder_ErrorsIfRootCAIsInvalid(t *testing.T) {
-	privateKey, err := ioutil.ReadFile("testdata/client-sample-key.key")
+	privateKey, err := os.ReadFile("testdata/client-sample-key.key")
 	require.NoError(t, err)
-	cert, err := ioutil.ReadFile("testdata/client-sample-cert.pem")
+	cert, err := os.ReadFile("testdata/client-sample-cert.pem")
 	require.NoError(t, err)
 
 	client, err := NewBuilder().

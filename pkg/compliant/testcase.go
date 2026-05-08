@@ -37,7 +37,7 @@ func NewTestCase(name string, steps []step.Step) testCase {
 }
 
 func (t testCase) Run(ctx step.Context) TestCaseResult {
-	var results step.Results
+	results := make(step.Results, 0, len(t.steps))
 	for _, step := range t.steps {
 		results = append(results, step.Run(ctx))
 	}

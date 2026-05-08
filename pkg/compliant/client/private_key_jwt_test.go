@@ -3,12 +3,13 @@ package client
 import (
 	"crypto/rand"
 	"crypto/rsa"
+	"io"
+	"net/url"
+	"testing"
+
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"io/ioutil"
-	"net/url"
-	"testing"
 )
 
 func TestPrivateKeyJwt(t *testing.T) {
@@ -19,7 +20,7 @@ func TestPrivateKeyJwt(t *testing.T) {
 	request, err := client.CredentialsGrantRequest()
 	require.NoError(t, err)
 	assert.Equal(t, "id", client.Id())
-	bodyByes, err := ioutil.ReadAll(request.Body)
+	bodyByes, err := io.ReadAll(request.Body)
 	require.NoError(t, err)
 	bodyDecoded, err := url.ParseQuery(string(bodyByes))
 	require.NoError(t, err)

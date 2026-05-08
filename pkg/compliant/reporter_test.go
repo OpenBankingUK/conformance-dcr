@@ -3,7 +3,6 @@ package compliant
 import (
 	"archive/zip"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -65,8 +64,8 @@ func TestNewReporter(t *testing.T) {
 	_, err = io.ReadFull(r.Body, b)
 	require.NoError(t, err)
 
-	//write the bytes downloaded to a tmpFile.zip
-	tmpFile, err := ioutil.TempFile("", "reporter_test_zip")
+	// write the bytes downloaded to a tmpFile.zip
+	tmpFile, err := os.CreateTemp("", "reporter_test_zip")
 	require.NoError(t, err)
 	defer os.Remove(tmpFile.Name())
 	_, err = tmpFile.Write(b)
@@ -74,7 +73,7 @@ func TestNewReporter(t *testing.T) {
 	err = tmpFile.Close()
 	require.NoError(t, err)
 
-	//unzip the tmpFile.File
+	// unzip the tmpFile.File
 	zipReader, err := zip.OpenReader(tmpFile.Name())
 	require.NoError(t, err)
 	defer zipReader.Close()
@@ -90,7 +89,7 @@ func TestNewReporter(t *testing.T) {
 		}
 
 		if f.Name == "report.json" {
-			//write the contents of each file to out
+			// write the contents of each file to out
 			var rc io.ReadCloser
 			rc, err = f.Open()
 			require.NoError(t, err)
@@ -109,10 +108,10 @@ func TestNewReporter(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	g, err := ioutil.ReadFile(gp)
+	g, err := os.ReadFile(gp)
 	require.NoError(t, err)
 
-	report, err := ioutil.ReadFile(out)
+	report, err := os.ReadFile(out)
 	require.NoError(t, err)
 
 	err = os.Remove(out)

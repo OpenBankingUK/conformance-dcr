@@ -1,11 +1,12 @@
 package client
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"io/ioutil"
+	"io"
 	"net/url"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestClientSecretJWT(t *testing.T) {
@@ -15,7 +16,7 @@ func TestClientSecretJWT(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "id", client.Id())
 
-	bodyByes, err := ioutil.ReadAll(request.Body)
+	bodyByes, err := io.ReadAll(request.Body)
 	require.NoError(t, err)
 
 	bodyDecoded, err := url.ParseQuery(string(bodyByes))

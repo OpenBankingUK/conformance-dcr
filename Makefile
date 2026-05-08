@@ -11,6 +11,11 @@ COMMIT_HASH			:= $(shell git rev-list -1 HEAD)
 COMMIT_HASH_SHORT	:= $(shell git rev-parse --short HEAD)
 IMAGE_TAG           := v1.4.0
 
+# Tool paths (GOPATH/bin may not be in PATH when invoked by make/CI):
+GOPATH_BIN          := $(shell go env GOPATH)/bin
+GOLANGCI_LINT       := $(GOPATH_BIN)/golangci-lint
+GOIMPORTS           := $(GOPATH_BIN)/goimports
+
 # Go build flags:
 LD_FLAGS := "-X main.version=${IMAGE_TAG} -X main.commitHash=${COMMIT_HASH} -X 'main.buildTime=${BUILD_TIME}'"
 
@@ -48,7 +53,7 @@ tools: ## install go tools (goimports, golangci-lint)
 	@echo -e "\033[92m  ---> Installing Go Tools ... \033[0m"
 	go install golang.org/x/tools/cmd/goimports@latest
 	@printf "%b" "\033[93m" "  ---> Installing golangci-lint@v2.12.2 (https://github.com/golangci/golangci-lint) ... " "\033[0m" "\n"
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v2.12.2
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(GOPATH_BIN) v2.12.2
 
 .PHONY: deps
 deps: ## download dependencies
@@ -83,9 +88,9 @@ code-coverage: ## Generate code coverage
 .PHONY: lint
 lint: ## Basic linting and vetting of code
 	@printf "%b" "\033[93m" "  ---> Linting ... " "\033[0m" "\n"
-	golangci-lint run --config ./.golangci.yml ./...
+	$(GOLANGCI_LINT) run --config ./.golangci.yml ./...
 
 .PHONY: lint_fix
 lint_fix: ## Basic linting and vetting of code with fix option enabled
 	@printf "%b" "\033[93m" "  ---> Linting with fix enabled ... " "\033[0m" "\n"
-	golangci-lint run --fix --config ./.golangci.yml ./...
+	$(GOLANGCI_LINT) run --fix --config ./.golangci.yml ./...

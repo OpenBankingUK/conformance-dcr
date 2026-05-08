@@ -3,11 +3,12 @@ package client
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"io/ioutil"
+	"io"
 	"net/url"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestClientBasic(t *testing.T) {
@@ -20,7 +21,7 @@ func TestClientBasic(t *testing.T) {
 	assert.Equal(t, "id", client.Id())
 	assert.Equal(t, expectedTokenHeader, request.Header.Get("Authorization"))
 
-	bodyByes, err := ioutil.ReadAll(request.Body)
+	bodyByes, err := io.ReadAll(request.Body)
 	require.NoError(t, err)
 
 	bodyDecoded, err := url.ParseQuery(string(bodyByes))

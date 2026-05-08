@@ -80,7 +80,7 @@ func (r reporter) startServer(report io.Reader) {
 			report:         report,
 		}
 
-		server := &http.Server{Addr: r.serverAddr, Handler: handler}
+		server := &http.Server{Addr: r.serverAddr, Handler: handler, ReadHeaderTimeout: 30 * time.Second}
 		err := server.ListenAndServe()
 		fmt.Printf("Error starting embedded webserver: %s", err)
 	}()
