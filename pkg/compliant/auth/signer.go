@@ -134,15 +134,27 @@ func (s jwtSigner) Claims() (string, error) {
 	return signedJwt, nil
 }
 
-// oidNames maps OID strings to their attribute type names for Subject DN formatting.
-var oidNames = map[string]string{
-	"2.5.4.3":  "CN",
-	"2.5.4.6":  "C",
-	"2.5.4.7":  "L",
-	"2.5.4.8":  "ST",
-	"2.5.4.10": "O",
-	"2.5.4.11": "OU",
-	"2.5.4.97": "organizationIdentifier",
+// oidName returns the friendly attribute type name for the given OID string,
+// or the OID string itself if not recognised.
+func oidName(oid string) string {
+	switch oid {
+	case "2.5.4.3":
+		return "CN"
+	case "2.5.4.6":
+		return "C"
+	case "2.5.4.7":
+		return "L"
+	case "2.5.4.8":
+		return "ST"
+	case "2.5.4.10":
+		return "O"
+	case "2.5.4.11":
+		return "OU"
+	case "2.5.4.97":
+		return "organizationIdentifier"
+	default:
+		return oid
+	}
 }
 
 // escapeRFC2253 escapes special characters in a DN attribute value per RFC 2253.
@@ -151,27 +163,33 @@ func escapeRFC2253(s string) string {
 	b.Grow(len(s))
 	for i := 0; i < len(s); i++ {
 		c := s[i]
-		switch {
-		case c == ',' || c == '+' || c == '"' || c == '\\' || c == '<' || c == '>' || c == ';':
+		if needsEscape(c, i, len(s)) {
 			b.WriteByte('\\')
-			b.WriteByte(c)
-		case c == ' ' && (i == 0 || i == len(s)-1):
-			b.WriteByte('\\')
-			b.WriteByte(c)
-		case c == '#' && i == 0:
-			b.WriteByte('\\')
-			b.WriteByte(c)
-		default:
-			b.WriteByte(c)
 		}
+		b.WriteByte(c)
 	}
 	return b.String()
 }
 
-// subjectDN formats a raw ASN.1 subject into an RFC 2253 string preserving wire order.
-// Multi-valued RDNs are joined with '+'; RDNs are joined with ','.
-// When useOID is true, all attribute type labels use the numeric OID string;
-// otherwise, known OIDs are replaced with their friendly names.
+// needsEscape reports whether byte c at position i in a string of length n
+// requires a backslash escape in an RFC 2253 attribute value.
+func needsEscape(c byte, i, n int) bool {
+	switch c {
+	case ',', '+', '"', '\\', '<', '>', ';':
+		return true
+	case ' ':
+		return i == 0 || i == n-1
+	case '#':
+		return i == 0
+	}
+	return false
+}
+
+// subjectDN formats a raw ASN.1 subject as an RFC 2253 string in most-specific-first
+// order (e.g. CN=foo,O=bar,C=GB), as required by the tls_client_auth_subject_dn claim
+// per RFC 8705 §2.1.2. Multi-valued RDNs are joined with '+'; RDNs are joined with ','.
+// When useOID is true, all attribute type labels use the numeric OID string (e.g. 2.5.4.97);
+// otherwise, known OIDs are replaced with their friendly names (e.g. organizationIdentifier).
 func subjectDN(rawSubject []byte, useOID bool) (string, error) {
 	var rdnSeq pkix.RDNSequence
 	rest, err := asn1.Unmarshal(rawSubject, &rdnSeq)
@@ -182,20 +200,19 @@ func subjectDN(rawSubject []byte, useOID bool) (string, error) {
 		return "", errors.Errorf("failed to parse transport cert raw subject: trailing data (%d bytes)", len(rest))
 	}
 
-	// RDNSequence is in wire order (most general first).
-	// Iterate in reverse to produce CN first, C last (RFC 2253 display order).
+	// ASN.1 encodes the RDNSequence in DER order (most-general-first: C, O, CN).
+	// RFC 2253 display order is most-specific-first, so we iterate in reverse.
 	rdnParts := make([]string, 0, len(rdnSeq))
 	for i := len(rdnSeq) - 1; i >= 0; i-- {
 		atvParts := make([]string, 0, len(rdnSeq[i]))
 		for _, atv := range rdnSeq[i] {
 			oidStr := atv.Type.String()
 			var label string
-			if useOID {
+			switch {
+			case useOID:
 				label = oidStr
-			} else if name, ok := oidNames[oidStr]; ok {
-				label = name
-			} else {
-				label = oidStr
+			default:
+				label = oidName(oidStr)
 			}
 			atvParts = append(atvParts, label+"="+escapeRFC2253(fmt.Sprintf("%v", atv.Value)))
 		}
