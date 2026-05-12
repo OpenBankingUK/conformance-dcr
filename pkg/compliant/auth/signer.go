@@ -145,9 +145,33 @@ var oidNames = map[string]string{
 	"2.5.4.97": "organizationIdentifier",
 }
 
-// subjectDN formats a raw ASN.1 subject into a string like
-// CN=foo,organizationIdentifier=bar,O=baz,C=GB preserving wire order.
-// When useOID is true, unknown OIDs are rendered numerically instead of by name.
+// escapeRFC2253 escapes special characters in a DN attribute value per RFC 2253.
+func escapeRFC2253(s string) string {
+	var b strings.Builder
+	b.Grow(len(s))
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		switch {
+		case c == ',' || c == '+' || c == '"' || c == '\\' || c == '<' || c == '>' || c == ';':
+			b.WriteByte('\\')
+			b.WriteByte(c)
+		case c == ' ' && (i == 0 || i == len(s)-1):
+			b.WriteByte('\\')
+			b.WriteByte(c)
+		case c == '#' && i == 0:
+			b.WriteByte('\\')
+			b.WriteByte(c)
+		default:
+			b.WriteByte(c)
+		}
+	}
+	return b.String()
+}
+
+// subjectDN formats a raw ASN.1 subject into an RFC 2253 string preserving wire order.
+// Multi-valued RDNs are joined with '+'; RDNs are joined with ','.
+// When useOID is true, all attribute type labels use the numeric OID string;
+// otherwise, known OIDs are replaced with their friendly names.
 func subjectDN(rawSubject []byte, useOID bool) (string, error) {
 	var rdnSeq pkix.RDNSequence
 	rest, err := asn1.Unmarshal(rawSubject, &rdnSeq)
@@ -158,27 +182,26 @@ func subjectDN(rawSubject []byte, useOID bool) (string, error) {
 		return "", errors.Errorf("failed to parse transport cert raw subject: trailing data (%d bytes)", len(rest))
 	}
 
-	// RDNSequence is in wire order (reverse of the display order expected by Go's String()).
-	// We iterate in reverse to produce CN first, C last.
-	parts := make([]string, 0, len(rdnSeq))
+	// RDNSequence is in wire order (most general first).
+	// Iterate in reverse to produce CN first, C last (RFC 2253 display order).
+	rdnParts := make([]string, 0, len(rdnSeq))
 	for i := len(rdnSeq) - 1; i >= 0; i-- {
+		atvParts := make([]string, 0, len(rdnSeq[i]))
 		for _, atv := range rdnSeq[i] {
 			oidStr := atv.Type.String()
 			var label string
 			if useOID {
 				label = oidStr
+			} else if name, ok := oidNames[oidStr]; ok {
+				label = name
 			} else {
-				name, ok := oidNames[oidStr]
-				if ok {
-					label = name
-				} else {
-					label = oidStr
-				}
+				label = oidStr
 			}
-			parts = append(parts, label+"="+fmt.Sprintf("%v", atv.Value))
+			atvParts = append(atvParts, label+"="+escapeRFC2253(fmt.Sprintf("%v", atv.Value)))
 		}
+		rdnParts = append(rdnParts, strings.Join(atvParts, "+"))
 	}
-	return strings.Join(parts, ","), nil
+	return strings.Join(rdnParts, ","), nil
 }
 
 func (s jwtSigner) addSigningAlgClaims(claims jwt.MapClaims) {
@@ -199,6 +222,10 @@ func (s jwtSigner) addTlsClientAuthClaims(claims jwt.MapClaims) error {
 
 	if s.transportSubjectDn != "" {
 		claims["tls_client_auth_subject_dn"] = s.transportSubjectDn
+	} else if len(s.transportCert.RawSubject) == 0 {
+		// Fallback for manually constructed certs (e.g. in tests) where RawSubject
+		// is not populated from parsed ASN.1 bytes.
+		claims["tls_client_auth_subject_dn"] = s.transportCert.Subject.ToRDNSequence().String()
 	} else {
 		dn, err := subjectDN(s.transportCert.RawSubject, s.useOID)
 		if err != nil {
