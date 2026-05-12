@@ -3,6 +3,10 @@ package auth
 import (
 	"crypto/rsa"
 	"crypto/x509"
+	"crypto/x509/pkix"
+	"encoding/asn1"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -28,6 +32,7 @@ type jwtSigner struct {
 	jwtExpiration           time.Duration
 	transportCert           *x509.Certificate
 	transportSubjectDn      string
+	useOID                  bool
 }
 
 func NewJwtSigner(
@@ -44,6 +49,7 @@ func NewJwtSigner(
 	jwtExpiration time.Duration,
 	transportCert *x509.Certificate,
 	transportSubjectDn string,
+	useOID bool,
 ) Signer {
 	return jwtSigner{
 		signingAlgorithm:        signingAlgorithm,
@@ -59,6 +65,7 @@ func NewJwtSigner(
 		jwtExpiration:           jwtExpiration,
 		transportCert:           transportCert,
 		transportSubjectDn:      transportSubjectDn,
+		useOID:                  useOID,
 	}
 }
 
@@ -127,6 +134,49 @@ func (s jwtSigner) Claims() (string, error) {
 	return signedJwt, nil
 }
 
+// oidNames maps OID strings to their attribute type names for Subject DN formatting.
+var oidNames = map[string]string{
+	"2.5.4.3":  "CN",
+	"2.5.4.6":  "C",
+	"2.5.4.7":  "L",
+	"2.5.4.8":  "ST",
+	"2.5.4.10": "O",
+	"2.5.4.11": "OU",
+	"2.5.4.97": "organizationIdentifier",
+}
+
+// subjectDN formats a raw ASN.1 subject into a string like
+// CN=foo,organizationIdentifier=bar,O=baz,C=GB preserving wire order.
+// When useOID is true, unknown OIDs are rendered numerically instead of by name.
+func subjectDN(rawSubject []byte, useOID bool) (string, error) {
+	var rdnSeq pkix.RDNSequence
+	if rest, err := asn1.Unmarshal(rawSubject, &rdnSeq); err != nil || len(rest) > 0 {
+		return "", errors.New("failed to parse transport cert raw subject")
+	}
+
+	// RDNSequence is in wire order (reverse of the display order expected by Go's String()).
+	// We iterate in reverse to produce CN first, C last.
+	parts := make([]string, 0, len(rdnSeq))
+	for i := len(rdnSeq) - 1; i >= 0; i-- {
+		for _, atv := range rdnSeq[i] {
+			oidStr := atv.Type.String()
+			var label string
+			if useOID {
+				label = oidStr
+			} else {
+				name, ok := oidNames[oidStr]
+				if ok {
+					label = name
+				} else {
+					label = oidStr
+				}
+			}
+			parts = append(parts, label+"="+fmt.Sprintf("%v", atv.Value))
+		}
+	}
+	return strings.Join(parts, ","), nil
+}
+
 func (s jwtSigner) addSigningAlgClaims(claims jwt.MapClaims) {
 	// We should only provide signing alg when it makes sense
 	if s.tokenEndpointAuthMethod == "private_key_jwt" || s.tokenEndpointAuthMethod == "client_secret_jwt" {
@@ -146,7 +196,11 @@ func (s jwtSigner) addTlsClientAuthClaims(claims jwt.MapClaims) error {
 	if s.transportSubjectDn != "" {
 		claims["tls_client_auth_subject_dn"] = s.transportSubjectDn
 	} else {
-		claims["tls_client_auth_subject_dn"] = s.transportCert.Subject.ToRDNSequence().String()
+		dn, err := subjectDN(s.transportCert.RawSubject, s.useOID)
+		if err != nil {
+			return err
+		}
+		claims["tls_client_auth_subject_dn"] = dn
 	}
 
 	return nil

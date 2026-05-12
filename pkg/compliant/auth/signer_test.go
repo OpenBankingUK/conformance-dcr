@@ -5,12 +5,13 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"fmt"
+	"testing"
+	"time"
+
 	"github.com/OpenBankingUK/conformance-dcr/pkg/certs"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
-	"time"
 )
 
 func TestNewJwtSigner(t *testing.T) {
@@ -30,6 +31,7 @@ func TestNewJwtSigner(t *testing.T) {
 		time.Hour,
 		&x509.Certificate{},
 		"",
+		false,
 	)
 
 	signedClaims, err := signer.Claims()
@@ -80,6 +82,7 @@ func TestNewJwtSigner_TlsClientAuthAddSubjectToClaims(t *testing.T) {
 		time.Hour,
 		&x509.Certificate{Subject: pkix.Name{Organization: []string{"OB"}}},
 		"",
+		false,
 	)
 
 	token, claims := getJwtClaims(t, signer, privateKey)
@@ -117,6 +120,7 @@ func TestNewJwtSigner_TlsClientAuthAddConfigurableSubjectToClaims(t *testing.T) 
 		time.Hour,
 		&x509.Certificate{Subject: pkix.Name{Organization: []string{"OB"}}},
 		"CN=Configured Subject DN",
+		false,
 	)
 
 	_, claims := getJwtClaims(t, signer, privateKey)
@@ -158,6 +162,7 @@ func TestNewJwtSigner_TlsClientAuthDoesNotPanicOnMissingCert(t *testing.T) {
 		time.Hour,
 		nil,
 		"",
+		false,
 	)
 
 	_, err = signer.Claims()
@@ -185,6 +190,7 @@ func TestNewJwtSigner_OmitsEmptyResponseTypes(t *testing.T) {
 		time.Hour,
 		&x509.Certificate{Subject: pkix.Name{Organization: []string{"OB"}}},
 		"",
+		false,
 	)
 	_, claims := getJwtClaims(t, signer, privateKey)
 

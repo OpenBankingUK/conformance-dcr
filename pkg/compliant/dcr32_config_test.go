@@ -30,6 +30,7 @@ func TestNewDCR32Config(t *testing.T) {
 		string(privateKeyPEM),
 		string(certPEM),
 		"",
+		false,
 		[]string{string(certRootPEM)},
 		true,
 		false,

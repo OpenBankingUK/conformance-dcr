@@ -34,6 +34,7 @@ A template configuration file can be found at [/config.json.sample](/config.json
 |transport_root_cas         | []string   | Root CAs for transport cert|
 |transport_cert             | string     | Transport cert associated with client|
 |transport_cert_subject_dn  | string     | Transport cert Subject DN associated with client - use when DCR implementation has strict checks and current implementation provides unexpected results |
+|use_oid                    | bool       | When deriving the Subject DN from the transport cert, use numeric OID strings (e.g. `2.5.4.97`) instead of friendly names (e.g. `organizationIdentifier`). Defaults to `false`. Ignored when `transport_cert_subject_dn` is set. |
 |transport_key              | string     | Private key for transport|
 |get_implemented            | bool       | HTTP GET method implemented as per DCR specification? |
 |put_implemented            | bool       | HTTP PUT method implemented as per DCR specification? |
@@ -57,6 +58,7 @@ Sample json config (*Note* The json5 format with comments, see [/config.json.sam
 "transport_cert": "ex: MIIEdTCCA12gAwIBAgIJA5N", // PEM
 "transport_key": "transport key", //PEM
 "transport_cert_subject_dn": "", //optional, used when standard Subject DN extraction is not returning expected string
+"use_oid": false, //optional, when true uses numeric OID (e.g. 2.5.4.97) instead of friendly name (e.g. organizationIdentifier) when deriving Subject DN from the transport cert
 "get_implemented": true,
 "put_implemented": true,
 "delete_implemented": true,

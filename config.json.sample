@@ -11,6 +11,7 @@
   "transport_cert": "-----BEGIN CERTIFICATE-----\nMIIFOD...",
   "transport_key": "-----BEGIN RSA PRIVATE KEY-----\nMIIEp...",
   "transport_cert_subject_dn": "OPTIONAL - Provide the subject DN if golang toString is not inline with DCR server expectations",
+  "use_oid": false,
   "get_implemented": true,
   "put_implemented": true,
   "delete_implemented": true,

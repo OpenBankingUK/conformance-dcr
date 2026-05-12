@@ -20,6 +20,7 @@ type AuthoriserBuilder struct {
 	jwtExpiration           time.Duration
 	transportCert           *x509.Certificate
 	transportCertSubjectDn  string
+	useOID                  bool
 }
 
 func NewAuthoriserBuilder() AuthoriserBuilder {
@@ -35,6 +36,11 @@ func (b AuthoriserBuilder) WithTransportCert(transportCert *x509.Certificate) Au
 
 func (b AuthoriserBuilder) WithTransportCertSubjectDn(transportSubjectDn string) AuthoriserBuilder {
 	b.transportCertSubjectDn = transportSubjectDn
+	return b
+}
+
+func (b AuthoriserBuilder) WithUseOID(useOID bool) AuthoriserBuilder {
+	b.useOID = useOID
 	return b
 }
 
@@ -114,5 +120,6 @@ func (b AuthoriserBuilder) Build() (Authoriser, error) {
 		b.jwtExpiration,
 		b.transportCert,
 		b.transportCertSubjectDn,
+		b.useOID,
 	), nil
 }
