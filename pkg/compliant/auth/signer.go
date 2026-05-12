@@ -150,8 +150,12 @@ var oidNames = map[string]string{
 // When useOID is true, unknown OIDs are rendered numerically instead of by name.
 func subjectDN(rawSubject []byte, useOID bool) (string, error) {
 	var rdnSeq pkix.RDNSequence
-	if rest, err := asn1.Unmarshal(rawSubject, &rdnSeq); err != nil || len(rest) > 0 {
-		return "", errors.New("failed to parse transport cert raw subject")
+	rest, err := asn1.Unmarshal(rawSubject, &rdnSeq)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to parse transport cert raw subject")
+	}
+	if len(rest) > 0 {
+		return "", errors.Errorf("failed to parse transport cert raw subject: trailing data (%d bytes)", len(rest))
 	}
 
 	// RDNSequence is in wire order (reverse of the display order expected by Go's String()).
