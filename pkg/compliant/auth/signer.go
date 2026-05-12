@@ -137,24 +137,19 @@ func (s jwtSigner) Claims() (string, error) {
 // oidName returns the friendly attribute type name for the given OID string,
 // or the OID string itself if not recognised.
 func oidName(oid string) string {
-	switch oid {
-	case "2.5.4.3":
-		return "CN"
-	case "2.5.4.6":
-		return "C"
-	case "2.5.4.7":
-		return "L"
-	case "2.5.4.8":
-		return "ST"
-	case "2.5.4.10":
-		return "O"
-	case "2.5.4.11":
-		return "OU"
-	case "2.5.4.97":
-		return "organizationIdentifier"
-	default:
-		return oid
+	names := map[string]string{
+		"2.5.4.3":  "CN",
+		"2.5.4.6":  "C",
+		"2.5.4.7":  "L",
+		"2.5.4.8":  "ST",
+		"2.5.4.10": "O",
+		"2.5.4.11": "OU",
+		"2.5.4.97": "organizationIdentifier",
 	}
+	if name, ok := names[oid]; ok {
+		return name
+	}
+	return oid
 }
 
 // escapeRFC2253 escapes special characters in a DN attribute value per RFC 2253.
@@ -237,13 +232,14 @@ func (s jwtSigner) addTlsClientAuthClaims(claims jwt.MapClaims) error {
 		return errors.New("transport cert not available")
 	}
 
-	if s.transportSubjectDn != "" {
+	switch {
+	case s.transportSubjectDn != "":
 		claims["tls_client_auth_subject_dn"] = s.transportSubjectDn
-	} else if len(s.transportCert.RawSubject) == 0 {
+	case len(s.transportCert.RawSubject) == 0:
 		// Fallback for manually constructed certs (e.g. in tests) where RawSubject
 		// is not populated from parsed ASN.1 bytes.
 		claims["tls_client_auth_subject_dn"] = s.transportCert.Subject.ToRDNSequence().String()
-	} else {
+	default:
 		dn, err := subjectDN(s.transportCert.RawSubject, s.useOID)
 		if err != nil {
 			return err
