@@ -10,6 +10,7 @@
   "transport_root_cas": ["cert 1", "cert 2"],
   "transport_cert": "transport cert",
   "transport_key": "transport key",
+  "use_oid": false,
   "get_implemented": true,
   "put_implemented": true,
   "delete_implemented": true,

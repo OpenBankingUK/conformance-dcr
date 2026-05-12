@@ -22,6 +22,7 @@ type Config struct {
 	SigningKeyPEM          string   `json:"private_key"`
 	TransportRootCAsPEM    []string `json:"transport_root_cas"`
 	TransportCertSubjectDN string   `json:"transport_cert_subject_dn"`
+	UseOID                 bool     `json:"use_oid"`
 	TransportCertPEM       string   `json:"transport_cert"`
 	TransportKeyPEM        string   `json:"transport_key"`
 	GetImplemented         bool     `json:"get_implemented"`

@@ -31,6 +31,7 @@ func TestNewClientSecretBasicAuther_Claims(t *testing.T) {
 			time.Hour,
 			nil,
 			"",
+			false,
 		),
 	)
 
@@ -59,6 +60,7 @@ func TestClientSecretBasicAuther_Client_ReturnsAClient(t *testing.T) {
 			time.Hour,
 			nil,
 			"",
+			false,
 		),
 	)
 
