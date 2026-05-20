@@ -23,12 +23,18 @@ See the guide at [QUICK-START.md](https://github.com/OpenBankingUK/conformance-d
 
 ## Requirements
 
-* Go 1.17
+* Go 1.26
 
 ## Build and Run
 
-To run against Ozone:
+### Docker
+
+```
+docker run --rm -it -v [CONFIG FILE]:/config.json openbanking/conformance-dcr:v1.4.0 -config-path=/config.json
+```
+
+### From source:
 
 ```sh
-git clone git@bitbucket.org:openbankingteam/conformance-dcr.git && cd conformance-dcr && make build && ./dcr -config-path configs/config.json
+gh repo clone OpenBankingUK/conformance-dcr && cd conformance-dcr && make build && ./dcr -config-path configs/config.json
 ```
